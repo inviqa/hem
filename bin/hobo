@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+# Hack to allow testing with Aruba (for now)
+$:.push File.expand_path(File.join("..", "..", "lib"), __FILE__)
+
+require 'hobo'
+require 'slop'
+
+error_handler = Hobo::ErrorHandlers::Friendly.new
+Hobo.ui = Hobo::Ui.new
+
+# Options parsed here will be hidden from the main app
+slop = Slop.parse! do
+  on '--debug' do
+    error_handler = Hobo::ErrorHandlers::Debug.new
+  end
+end
+
+begin
+  Hobo::Cli.new(slop: slop).start
+rescue Exception => error
+  exit error_handler.handle(error)
+end
