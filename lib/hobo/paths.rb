@@ -45,5 +45,9 @@ module Hobo
     def user_config_file
       File.join(config_path, 'config.rb')
     end
+
+    def user_hobofile_path
+      File.join(config_path, 'Hobofile')
+    end
   end
 end

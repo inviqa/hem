@@ -33,6 +33,8 @@ namespace :seed do
       config[:seed][:url]
     )
 
+    config[:vm_ip] = seed.vm_ip
+
     Hobo::Lib::Seed::Project.new().setup(seed, config)
 
     Hobo.ui.separator

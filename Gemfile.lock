@@ -1,12 +1,12 @@
 PATH
   remote: .
   specs:
-    hobo-inviqa (0.0.2)
-      bundler
-      highline
-      rake
-      rake-hooks
-      slop
+    hobo-inviqa (0.0.3)
+      bundler (~> 1.5.2)
+      highline (~> 1.6.20)
+      rake (~> 10.1.1)
+      rake-hooks (~> 1.2.3)
+      slop (~> 3.4.7)
 
 GEM
   remote: https://rubygems.org/
@@ -81,13 +81,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  aruba
-  bundler
-  fakefs
+  aruba (~> 0.5.4)
+  fakefs (~> 0.5.0)
   guard (~> 2.2.5)
   guard-cucumber (~> 1.4.1)
   guard-rspec (~> 4.2.4)
   hobo-inviqa!
-  rake
-  rr
-  rspec
+  rr (~> 1.1.2)
+  rspec (~> 2.14.1)

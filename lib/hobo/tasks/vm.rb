@@ -2,16 +2,16 @@ desc "VM related commands"
 project_only
 namespace :vm do
   def vagrantfile &block
-    locate("*Vagrantfile", missing: "No Vagrantfile found") do
+    locate "*Vagrantfile" do
       yield
     end
   end
 
-  desc "Start VM"
-  task :start => [ 'deps:gems', 'deps:chef', 'deps:composer', 'vm:up', 'vm:start' ]
+  desc "Start & provision VM"
+  task :up => [ 'deps:gems', 'deps:chef', 'deps:composer', 'deps:vagrant_plugins', 'vm:start', 'vm:provision' ]
 
   desc "Stop VM"
-  task :stop do
+  task :stop => [ "deps:gems" ] do
     vagrantfile do
       Hobo.ui.title "Stopping VM"
       bundle_shell "vagrant", "suspend", "--color", realtime: true, indent: 2
@@ -20,18 +20,19 @@ namespace :vm do
   end
 
   desc "Rebuild VM"
-  task :rebuild => [ 'vm:destroy', 'vm:start' ]
+  task :rebuild => [ 'vm:destroy', 'vm:up' ]
 
   desc "Destroy VM"
-  task :destroy do
+  task :destroy => [ "deps:gems" ] do
     vagrantfile do
-      Hobo.ui.title "Stopping VM"
-      bundle_shell "vagrant", "destroy", "--color", realtime: true, indent: 2
+      Hobo.ui.title "Destroying VM"
+      bundle_shell "vagrant", "destroy", "--force", "--color", realtime: true, indent: 2
       Hobo.ui.separator
     end
   end
 
-  task :up do
+  desc "Start VM without provision"
+  task :start => [ "deps:gems" ] do
     vagrantfile do
       Hobo.ui.title "Starting vagrant VM"
       bundle_shell "vagrant", "up", "--no-provision", "--color", realtime: true, indent: 2
@@ -39,7 +40,8 @@ namespace :vm do
     end
   end
 
-  task :provision do
+  desc "Provision VM"
+  task :provision => [ "deps:gems" ] do
      vagrantfile do
       Hobo.ui.title "Provisioning VM"
       bundle_shell "vagrant", "provision", "--color", realtime: true, indent: 2

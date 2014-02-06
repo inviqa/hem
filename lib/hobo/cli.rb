@@ -58,6 +58,10 @@ module Hobo
       if Hobo.in_project? && File.exists?(Hobo.hobofile_path)
         load Hobo.hobofile_path
       end
+
+      if File.exists?(Hobo.user_hobofile_path)
+        load Hobo.user_hobofile_path
+      end
     end
 
     def define_global_opts slop
