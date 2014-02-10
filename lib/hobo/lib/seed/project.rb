@@ -30,7 +30,7 @@ module Hobo
           Dir.chdir path do
             Hobo::Helper.shell 'git', 'init'
             Hobo::Helper.shell 'git', 'remote', 'add', 'origin', git_url
-            Hobo::Helper.shell 'git', 'add', '*'
+            Hobo::Helper.shell 'git', 'add', '--all'
             Hobo::Helper.shell 'git', 'commit', '-m', "'Initial hobo project'"
             Hobo::Helper.shell 'git', 'checkout', '-b', 'develop'
           end

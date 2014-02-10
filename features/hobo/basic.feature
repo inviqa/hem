@@ -25,6 +25,10 @@ Feature: Basics
     When I run `hobo jibberjabber --debug`
     Then the output should contain "Hobo::InvalidCommandOrOpt"
 
+  Scenario: --no-ansi should disable ansi output
+    When I run `hobo --no-ansi`
+    Then the output should not contain "33m"
+
   Scenario: --non-interactive should cause default options to be used
     When I run `hobo test non-interactive --non-interactive`
     Then the output should contain "Used defaults"

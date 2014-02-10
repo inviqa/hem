@@ -34,6 +34,11 @@ module Hobo
       HighLine.color_scheme
     end
 
+    def use_color opt = nil
+      HighLine.use_color = opt unless opt.nil?
+      HighLine.use_color?
+    end
+
     def ask question, opts = {}
       unless Hobo.ui.interactive
         raise Hobo::NonInteractive.new(question) if opts[:default].nil?

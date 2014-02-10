@@ -9,10 +9,19 @@ require 'slop'
 error_handler = Hobo::ErrorHandlers::Friendly.new
 Hobo.ui = Hobo::Ui.new
 
+# win32console unfortunately has issues with Open3
+# Simply disabling color for now; --ansi can be explicitly passed if required
+# We also take the opportunity to disable ansi for pipes
+Hobo.ui.use_color false if Gem.win_platform? || !STDOUT.tty?
+
 # Options parsed here will be hidden from the main app
 slop = Slop.parse! do
-  on '--debug' do
+  on '--debug', 'Enable debugging' do
     error_handler = Hobo::ErrorHandlers::Debug.new
+  end
+
+  on '--ansi', 'Enable / disable ansi output' do |*args|
+    Hobo.ui.use_color self.to_hash[:ansi]
   end
 end
 

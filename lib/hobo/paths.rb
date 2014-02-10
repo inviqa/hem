@@ -12,17 +12,20 @@ module Hobo
 
     def project_path
       return @project_path unless @project_path.nil?
-      dir = Dir.pwd
-      while File.split(dir)[1] != File.split(dir)[0]
+      dir = Dir.pwd.split('/').reverse
+      min_length = Gem.win_platform? ? 1 : 0
+
+      while dir.length > min_length
+        test_dir = dir.reverse.join('/')
         match = [
-          File.exists?(File.join(dir, 'Hobofile')),
-          File.exists?(File.join(dir, 'tools', 'hobo')),
-          File.exists?(File.join(dir, 'tools', 'vagrant', 'Vagrantfile'))
+          File.exists?(File.join(test_dir, 'Hobofile')),
+          File.exists?(File.join(test_dir, 'tools', 'hobo')),
+          File.exists?(File.join(test_dir, 'tools', 'vagrant', 'Vagrantfile'))
         ] - [false]
 
-        return @project_path = dir if match.length > 0
+        return @project_path = test_dir if match.length > 0
 
-        dir = File.split(dir)[0]
+        dir.pop
       end
       return @project_path = nil
     end

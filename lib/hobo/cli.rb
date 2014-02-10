@@ -65,10 +65,9 @@ module Hobo
     end
 
     def define_global_opts slop
-      slop.on '--debug', 'Enable debugging'
       slop.on '-a', '--all', 'Show hidden commands'
       slop.on '-h', '--help', 'Display help'
-      slop.on '--non-interactive', 'Run non-interactively. Defaults will be automaticall used where possible.'
+      slop.on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
 
       slop.on '-v', '--version', 'Print version information' do
         Hobo.ui.info "Hobo version #{Hobo::VERSION}"
