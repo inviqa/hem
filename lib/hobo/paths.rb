@@ -21,6 +21,7 @@ module Hobo
       while dir.length > min_length
         test_dir = dir.reverse.join('/')
         Hobo::Logging.logger.debug("paths.project: Testing #{test_dir}")
+
         match = [
           File.exists?(File.join(test_dir, 'Hobofile')),
           File.exists?(File.join(test_dir, 'tools', 'hobo')),

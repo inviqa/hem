@@ -19,6 +19,11 @@ end
 # We also take the opportunity to disable ansi for pipes
 Hobo.ui.use_color false if Gem.win_platform? || !STDOUT.tty?
 
+# win32console unfortunately has issues with Open3
+# Simply disabling color for now; --ansi can be explicitly passed if required
+# We also take the opportunity to disable ansi for pipes
+Hobo.ui.use_color false if Gem.win_platform? || !STDOUT.tty?
+
 # Options parsed here will be hidden from the main app
 slop = Slop.parse! do
   on '--debug', 'Enable debugging' do
@@ -33,6 +38,10 @@ slop = Slop.parse! do
   on '--log-level=', 'Set log level' do
     level = self.to_hash[:'log-level'].upcase
     Hobo.logger.level = Logger.const_get(level) if [ 'DEBUG', 'INFO' ].include? level
+  end
+
+  on '--ansi', 'Enable / disable ansi output' do |*args|
+    Hobo.ui.use_color self.to_hash[:ansi]
   end
 end
 
