@@ -43,4 +43,14 @@ describe Hobo::Metadata do
       Hobo::Metadata.metadata["key"][:type].should match "default"
     end
   end
+
+  describe "reset" do
+    it "should reset all current store values to defaults" do
+      Hobo::Metadata.default :type, "default"
+      Hobo::Metadata.add "key", :type
+      Hobo::Metadata.add "key", :other_type
+      Hobo::Metadata.reset_store
+      Hobo::Metadata.store.should eq({ :type => "default" })
+    end
+  end
 end

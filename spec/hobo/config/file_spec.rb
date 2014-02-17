@@ -28,16 +28,26 @@ describe Hobo::Config::File do
       Hobo::Config::File.save "test.yaml", fake_config
       File.read("test.yaml").should match /string: string/
     end
+
+    it "should automatically unwrap deepstruct" do
+      Hobo::Config::File.save "test.yaml", DeepStruct.wrap(fake_config)
+      File.read("test.yaml").should match /string: string/
+    end
   end
 
   describe "load" do
-    it "should load config hash from file" do
+    it "should wrap loaded config with DeepStruct::HashWrapper" do
       Hobo::Config::File.save "test.yaml", fake_config
-      fake_config().should eq Hobo::Config::File.load("test.yaml")
+      Hobo::Config::File.load("test.yaml").should be_an_instance_of DeepStruct::HashWrapper
     end
 
-    it "should return empty hash if file does not exist" do
-      Hobo::Config::File.load("test.yaml").should eq({})
+    it "should load config hash from file" do
+      Hobo::Config::File.save "test.yaml", fake_config
+      fake_config().should eq Hobo::Config::File.load("test.yaml").unwrap
+    end
+
+    it "should return empty config if file does not exist" do
+      Hobo::Config::File.load("test.yaml").unwrap.should eq({})
     end
 
     it "should raise error if file can't be parsed" do

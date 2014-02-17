@@ -79,5 +79,11 @@ describe Hobo::Lib::Seed::Project do
       project.setup(seed, { :project_path => "project_path", :seed => {}, :git_url => 'remote_url' })
       Hobo::Helper.shell("cd project_path && git remote show -n origin", :capture => true).should match /remote_url/
     end
+
+    it "should load seed init file if present"
+    it "should remove seed init file"
+
+    it "should set hostname in config"
+    it "should set asset bucket in config"
   end
 end

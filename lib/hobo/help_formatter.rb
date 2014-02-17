@@ -1,3 +1,8 @@
+require 'slop'
+require 'highline'
+require 'hobo/ui'
+require 'hobo/patches/slop'
+
 module Hobo
   class HelpFormatter
     attr_accessor :command_map
@@ -60,8 +65,10 @@ module Hobo
       (heads + tails).map do |opt|
         next if source != @global && opt.short == 'h'
         line = padded(opt.short ? "-#{opt.short}," : "", 4)
+        description = opt.description
 
         if opt.long
+          description += ". (Disable with --no-#{opt.long})" if opt.config[:invertable]
           value = opt.config[:argument] ? "#{opt.long.upcase}" : ""
           value = "[#{value}]" if opt.accepts_optional_argument?
           value = "=#{value}" unless value.empty?
@@ -69,7 +76,7 @@ module Hobo
           line += "--#{opt.long}#{value}"
         end
 
-        [Hobo.ui.color(line, :opt), opt.description]
+        [Hobo.ui.color(line, :opt), description]
       end.compact
     end
 

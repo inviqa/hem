@@ -13,8 +13,8 @@ describe Hobo do
       FakeFS.deactivate!
     end
 
-    it 'should return current directory if not in project' do
-      Hobo.project_path.should eq Dir.pwd
+    it 'should return nil if not in project' do
+      Hobo.project_path.should eq nil
     end
 
     it 'should return project directory if tools/hobo exists' do
@@ -64,14 +64,14 @@ describe Hobo do
   end
 
   describe 'project_config_file' do
-    it 'should be project_path + tools/hobo/storage.yaml' do
-      Hobo.project_config_file.should eq File.join(Hobo.project_path, 'tools', 'hobo', 'storage.yaml')
+    it 'should be project_path + tools/hobo/config.yaml' do
+      Hobo.project_config_file.should eq File.join(Hobo.project_path, 'tools', 'hobo', 'config.yaml')
     end
   end
 
   describe 'user_config_file' do
-    it 'should be ~/.hobo/config.rb' do
-      Hobo.user_config_file.should eq File.join(Hobo.config_path, 'config.rb')
+    it 'should be ~/.hobo/config.yaml' do
+      Hobo.user_config_file.should eq File.join(Hobo.config_path, 'config.yaml')
     end
   end
 end

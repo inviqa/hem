@@ -77,6 +77,8 @@ describe Hobo::Lib::Seed::Seed do
       File.read("exported/test").strip.should eq "exported"
       File.exists?("exported/.git").should be false
     end
+
+    it "should export seed submodules to the specified directory"
   end
 
   describe "version", :integration do

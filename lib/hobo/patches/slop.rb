@@ -1,5 +1,15 @@
+require 'slop'
+
 class Slop
-  attr_accessor :long_desc, :arg_list, :hidden
+  attr_accessor :long_desc, :arg_list, :hidden, :desc
+
+  # Slop has a description method but it uses @config which is inherited
+  # This is not desired behaviour
+  def description desc = nil
+    @desc = desc if desc
+    @desc
+  end
+
   def long_description desc = nil
     @long_desc = desc if desc
     @long_desc

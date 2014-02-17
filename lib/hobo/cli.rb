@@ -1,9 +1,14 @@
+require 'slop'
+require 'deepstruct'
+
 module Hobo
 
   class Halt < Error
   end
 
   class Cli
+    include Hobo::Logging
+
     attr_accessor :slop, :help_formatter
 
     def initialize opts = {}
@@ -13,11 +18,13 @@ module Hobo
       @help_opts = {}
     end
 
-    def start argv = ARGV
-      load_hobofile
+    def start args = ARGV
+      load_user_config
+      load_builtin_tasks
+      load_hobofiles
+      load_project_config
 
       tasks = structure_tasks Hobo::Metadata.metadata.keys
-      args = fix_args_with_equals argv
       define_global_opts @slop
 
       begin
@@ -54,21 +61,45 @@ module Hobo
 
     private
 
-    def load_hobofile
+    def load_builtin_tasks
+      require 'hobo/tasks/assets'
+      require 'hobo/tasks/console'
+      require 'hobo/tasks/debug'
+      require 'hobo/tasks/deps'
+      require 'hobo/tasks/host'
+      require 'hobo/tasks/seed'
+      require 'hobo/tasks/vm'
+      require 'hobo/tasks/tools'
+    end
+
+    def load_user_config
+      Hobo.user_config = Hobo::Config::File.load Hobo.user_config_file
+    end
+
+    def load_project_config
+      if Hobo.in_project?
+        Hobo.project_config = Hobo::Config::File.load Hobo.project_config_file
+      else
+        Hobo.project_config = DeepStruct.wrap({})
+      end
+    end
+
+    def load_hobofiles
       if Hobo.in_project? && File.exists?(Hobo.hobofile_path)
-        load Hobo.hobofile_path
+        logger.debug("cli: Loading hobofile @ #{Hobo.hobofile_path}")
+        TOPLEVEL_BINDING.eval File.read(Hobo.hobofile_path)
       end
 
       if File.exists?(Hobo.user_hobofile_path)
-        load Hobo.user_hobofile_path
+        logger.debug("cli: Loading hobofile @ #{Hobo.user_hobofile_path}")
+        TOPLEVEL_BINDING.eval File.read(Hobo.user_hobofile_path)
       end
     end
 
     def define_global_opts slop
-      slop.on '--debug', 'Enable debugging'
       slop.on '-a', '--all', 'Show hidden commands'
       slop.on '-h', '--help', 'Display help'
-      slop.on '--non-interactive', 'Run non-interactively. Defaults will be automaticall used where possible.'
+      slop.on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
 
       slop.on '-v', '--version', 'Print version information' do
         Hobo.ui.info "Hobo version #{Hobo::VERSION}"
@@ -84,6 +115,7 @@ module Hobo
       structured_list.each do |k, v|
         name = (stack + [k]).join(':')
         new_stack = stack + [k]
+        logger.debug("cli: Defined #{name}")
         map[name] = if v.size == 0
           define_command(name, scope, new_stack)
         else
@@ -145,6 +177,7 @@ module Hobo
           end
 
           run do |opts, args|
+            Dir.chdir Hobo.project_path if Hobo.in_project?
             raise ::Hobo::ProjectOnlyError.new if opts.project_only && !Hobo.in_project?
             task.opts = opts.to_hash
             raise ::Hobo::MissingArgumentsError.new(name, args, hobo) if args && task.arg_names.length > args.length
@@ -170,20 +203,6 @@ module Hobo
         end
       end
       out
-    end
-
-    # Slop badly handles assignment args passed as --arg=val
-    # This hack fixes that by making them --arg val
-    def fix_args_with_equals args
-      items = []
-      args.each do |item|
-        if item.match /^-.*\=/
-          item.split('=').each { |i| items.push i }
-        else
-          items.push item
-        end
-      end
-      return items
     end
   end
 end

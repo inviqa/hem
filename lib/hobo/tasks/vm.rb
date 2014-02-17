@@ -8,7 +8,7 @@ namespace :vm do
   end
 
   desc "Start & provision VM"
-  task :up => [ 'deps:gems', 'deps:chef', 'deps:composer', 'deps:vagrant_plugins', 'vm:start', 'vm:provision' ]
+  task :up => [ 'deps:chef', 'deps:composer', 'assets:download', 'vm:start', 'vm:provision', 'assets:apply' ]
 
   desc "Stop VM"
   task :stop => [ "deps:gems" ] do
@@ -32,7 +32,7 @@ namespace :vm do
   end
 
   desc "Start VM without provision"
-  task :start => [ "deps:gems" ] do
+  task :start => [ "deps:gems", "deps:vagrant_plugins" ] do
     vagrantfile do
       Hobo.ui.title "Starting vagrant VM"
       bundle_shell "vagrant", "up", "--no-provision", "--color", realtime: true, indent: 2

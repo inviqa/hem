@@ -1,11 +1,18 @@
+require 'rake'
+
 module Rake
   class Task
     attr_accessor :opts
+    def opts
+      @opts = @opts || {}
+    end
   end
 
   module DSL
     def replace *args, &block
-      Rake::Task[args[0]].clear
+      old = (args[0].is_a? Hash) ? args[0].keys[0] : args[0]
+      Hobo::Logging.logger.debug("rake.dsl: Replacing #{old} with block")
+      Rake::Task[old].clear
       task(*args, &block)
     end
 
@@ -24,6 +31,10 @@ module Rake
       [:opts, :desc, :long_desc, :hidden, :project_only].each do |meta|
         Hobo::Metadata.add scoped_name, meta
       end
+
+      Hobo::Metadata.reset_store
+
+      Hobo::Logging.logger.debug("Added metadata to #{scoped_name} -- #{Hobo::Metadata.metadata[scoped_name]}")
 
       task = Rake::Task.define_task(*args, &block)
     end
@@ -46,6 +57,8 @@ module Rake
       [:desc, :long_desc, :hidden, :project_only].each do |meta|
         Hobo::Metadata.add scoped_name, meta
       end
+
+      Hobo::Metadata.reset_store
 
       _old_namespace(name, &block)
     end

@@ -50,16 +50,7 @@ hobo my-project download-files
 ```
 
 # Rake DSL enhancements
-This section is yet to be written; please see lib/hobo/patches/rake.rb and the internal tasks (for usage) under lib/hobo/tasks for the time being.
-
-- long_desc - Long description provided by help
-- option - Specify command line option
-- hidden - Hide task
-- replace - Replace a task with a new one
-- before - Execute task before other task
-- after - Execute task after other task
-
-Please note that replace, before and after should be used sparingly to augment or modify the internal tasks provided by hobo on a per project level.
+Please see https://github.com/inviqa/hobo-gem/wiki/Hobofile-DSL for comprehensive examples.
 
 # Contributing
 If you wish to contribute to hobo:

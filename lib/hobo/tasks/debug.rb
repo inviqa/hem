@@ -13,8 +13,8 @@ namespace 'hobo-debug'  do
       :'composer.json' => "composer.json"
     }.each do |k,v|
       path = nil
-      locate v do |p|
-        path = p
+      locate v do |file, full_file|
+        path = full_file
       end
       Hobo.ui.info "<%=color('#{k.to_s}:', :green) %> #{path.nil? ? "none" : path}"
     end

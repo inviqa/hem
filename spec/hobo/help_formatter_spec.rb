@@ -12,7 +12,7 @@ describe Hobo::HelpFormatter do
 
       map["test"] = command "test" do
         description "Testing1"
-        opt "-t", "--test", "Test description"
+        opt "-t", "--test", "Test description", :invertable => true
         opt "-x", "--longer-option", "Longer option"
 
         map["test:test"] = command "test" do
@@ -20,6 +20,18 @@ describe Hobo::HelpFormatter do
          arg_list [:arg]
          opt "-a=", "--a-test=", "Arg with value"
          opt "-b=", "--b-test=", "Arg with optional value", argument: :optional
+        end
+
+        map["test:long_desc"] = command "long_desc" do
+          long_description "This is a long_desc"
+        end
+
+        map["test:desc"] = command "desc" do
+          description "This is a desc"
+        end
+
+        map["test:no_desc"] = command "no_desc" do
+          description nil
         end
       end
     end
@@ -67,6 +79,10 @@ describe Hobo::HelpFormatter do
         len = "--longer-option".length - "--test".length + 4 # ALIGN_PAD
         help.help(target: "test").should match /\s+-t, --test\s{#{len}}Test description/
       end
+
+      it "should include invertable note if option is invertable" do
+        help.help(target: "test").should match /--test.*\(Disable with --no-test\)/
+      end
     end
 
     describe "command format" do
@@ -104,28 +120,44 @@ describe Hobo::HelpFormatter do
     end
 
     describe "command" do
-      it "should include long command description if set"
-      it "should fall back to short command description if long description not set"
-      it "should not display extra blank lines if no description set"
-      it "should include usage"
-      it "should include global options"
-      it "should include command options"
-      it "shoult not include -h command option"
+      it "should include long command description if set" do
+        help.help(target: "test:long_desc").should match /^\s+This is a long_desc/
+      end
+
+      it "should fall back to short command description if long description not set" do
+        help.help(target: "test:desc").should match /^\s+This is a desc/
+      end
+
+      it "should not display extra blank lines if no description set" do
+        help.help(target: "test:no_desc").should match /^Usage/m
+      end
+
+      it "should include usage" do
+        help.help(target: "test:no_desc").should match /Usage:/
+      end
+
+      it "should include global options" do
+        help.help(target: "test:test").should match /^Global options:/
+      end
+
+      it "should include command options" do
+        help.help(target: "test:test").should match /^Command options:/
+      end
+
+      it "should not include -h command option" do
+        help.help(target: "test:test").should_not match /Command options:.*--help/m
+      end
     end
 
-    describe "options" do
-      it "should include short option"
-      it "should include long option"
-      it "should include option description"
-    end
-
-    describe "alignment" do
-      it "should align descriptions according to longest option or command"
-    end
 
     describe "filtering" do
-      it "should not show commands that do not have descriptions"
-      it "should show commands that do not have descriptions if :all is set"
+      it "should not show commands that do not have descriptions" do
+        help.help(target: "test").should_not match /Commands:.*no_desc/m
+      end
+
+      it "should show commands that do not have descriptions if :all is set" do
+        help.help(target: "test", all: true).should match /Commands:.*no_desc/m
+      end
     end
   end
 end

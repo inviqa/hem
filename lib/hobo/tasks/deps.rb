@@ -43,7 +43,7 @@ namespace :deps do
   end
 
   desc "Install chef dependencies"
-  task :chef do
+  task :chef => [ "deps:gems" ] do
     locate "*Cheffile" do
       Hobo.ui.title "Installing chef dependencies"
       Bundler.with_clean_env do

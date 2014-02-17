@@ -23,6 +23,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rake", "~> 10.1.1"
   spec.add_dependency "rake-hooks", "~> 1.2.3"
   spec.add_dependency "bundler", "~> 1.5.2"
+  spec.add_dependency "deepstruct", "~> 0.0.5"
+  spec.add_dependency "semantic", "~> 1.3.0"
+  spec.add_dependency "aws-sdk", "~> 1.34.0"
+  spec.add_dependency "ruby-progressbar", "~> 1.4.1"
 
   spec.add_development_dependency "aruba", "~> 0.5.4"
   spec.add_development_dependency "rspec", "~> 2.14.1"

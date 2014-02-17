@@ -21,7 +21,13 @@ module Hobo
         data = store[type] if data.nil?
         metadata[task] ||= {}
         metadata[task][type] = data
-        store[type] = @defaults[type] ? @defaults[type].dup : @defaults[type]
+      end
+
+      def reset_store
+        @store = {}
+        @defaults.each do |k, v|
+          @store[k] = v.nil? ? nil : v.dup
+        end
       end
     end
   end

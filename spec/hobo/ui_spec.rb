@@ -22,6 +22,10 @@ describe Hobo::Ui do
     it "should format message with ansi style"
   end
 
+  describe "use_color" do
+    it "should set the use of color"
+  end
+
   describe "color_scheme" do
     it "should set the global color scheme if argument provided"
     it "should return the global color scheme"

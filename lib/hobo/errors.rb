@@ -54,7 +54,14 @@ module Hobo
   class NonInteractiveError < Error
     def initialize question
       @question = question
-      super("A task requested input from user but hobo is in non-interactive mode")
+      super("A task requested input from the user but hobo is in non-interactive mode")
+    end
+  end
+
+  class MissingDependency < Error
+    def initialize dep
+      @dependency = dep
+      super("A tool that hobo depends on could not be detected (#{dep})")
     end
   end
 end

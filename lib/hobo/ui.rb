@@ -8,23 +8,22 @@ module Hobo
   class Ui
     attr_accessor :interactive
 
+    COLORS = {
+      :debug => [ ],
+      :info => [ ],
+      :warning => [:yellow],
+      :error => [:red],
+      :success => [:green],
+      :opt => [:green],
+      :command => [:green],
+      :special => [:blue],
+      :title => [:green],
+      :help_title => [:yellow],
+      :description => [:bold]
+    }
+
     def initialize out = $stdout, error = $stderr
-      colors = HighLine::ColorScheme.new do |cs|
-        cs[:debug] = [ ]
-        cs[:info]  = [ ]
-        cs[:warning]  = [ :yellow ]
-        cs[:error] = [ :red ]
-        cs[:success] = [ :green ]
-        cs[:opt] = [ :green ]
-        cs[:command] = [:green ]
-        cs[:special] = [ :blue ]
-        cs[:title]   = [ :green ]
-        cs[:help_title] = [ :yellow ]
-        cs[:description] = [ :bold ]
-      end
-
-      HighLine.color_scheme = colors
-
+      HighLine.color_scheme = HighLine::ColorScheme.new COLORS
       @out = ::HighLine.new $stdin, out
       @error = ::HighLine.new $stdin, error
     end
@@ -32,6 +31,11 @@ module Hobo
     def color_scheme scheme = nil
       HighLine.color_scheme = scheme if scheme
       HighLine.color_scheme
+    end
+
+    def use_color opt = nil
+      HighLine.use_color = opt unless opt.nil?
+      HighLine.use_color?
     end
 
     def ask question, opts = {}
@@ -52,6 +56,12 @@ module Hobo
         Hobo.ui.info ""
         ""
       end
+    end
+
+    def section title
+      Hobo.ui.title title
+      yield
+      Hobo.ui.separator
     end
 
     def separator

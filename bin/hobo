@@ -8,11 +8,31 @@ require 'slop'
 
 error_handler = Hobo::ErrorHandlers::Friendly.new
 Hobo.ui = Hobo::Ui.new
+Hobo.logger = Logger.new(STDOUT)
+Hobo.logger.level = Logger::WARN
+Hobo.logger.formatter = proc do |severity, datetime, progname, msg|
+  "#{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{severity}: #{msg}\n"
+end
+
+# win32console unfortunately has issues with Open3
+# Simply disabling color for now; --ansi can be explicitly passed if required
+# We also take the opportunity to disable ansi for pipes
+Hobo.ui.use_color false if Gem.win_platform? || !STDOUT.tty?
 
 # Options parsed here will be hidden from the main app
 slop = Slop.parse! do
-  on '--debug' do
+  on '--debug', 'Enable debugging' do
     error_handler = Hobo::ErrorHandlers::Debug.new
+    Hobo.logger.level = Logger::DEBUG
+  end
+
+  on '--ansi', 'Enable / disable ansi output', :invertable => true do
+    Hobo.ui.use_color self.to_hash[:ansi]
+  end
+
+  on '--log-level=', 'Set log level' do
+    level = self.to_hash[:'log-level'].upcase
+    Hobo.logger.level = Logger.const_get(level) if [ 'DEBUG', 'INFO' ].include? level
   end
 end
 

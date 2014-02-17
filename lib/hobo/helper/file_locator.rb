@@ -22,16 +22,19 @@ module Hobo
       args = [ 'git', 'ls-files', pattern ]
       args.push '-o' if others
       output = Hobo::Helper.shell *args, :capture => true
-      path = output.split("\n")[0]
-
-      unless path.nil?
+      paths = output.split("\n")
+      found = false
+      paths.each do |path|
         path.strip!
         Dir.chdir File.dirname(path) do
-          yield path
+          Hobo::Logging.logger.debug "helper.locator: Found #{path} for #{pattern}"
+          yield File.basename(path), path
         end
 
-        return true
+        found = true
       end
+
+      return found
     end
   end
 end
