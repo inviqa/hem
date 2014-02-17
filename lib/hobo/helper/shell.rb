@@ -3,15 +3,8 @@ require 'tempfile'
 
 module Hobo
   module Helper
-    def shell *args, &block
-      self.shell *args, &block
-    end
 
     def bundle_shell *args, &block
-      self.bundle_shell *args, &block
-    end
-
-    def self.bundle_shell *args, &block
       has_bundle = begin
         shell "bundle", "exec", "ruby -v"
         true
@@ -26,7 +19,7 @@ module Hobo
       shell *args, &block
     end
 
-    def self.shell *args, &block
+    def shell *args, &block
       opts = (args.size > 1 && args.last.is_a?(Hash)) ? args.pop : {}
       opts = {
         :capture => false,

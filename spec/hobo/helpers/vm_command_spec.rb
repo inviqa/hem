@@ -1,7 +1,6 @@
 require 'hobo/config'
 require 'hobo/logging'
 require 'hobo/ui'
-require 'hobo/patches/ruby'
 require 'hobo/patches/deepstruct'
 require 'hobo/helper/vm_command'
 
@@ -69,6 +68,7 @@ describe Hobo::Helper do
   describe "vm_shell" do
     it "should execute the command using the shell helper" do
       Hobo::Helper.class_eval do
+        alias :old_shell :shell
         def shell command
           command.should match /ssh.* -- my_command/
         end
@@ -78,6 +78,7 @@ describe Hobo::Helper do
 
       Hobo::Helper.class_eval do
         remove_method :shell
+        alias :shell :old_shell
       end
     end
   end

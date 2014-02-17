@@ -1,12 +1,5 @@
 require 'spec_helper'
-require 'hobo/paths'
-require 'hobo/config/file'
-require 'hobo/lib/seed/project'
-require 'hobo/lib/seed/seed'
-require 'hobo/lib/seed/replacer'
-require 'hobo/helper/file_locator'
-require 'hobo/helper/shell'
-require 'hobo/ui'
+require 'hobo'
 
 describe Hobo::Lib::Seed::Project do
   pwd = nil

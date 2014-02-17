@@ -79,7 +79,7 @@ end
 
 Hobo.asset_applicators.register /.*\.sql\.gz/ do |file|
   matches = file.match(/^([^\.]+).*\.sql\.gz/)
-  db = matches[1]
+  db = File.basename(matches[1])
 
   begin
     shell(vm_mysql << "USE #{db}")

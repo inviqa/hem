@@ -33,7 +33,7 @@ module Hobo
           :psuedo_tty => true,
           :ssh_identity => "#{ENV['HOME'].shellescape}/.vagrant.d/insecure_private_key",
           :ssh_user => "vagrant",
-          :ssh_host => maybe(Hobo.project_config.hostname)
+          :ssh_host => maybe(Hobo.project_config.hostname) || ""
         }.merge(opts)
       end
 
