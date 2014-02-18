@@ -4,6 +4,8 @@ namespace :host do
 
     config.full_name = Hobo.ui.ask "Full name", :default => config.full_name
     config.email = Hobo.ui.ask "Email", :default => config.email
+
+    config.aws = {}
     config.aws.access_key_id = Hobo.ui.ask "AWS access key ID", :default => config.aws.access_key_id
     config.aws.secret_access_key = Hobo.ui.ask "AWS secret access key", :default => config.aws.secret_access_key
 

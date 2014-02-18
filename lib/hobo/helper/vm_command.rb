@@ -2,8 +2,8 @@ require 'hobo/helper/shell'
 
 module Hobo
   module Helper
-    def vm_shell command
-      shell VmCommand.new(command).to_s
+    def vm_shell command, opts = {}
+      shell VmCommand.new(command).to_s, opts
     end
 
     def vm_mysql opts = {}
@@ -17,8 +17,8 @@ module Hobo
       VmCommand.new "mysql -u#{opts[:user].shellescape} -p#{opts[:pass].shellescape} #{opts[:db].shellescape}", opts
     end
 
-    def vm_command command = nil
-      VmCommand.new command
+    def vm_command command = nil, opts = {}
+      VmCommand.new command, opts
     end
 
     private

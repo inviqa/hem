@@ -13,6 +13,11 @@ module Hobo
             return 1
           when "Hobo::ExternalCommandError"
             FileUtils.cp error.output.path, log_file
+
+            File.open(log_file, "a") do |file|
+              file.write "\n(#{error.class}) #{error.message}\n\n#{error.backtrace.join("\n")}"
+            end
+
             Hobo.ui.error <<-ERROR
 
   The following external command appears to have failed (exit status #{error.exit_code}):

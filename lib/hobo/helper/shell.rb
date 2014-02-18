@@ -20,6 +20,20 @@ module Hobo
     end
 
     def shell *args, &block
+      def chunk_line_iterator stream
+        begin
+          until (chunk = stream.readpartial(1024)).nil? do
+            chunk.each_line do |outer_line|
+              outer_line.each_line("\r") do |line|
+                yield line
+              end
+            end
+          end
+        rescue EOFError
+          # NOP
+        end
+      end
+
       opts = (args.size > 1 && args.last.is_a?(Hash)) ? args.pop : {}
       opts = {
         :capture => false,
@@ -35,16 +49,17 @@ module Hobo
         buffer = ::Tempfile.new 'hobo_run_buf'
         buffer.sync = true
         threads = [external]
+        last_buf = ""
 
         ## Create a thread to read from each stream
         { :out => out, :err => err }.each do |key, stream|
           threads.push(::Thread.new do
-            until (line = stream.gets).nil? do
-              line = ::Hobo.ui.color(line.strip, :error) if key == :err
+            chunk_line_iterator stream do |line|
+              line = ::Hobo.ui.color(line, :error) if key == :err
               buffer.write("#{line.strip}\n")
               Hobo::Logging.logger.debug("helper.shell: #{line.strip}")
               line = yield line if block
-              puts indent + line if opts[:realtime] && !line.nil?
+              print indent + line if opts[:realtime] && !line.nil?
             end
           end)
         end

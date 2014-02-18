@@ -86,12 +86,17 @@ module Hobo
       end
 
       def progress file, written, total, type
-        @progress ||= {}
-        @progress[file] ||= ProgressBar.create(
+        opts = {
           :title => file,
           :total => total,
-          :format => "%t [%B] %p%% %e",
-        )
+          :format => "%t [%B] %p%% %e"
+        }
+
+        # Hack to stop newline spam on windows
+        opts[:length] = 79 if Gem::win_platform?
+
+        @progress ||= {}
+        @progress[file] ||= ProgressBar.create(opts)
 
         case type
           when :update

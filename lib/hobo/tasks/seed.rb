@@ -38,7 +38,7 @@ namespace :seed do
     Hobo::Lib::Seed::Project.new().setup(seed, config)
 
     Hobo.ui.separator
-    Hobo.ui.success "Your new project is available in #{Hobo.project_path}.\n"
+    Hobo.ui.success "Your new project is available in #{Hobo.project_path}."
     Hobo.ui.success "You will need to review the initial commit and if all is well, push the repository to github using `git push origin --all`."
     Hobo.ui.separator
   end

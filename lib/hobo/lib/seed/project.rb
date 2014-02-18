@@ -16,6 +16,9 @@ module Hobo
           config[:seed][:version] = seed.version
           config[:hostname] = "#{config[:name]}.development.local"
           config[:asset_bucket] = "inviqa-assets-#{config[:name]}"
+          config[:mysql] = {
+            :password => "984C42CF342f7j6" # Packer default password
+          }
 
           @opts[:replacer].replace(config[:project_path], config)
           load_seed_init(config)

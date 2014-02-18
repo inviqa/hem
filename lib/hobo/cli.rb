@@ -63,7 +63,6 @@ module Hobo
 
     def load_builtin_tasks
       require 'hobo/tasks/assets'
-      require 'hobo/tasks/console'
       require 'hobo/tasks/debug'
       require 'hobo/tasks/deps'
       require 'hobo/tasks/host'

@@ -4,10 +4,20 @@ desc "Project asset commands"
 project_only
 namespace :assets do
 
+  def handle_s3_error
+    begin
+      yield
+    rescue AWS::S3::Errors::NoSuchBucket
+      Hobo.ui.error "  Asset bucket #{Hobo.project_config.asset_bucket} does not exist!"
+    rescue AWS::Errors::MissingCredentialsError
+      Hobo.ui.error "  AWS credentials not set!\n\nRun `hobo host config` to set them."
+    end
+  end
+
   desc "Download project assets"
   option "-e=", "--env=", "Environment"
   task :download do |task, args|
-    Hobo.ui.success "Synchonizing assets (download)"
+    Hobo.ui.success "Synchronizing assets (download)"
 
     unless Hobo.project_config.asset_bucket.nil?
       env = task.opts[:env] || args[:env] || 'development'
@@ -18,8 +28,10 @@ namespace :assets do
         maybe(Hobo.user_config.aws.secret_access_key)
       )
 
-      changes = sync.sync(s3_uri, "tools/assets/#{env}")
-      Hobo.ui.warning "  No changes required" if (changes[:add] + changes[:remove]).length == 0
+      handle_s3_error do
+        changes = sync.sync(s3_uri, "tools/assets/#{env}")
+        Hobo.ui.warning "  No changes required" if (changes[:add] + changes[:remove]).length == 0
+      end
     else
       Hobo.ui.warning "  No asset bucket configured. Skipping..."
     end
@@ -30,7 +42,7 @@ namespace :assets do
   option "-e=", "--env=", "Environment"
   task :upload do |task, args|
 
-    Hobo.ui.success "Synchronzing assets (upload)"
+    Hobo.ui.success "Synchronizing assets (upload)"
 
     unless Hobo.project_config.asset_bucket.nil?
       env = task.opts[:env] || args[:env] || 'development'
@@ -41,8 +53,11 @@ namespace :assets do
         maybe(Hobo.user_config.aws.secret_access_key)
       )
 
-      changes = sync.sync("tools/assets/#{env}", s3_uri)
-      Hobo.ui.warning "  No changes required" if (changes[:add] + changes[:remove]).length == 0
+      handle_s3_error do
+        changes = sync.sync("tools/assets/#{env}", s3_uri)
+        Hobo.ui.warning "  No changes required" if (changes[:add] + changes[:remove]).length == 0
+      end
+
     else
       Hobo.ui.warning "  No asset bucket configured. Skipping..."
     end

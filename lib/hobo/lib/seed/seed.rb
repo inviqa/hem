@@ -15,24 +15,36 @@ module Hobo
           path = File.expand_path(path)
           FileUtils.mkdir_p path
 
-          logger.info "Exporting seed to #{path}"
+          Hobo.ui.success "Exporting seed to #{path}"
 
           tmp_path = Dir.mktmpdir("hobo-seed-export")
 
           Dir.chdir @seed_path do
-            Hobo::Helper.shell "git clone . #{tmp_path.shellescape}"
+            Hobo::Helper.shell "git clone . #{tmp_path}"
           end
+
+          Hobo.ui.success "Exporting seed submodules"
 
           Dir.chdir tmp_path do
             Hobo::Helper.shell "git submodule update --init"
             Hobo::Helper.shell "git archive master | tar -x -C #{path.shellescape}"
-            Hobo::Helper.shell "git submodule foreach 'cd #{tmp_path.shellescape}/$path && git archive HEAD | tar -x -C #{path.shellescape}/$path'"
+
+            # Export submodules
+            # git submodule foreach does not play nice on windows so we fake it here
+            submodules = Hobo::Helper.shell "git submodule status", :capture => true
+            submodules.split("\n").each do |line|
+              matches = line.match /^\s*[a-z0-9]+ (.+) \(.*\)/
+              next unless matches
+              submodule_path = matches[1]
+              Hobo::Helper.shell "cd #{tmp_path}/#{submodule_path.shellescape} && git archive HEAD | tar -x -C #{path}/#{submodule_path.shellescape}"
+            end
           end
 
           FileUtils.rm_f tmp_path
         end
 
         def update
+          Hobo.ui.success "Fetching / Updating seed"
           FileUtils.mkdir_p @seed_path
           if File.exists? File.join(@seed_path, 'HEAD')
             Dir.chdir @seed_path do
