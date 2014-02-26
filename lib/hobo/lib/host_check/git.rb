@@ -2,46 +2,70 @@ module Hobo
   module Lib
     module HostCheck
       def git_present
+        advice = "The Git command could not be detected on your system.\n\n"
+        if OS.windows?
+          advice += "Please install it from http://git-scm.com/downloads ensuring you select the 'Use git and unix tools everywhere' option."
+        else
+          advice += "Please install it using your package manager."
+        end
+
         begin
           shell "git --version"
         rescue Errno::ENOENT
-          raise Hobo::MissingDependency.new("ssh")
+          raise Hobo::HostCheckError.new("Git is missing", advice)
         end
       end
 
       def git_config_name_set
+        advice = <<-EOF
+You have not set your name in git config!
+
+Please do so with the following command:
+  git config --global user.name <your name here>
+EOF
         begin
           shell "git config user.name"
         rescue Hobo::ExternalCommandError
-          Hobo.ui.error "You must provide git with your full name"
-          name = Hobo.ui.ask "Full name"
-          shell "git config --global user.name #{name.shellescape}"
+          raise Hobo::HostCheckError.new("Git config is incomplete (Full name)", advice)
         end
       end
 
       def git_config_email_set
+        advice = <<-EOF
+You have not set your email in git config!
+
+Please do so with the following command:
+  git config --global user.email <your email here>
+EOF
+
         begin
           shell "git config user.email"
         rescue Hobo::ExternalCommandError
-          email = Hobo.ui.ask "Email address"
-          shell "git config --global user.email #{email.shellescape}"
+          raise Hobo::HostCheckError.new("Git config is incomplete (Email)", advice)
         end
       end
 
       def git_autocrlf_disabled
-        return true
+        return unless OS.windows?
+
+        advice = <<-EOF
+You're using git with the core.autocrlf option enabled.
+
+This setting can often cause problems when you clone a repository on windows but need to execute the contents of that repository within a linux VM.
+
+You can disable autocrlf globally with the following command:
+  git config --global core.autocrlf false
+
+Disabling this setting will cause git to see all line endings as changed in a repository that was cloned with it enabled.
+As such, you must either enable it just for those repositories or delete and re-clone them with the setting disabled.
+
+You can enable the setting on a per-clone basis by ensuring that you are in the project directory and executing the following command:
+  git config core-autocrlf true
+EOF
         begin
           value = shell "git config core.autocrlf", :capture => true
           if value != "false"
-            Hobo.ui.error "You're using git with autocrlf!"
-            Hobo.ui.error "This setting can cause problems executing scripts within VMs."
-            Hobo.ui.error "If you've had it enabled for a while, you'll need to check out all of your repositories again if you change it."
-            disable = Hobo.ui.ask "Would you like to disable this setting?", :default => true
-            if disable
-              shell "git config --global core.autocrlf false"
-              Hobo.ui.success "Disabled autocrlf\nYou can re-enable it by executing `git config --global core.autocrlf true"
-            end
-
+            raise Hobo::HostCheckError.new("Git config has autocrlf enabled", advice)
           end
         rescue Hobo::ExternalCommandError
           # NOP

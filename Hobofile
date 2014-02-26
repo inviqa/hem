@@ -31,4 +31,8 @@ namespace :test do
   task 'argument-test', [ :test ] do |task, args|
     Hobo.ui.info args[:test]
   end
+
+  task 'unparsed' do |task|
+    Hobo.ui.info task.opts[:_unparsed]
+  end
 end

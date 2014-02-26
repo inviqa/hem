@@ -1,4 +1,4 @@
-require 'hobo/logging'
+require 'spec_helper'
 
 describe Hobo::Logging do
   before do
