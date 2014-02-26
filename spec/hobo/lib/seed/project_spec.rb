@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'hobo'
 
 describe Hobo::Lib::Seed::Project do
   pwd = nil
@@ -12,7 +11,7 @@ describe Hobo::Lib::Seed::Project do
     Dir.chdir tmp_dir
     FileUtils.mkdir_p "project_path"
     FileUtils.touch "project_path/test"
-    Hobo.ui = Hobo::Ui.new
+    Hobo.ui = double(Hobo::Ui).as_null_object
     default_config = {
       :config_class => double(Hobo::Config::File).as_null_object,
       :replacer => double(Hobo::Lib::Seed::Replacer.new).as_null_object

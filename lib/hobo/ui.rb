@@ -6,6 +6,8 @@ module Hobo
   end
 
   class Ui
+    include Hobo::Logging
+
     attr_accessor :interactive
 
     COLORS = {
@@ -22,15 +24,22 @@ module Hobo
       :description => [:bold]
     }
 
-    def initialize out = $stdout, error = $stderr
+    def initialize input = $stdin, output = $stdout, error = $stderr
       HighLine.color_scheme = HighLine::ColorScheme.new COLORS
-      @out = ::HighLine.new $stdin, out
-      @error = ::HighLine.new $stdin, error
+      @output_io = output
+      @out = ::HighLine.new input, output
+      @error = ::HighLine.new input, error
+      use_color supports_color?
     end
 
     def color_scheme scheme = nil
       HighLine.color_scheme = scheme if scheme
       HighLine.color_scheme
+    end
+
+    def supports_color?
+      return !@output_io.tty? unless OS.windows?
+      return (ENV['ANSICON'] || ENV['TERM'] == 'xterm') && @output_io.tty? # ANSICON or MinTTY && output is TTY
     end
 
     def use_color opt = nil
@@ -39,9 +48,14 @@ module Hobo
     end
 
     def ask question, opts = {}
-      unless Hobo.ui.interactive
-        raise Hobo::NonInteractive.new(question) if opts[:default].nil?
-        return opts[:default]
+      opts = {
+        :validate => nil,
+        :default => nil
+      }.merge(opts)
+
+      unless @interactive
+        raise Hobo::NonInteractiveError.new(question) if opts[:default].nil?
+        return opts[:default].to_s
       end
 
       question = "#{question} [#{opts[:default]}]" if opts[:default]
@@ -51,7 +65,8 @@ module Hobo
           q.validate = opts[:validate] if opts[:validate]
           q.readline
         end
-        answer.strip.empty? ? opts[:default] : answer.strip
+        answer = answer.to_s
+        answer.strip.empty? ? opts[:default].to_s : answer.strip
       rescue EOFError
         Hobo.ui.info ""
         ""
@@ -65,7 +80,7 @@ module Hobo
     end
 
     def separator
-      info ""
+      info(supports_color? ? "" : "\n")
     end
 
     def color *args
@@ -100,7 +115,9 @@ module Hobo
 
     def say channel, message, color
       return if message.nil?
-      channel.say(color ? channel.color(message, color) : message)
+      message = color ? channel.color(message, color) : message
+      channel.say(message) unless logger.level <= Logger::DEBUG
+      logger.debug(message)
     end
   end
 end

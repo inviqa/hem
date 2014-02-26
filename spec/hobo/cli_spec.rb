@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'rake'
-require 'hobo'
 
 describe Hobo::Cli do
   cli = nil
@@ -11,6 +9,7 @@ describe Hobo::Cli do
     Rake::Task.tasks.each do |task|
       task.clear
     end
+
     Hobo.ui = double(Hobo::Ui).as_null_object
     help = double(Hobo::HelpFormatter).as_null_object
     cli = Hobo::Cli.new help: help
@@ -21,6 +20,8 @@ describe Hobo::Cli do
     FakeFS.activate!
 
     File.write('Hobofile', hobofile)
+
+    double(Hobo::Lib::HostCheck).as_null_object
   end
 
   after do
@@ -145,6 +146,11 @@ describe Hobo::Cli do
   it "should propagate arguments to command" do
     Hobo.ui.should_receive(:info).with("1234")
     cli.start ["test", "argument-test", "1234"]
+  end
+
+  it "should propagate unparsed arguments in :_unparsed opt" do
+    Hobo.ui.should_receive(:info).with("ls --help")
+    cli.start ["test", "unparsed", "--", "ls", "--help"]
   end
 
   it "should raise an exception if not enough arguments were passed" do

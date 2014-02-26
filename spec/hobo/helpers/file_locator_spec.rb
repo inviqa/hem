@@ -1,4 +1,4 @@
-require 'hobo/helper/file_locator'
+require 'spec_helper'
 
 describe Hobo::Helper do
   describe "locate" do

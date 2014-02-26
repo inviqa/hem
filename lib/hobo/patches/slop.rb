@@ -1,7 +1,7 @@
 require 'slop'
 
 class Slop
-  attr_accessor :long_desc, :arg_list, :hidden, :desc
+  attr_accessor :long_desc, :arg_list, :hidden, :desc, :unparsed
 
   # Slop has a description method but it uses @config which is inherited
   # This is not desired behaviour
@@ -28,5 +28,22 @@ class Slop
   def project_only value = nil
     @config[:project_only] = value unless value.nil?
     @config[:project_only]
+  end
+
+  alias :old_parse! :parse!
+  def parse!(items = ARGV, &block)
+    split_index = items.index('--')
+
+    unparsed = []
+    unless split_index.nil?
+      unparsed = items.slice(split_index + 1, items.length)
+      items = items.slice(0, split_index)
+    end
+
+    @unparsed = unparsed.map do |c|
+      "\'#{c.gsub("'", '\\\'').gsub('(', '\\(').gsub(')', '\\)')}\'"
+    end.join(' ')
+
+    old_parse!(items, &block)
   end
 end

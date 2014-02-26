@@ -1,6 +1,5 @@
 require 'aws-sdk'
 require 'fileutils'
-require 'ruby-progressbar'
 
 module Hobo
   module Lib
@@ -11,7 +10,8 @@ module Hobo
         opts = {
           :access_key_id => key_id,
           :secret_access_key => secret,
-          :verify_response_body_content_length => false
+          :verify_response_body_content_length => false,
+          :max_retries => 15
         }
 
         logger.debug("s3sync: Options #{opts}")
@@ -19,26 +19,8 @@ module Hobo
         @s3 = AWS::S3.new opts
       end
 
-      def delta source, dest
-        to_add = (source.sort - dest.sort).map(&:first)
-        to_remove = (dest.sort - source.sort).map(&:first)
-        to_remove = to_remove - to_add
-
-        {
-          :add => to_add,
-          :remove => to_remove
-        }
-      end
-
-      def io_handler uri
-        parsed = URI.parse(uri)
-        parsed.scheme == 's3' ?
-          Remote.new(@s3, parsed.host, parsed.path) :
-          Local.new(uri)
-      end
-
       def sync source, dest, opts = {}
-        opts = { :progress => method(:progress) }.merge(opts)
+        opts = { :progress => Hobo.method(:progress) }.merge(opts)
 
         source_io = io_handler(source)
         destination_io = io_handler(dest)
@@ -62,19 +44,17 @@ module Hobo
 
           source_file.buffer
 
-          written = 0
           size = source_file.size
           destination_file.write({ :size => source_file.size }) do |buffer, bytes|
             chunk = source_file.read(bytes)
             buffer.write(chunk)
-            written += chunk.length
-            opts[:progress].call(file, written, size, :update)
+            opts[:progress].call(file, chunk.length, size, :update)
           end
 
           destination_file.close
           source_file.close
 
-          opts[:progress].call(file, written, size, :finish)
+          opts[:progress].call(file, 0, size, :finish)
         end
 
         delta[:remove].each do |file|
@@ -85,27 +65,25 @@ module Hobo
         return delta
       end
 
-      def progress file, written, total, type
-        opts = {
-          :title => file,
-          :total => total,
-          :format => "%t [%B] %p%% %e"
+      private
+
+      def delta source, dest
+        to_add = (source.sort - dest.sort).map(&:first)
+        to_remove = (dest.sort - source.sort).map(&:first)
+        to_remove = to_remove - to_add
+
+        {
+          :add => to_add,
+          :remove => to_remove
         }
-
-        # Hack to stop newline spam on windows
-        opts[:length] = 79 if Gem::win_platform?
-
-        @progress ||= {}
-        @progress[file] ||= ProgressBar.create(opts)
-
-        case type
-          when :update
-            @progress[file].progress = written
-          when :finished
-            @progress[file].finish
-        end
       end
 
+      def io_handler uri
+        parsed = URI.parse(uri)
+        parsed.scheme == 's3' ?
+          Remote.new(@s3, parsed.host, parsed.path) :
+          Local.new(uri)
+      end
 
       class Local
         include Hobo::Logging
@@ -132,7 +110,7 @@ module Hobo
         end
 
         def rm file
-          File.unlink file
+          File.unlink File.join(@path, file)
         end
       end
 

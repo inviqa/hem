@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'hobo'
 
 describe Hobo::Lib::Seed::Seed do
   pwd = nil
@@ -9,7 +8,7 @@ describe Hobo::Lib::Seed::Seed do
     tmp_dir = Dir.mktmpdir
     pwd = Dir.pwd
     Dir.chdir tmp_dir
-    Hobo.ui = Hobo::Ui.new
+    Hobo.ui = double(Hobo::Ui).as_null_object
   end
 
   after do

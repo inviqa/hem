@@ -1,4 +1,4 @@
-require 'hobo/help_formatter'
+require 'spec_helper'
 
 describe Hobo::HelpFormatter do
   help = nil

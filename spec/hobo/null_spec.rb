@@ -1,4 +1,4 @@
-require 'hobo/null'
+require 'spec_helper'
 
 describe Hobo::Null do
   it "should return itself for any method call" do

@@ -1,3 +1,4 @@
+require 'hobo'
 require 'fakefs/safe'
 #require 'rr'
 

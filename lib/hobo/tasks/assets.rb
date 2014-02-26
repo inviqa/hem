@@ -10,7 +10,8 @@ namespace :assets do
     rescue AWS::S3::Errors::NoSuchBucket
       Hobo.ui.error "  Asset bucket #{Hobo.project_config.asset_bucket} does not exist!"
     rescue AWS::Errors::MissingCredentialsError
-      Hobo.ui.error "  AWS credentials not set!\n\nRun `hobo host config` to set them."
+      Hobo.ui.warning "  AWS credentials not set!"
+      Hobo.ui.warning "  Either set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars or run `hobo config` to set them."
     end
   end
 
@@ -24,8 +25,8 @@ namespace :assets do
       s3_uri = "s3://#{Hobo.project_config.asset_bucket}/#{env}/"
 
       sync = Hobo::Lib::S3Sync.new(
-        maybe(Hobo.user_config.aws.access_key_id),
-        maybe(Hobo.user_config.aws.secret_access_key)
+        maybe(Hobo.user_config.aws.access_key_id) || ENV['AWS_ACCESS_KEY_ID'],
+        maybe(Hobo.user_config.aws.secret_access_key) || ENV['AWS_SECRET_ACCESS_KEY']
       )
 
       handle_s3_error do
@@ -49,8 +50,8 @@ namespace :assets do
       s3_uri = "s3://#{Hobo.project_config.asset_bucket}/#{env}/"
 
       sync = Hobo::Lib::S3Sync.new(
-        maybe(Hobo.user_config.aws.access_key_id),
-        maybe(Hobo.user_config.aws.secret_access_key)
+        maybe(Hobo.user_config.aws.access_key_id) || ENV['AWS_ACCESS_KEY_ID'],
+        maybe(Hobo.user_config.aws.secret_access_key) || ENV['AWS_SECRET_ACCESS_KEY']
       )
 
       handle_s3_error do
@@ -87,9 +88,7 @@ end
 # Built in applicators
 Hobo.asset_applicators.register /.*\.files\.(tgz|tar\.gz|tar\.bz2)/ do |file|
   Hobo.ui.title "Applying file dump (#{file})"
-  Dir.chdir Hobo.project_path do
-    shell "tar -xvf #{file.shellescape}"
-  end
+  vm_shell "tar -xvf #{file.shellescape}"
 end
 
 Hobo.asset_applicators.register /.*\.sql\.gz/ do |file|
@@ -97,15 +96,13 @@ Hobo.asset_applicators.register /.*\.sql\.gz/ do |file|
   db = File.basename(matches[1])
 
   begin
-    shell(vm_mysql << "USE #{db}")
-    Hobo.ui.warning "Already applied (#{file})"
-    next
+    shell(vm_mysql(:mysql => 'mysqladmin', :append => " create #{db.shellescape}"))
   rescue Hobo::ExternalCommandError => e
+    Hobo.ui.warning "Already applied (#{file})"
     raise e if e.exit_code != 1
+    next
   end
 
   Hobo.ui.title "Applying mysqldump (#{file})"
-
-  shell(vm_mysql << "CREATE DATABASE #{db}")
-  shell(vm_mysql(:auto_echo => false, :db => db) << "zcat #{file.shellescape}")
+  shell(vm_mysql(:auto_echo => false, :db => db) < "zcat #{file.shellescape}")
 end

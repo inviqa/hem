@@ -3,6 +3,10 @@ require 'deepstruct'
 
 module Hobo
 
+  class << self
+    attr_accessor :cli
+  end
+
   class Halt < Error
   end
 
@@ -19,6 +23,8 @@ module Hobo
     end
 
     def start args = ARGV
+      Hobo::Lib::HostCheck.check(:filter => /vagrant.*|.*present/, :raise => true)
+
       load_user_config
       load_builtin_tasks
       load_hobofiles
@@ -63,9 +69,11 @@ module Hobo
 
     def load_builtin_tasks
       require 'hobo/tasks/assets'
+      require 'hobo/tasks/config'
       require 'hobo/tasks/debug'
       require 'hobo/tasks/deps'
-      require 'hobo/tasks/host'
+      require 'hobo/tasks/system'
+      require 'hobo/tasks/system/completions'
       require 'hobo/tasks/seed'
       require 'hobo/tasks/vm'
       require 'hobo/tasks/tools'
@@ -178,7 +186,7 @@ module Hobo
           run do |opts, args|
             Dir.chdir Hobo.project_path if Hobo.in_project?
             raise ::Hobo::ProjectOnlyError.new if opts.project_only && !Hobo.in_project?
-            task.opts = opts.to_hash
+            task.opts = opts.to_hash.merge({:_unparsed => hobo.slop.unparsed})
             raise ::Hobo::MissingArgumentsError.new(name, args, hobo) if args && task.arg_names.length > args.length
             task.invoke *args
             args.pop(task.arg_names.size)
