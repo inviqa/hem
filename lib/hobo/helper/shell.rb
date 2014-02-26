@@ -39,7 +39,8 @@ module Hobo
         :capture => false,
         :indent => 0,
         :realtime => false,
-        :env => {}
+        :env => {},
+        :ignore_errors => false
       }.merge! opts
 
       Hobo::Logging.logger.debug("helper.shell: Invoking '#{args.join(" ")}' with #{opts.to_s}")
@@ -71,7 +72,7 @@ module Hobo
         buffer.fsync
         buffer.rewind
 
-        raise ::Hobo::ExternalCommandError.new(args.join(" "), external.value.exitstatus, buffer) if external.value.exitstatus != 0
+        raise ::Hobo::ExternalCommandError.new(args.join(" "), external.value.exitstatus, buffer) if external.value.exitstatus != 0 && !opts[:ignore_errors]
 
         return opts[:capture] ? buffer.read.strip : nil
       end

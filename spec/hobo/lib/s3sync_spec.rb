@@ -1,7 +1,10 @@
-require 'hobo/logging'
-require 'hobo/lib/s3sync'
+require 'spec_helper'
 
 describe Hobo::Lib::S3Sync do
+  before do
+    AWS.stub!
+  end
+
   describe "sync" do
     it "should synchronize s3 files to local"
     it "should synchronize local files to s3"

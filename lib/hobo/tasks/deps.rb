@@ -21,10 +21,30 @@ namespace :deps do
       Rake::Task["tools:composer"].invoke
       Hobo.ui.title "Installing composer dependencies"
       Dir.chdir Hobo.project_path do
-        shell "php", File.join(Hobo.project_bin_path, 'composer.phar'), "install", "--ansi", realtime: true, indent: 2
+        ansi = Hobo.ui.supports_color? ? '--ansi' : ''
+        args = [ "php bin/composer.phar install #{ansi} --prefer-dist", { realtime: true, indent: 2 } ]
+        complete = false
+
+        check = Hobo::Lib::HostCheck.check(:filter => /php_present/)
+
+        if check["Php present"] == :ok
+          begin
+            shell *args
+            complete = true
+          rescue Hobo::ExternalCommandError
+            Hobo.ui.warning "Installing composer dependencies locally failed!"
+          end
+        end
+
+        if !complete
+          vm_shell *args
+        end
+
+        Hobo.ui.success "Composer dependencies installed"
       end
+
+      Hobo.ui.separator
     end
-    Hobo.ui.separator
   end
 
   desc "Install vagrant plugins"
@@ -32,9 +52,11 @@ namespace :deps do
     plugins = shell "vagrant plugin list", :capture => true
     locate "*Vagrantfile" do
       File.read("Vagrantfile").split("\n").each do |line|
+        next if line.match /^\s*#/
         next unless line.match /Vagrant\.require_plugin (.*)/
         plugin = $1.gsub(/['"]*/, '')
         next if plugins.include? "#{plugin} "
+
         Hobo.ui.title "Installing vagrant plugin: #{plugin}"
         bundle_shell "vagrant", "plugin", "install", plugin, :realtime => true, :indent => 2
         Hobo.ui.separator
@@ -45,11 +67,20 @@ namespace :deps do
   desc "Install chef dependencies"
   task :chef => [ "deps:gems" ] do
     locate "*Cheffile" do
-      Hobo.ui.title "Installing chef dependencies"
+      Hobo.ui.title "Installing chef dependencies via librarian"
       Bundler.with_clean_env do
-        bundle_shell "librarian-chef", "install", "--verbose", realtime: true, indent: 2 do |line|
-          line =~ /Installing.*</ ? line : nil
+        bundle_shell "librarian-chef", "install", "--verbose", :realtime => true, :indent => 2 do |line|
+          line =~ /Installing.*</ ? line.strip + "\n" : nil
         end
+      end
+      Hobo.ui.separator
+    end
+
+    locate "*Berksfile" do
+      Hobo.ui.title "Installing chef dependencies via berkshelf"
+      Bundler.with_clean_env do
+        bundle_shell "berks", "install", :realtime => true, :indent => 2
+        bundle_shell "berks", "install", "--path", "cookbooks"
       end
       Hobo.ui.separator
     end

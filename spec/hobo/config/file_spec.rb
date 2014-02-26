@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'hobo/paths'
-require 'hobo/config/file'
 
 describe Hobo::Config::File do
   before do

@@ -14,11 +14,8 @@ module Hobo
           seed.update
           seed.export config[:project_path]
           config[:seed][:version] = seed.version
-          config[:hostname] = "#{config[:name]}.development.local"
+          config[:hostname] = "#{config[:name]}.dev"
           config[:asset_bucket] = "inviqa-assets-#{config[:name]}"
-          config[:mysql] = {
-            :password => "984C42CF342f7j6" # Packer default password
-          }
 
           @opts[:replacer].replace(config[:project_path], config)
           load_seed_init(config)
@@ -44,10 +41,17 @@ module Hobo
         def initialize_git path, git_url
           Dir.chdir path do
             Hobo::Helper.shell 'git', 'init'
-            Hobo::Helper.shell 'git', 'remote', 'add', 'origin', git_url
             Hobo::Helper.shell 'git', 'add', '--all'
             Hobo::Helper.shell 'git', 'commit', '-m', "'Initial hobo project'"
             Hobo::Helper.shell 'git', 'checkout', '-b', 'develop'
+
+            # Github for windows gets clever adding origin / upstream remotes in system level gitconfig
+            # :facepalm:
+            begin
+              Hobo::Helper.shell 'git', 'remote', 'add', 'origin', git_url
+            rescue Hobo::ExternalCommandError
+              Hobo::Helper.shell 'git', 'remote', 'set-url', 'origin', git_url
+            end
           end
         end
       end

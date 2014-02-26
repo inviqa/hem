@@ -8,49 +8,25 @@ Some highlights of functionality include:
 
 Many more features are planned including assisting with host machine configuration, automatically pulling assets for the VM and providing commonly rewritten tasks as general utility libraries for use in Hobofiles.
 
-# Pre-requisites
-Hobo is a thin wrapper over our commonly used tools. As such, those tools still need to be present on your machine.
-Hobo requires the following tools to be available on your path; if you can't execute these commands from a terminal you will need to install them before using hobo:
+# Installing & using
 
-- git
-- ruby
-- rubygems
-- bundler (rubygem)
-- vagrant
+Full instructions for installing and using hobo are available on the wiki at [https://github.com/inviqa/hobo-gem/wiki/User-guide]. For information on the task DSL, see [https://github.com/inviqa/hobo-gem/wiki/Hobofile-DSL].
 
-# Installing
-Simply execute the following command:
+If you have a working development configuration (and are using OSX / linux), you may skip reading those instructions and go straight to installing the gem:
+
 ```
 gem install hobo-inviqa
 ```
 
-# Usage
-Hobo is installed as a gem with a globally available binary called "hobo". Hobo allows you to get help for any command by specifying the --help option.
+Please ensure that you run the following command after installing and that it does not raise any issues:
+
 ```
-hobo --help
+hobo system check
 ```
 
-# Project specific commands
-You can define project specific commands by creating a file in the root of the project called 'Hobofile'. Since hobo is based on Rake, you can use the normal Rake DSL to specify commands. Hobo also includes enhancements to this DSL that will be detailed later.
+# Getting help
 
-A task to download some specific files might look like:
-```
-desc "My-project tasks"
-namespace "my-project" do
-  desc "Download images"
-  task "download-images" do
-    Net::HTTP.get("my-domain.com", "/my-file.jpg")
-  end
-end
-```
-
-The above command would then be immediately available in hobo:
-```
-hobo my-project download-files
-```
-
-# Rake DSL enhancements
-Please see https://github.com/inviqa/hobo-gem/wiki/Hobofile-DSL for comprehensive examples.
+If you need any help with hobo or you encounter any issues, please join the #hobo slack channel.
 
 # Contributing
 If you wish to contribute to hobo:

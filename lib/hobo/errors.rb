@@ -1,5 +1,6 @@
 module Hobo
   class Error < StandardError
+    attr_reader :exit_code
   end
 
   class RubyVersionError < Error
@@ -62,6 +63,15 @@ module Hobo
     def initialize dep
       @dependency = dep
       super("A tool that hobo depends on could not be detected (#{dep})")
+    end
+  end
+
+  class HostCheckError < Error
+    attr_accessor :summary, :advice
+    def initialize summary, advice
+      @summary = summary
+      @advice = advice
+      super("Host check failed: #{summary}")
     end
   end
 end
