@@ -27,7 +27,7 @@ namespace :deps do
 
         check = Hobo::Lib::HostCheck.check(:filter => /php_present/)
 
-        if check[:php_present] == :ok
+        if check["Php present"] == :ok
           begin
             shell *args
             complete = true
