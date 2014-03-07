@@ -1,4 +1,8 @@
+desc "Tasks to retrieve common tools"
+hidden
 namespace :tools do
+
+  desc "Fetch composer"
   task :composer do
     bin_file = File.join(Hobo.project_bin_path, "composer.phar")
     unless File.exists?(bin_file)

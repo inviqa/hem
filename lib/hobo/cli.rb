@@ -23,7 +23,6 @@ module Hobo
     end
 
     def start args = ARGV
-      Hobo::Lib::HostCheck.check(:filter => /vagrant.*|.*present/, :raise => true)
 
       load_user_config
       load_builtin_tasks
@@ -37,6 +36,9 @@ module Hobo
         # Parse out global args first
         @slop.parse! args
         opts = @slop.to_hash
+
+        Hobo::Lib::HostCheck.check(:filter => /vagrant.*|.*present/, :raise => true) unless opts[:'skip-host-checks']
+
         @help_opts[:all] = opts[:all]
         Hobo.ui.interactive = !(opts[:'non-interactive'] == true)
 
@@ -107,6 +109,7 @@ module Hobo
       slop.on '-a', '--all', 'Show hidden commands'
       slop.on '-h', '--help', 'Display help'
       slop.on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
+      slop.on '--skip-host-checks', 'Skip host checks'
 
       slop.on '-v', '--version', 'Print version information' do
         Hobo.ui.info "Hobo version #{Hobo::VERSION}"

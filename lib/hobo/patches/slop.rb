@@ -32,17 +32,19 @@ class Slop
 
   alias :old_parse! :parse!
   def parse!(items = ARGV, &block)
-    split_index = items.index('--')
+    if @unparsed.nil?
+      split_index = items.index('--')
 
-    unparsed = []
-    unless split_index.nil?
-      unparsed = items.slice(split_index + 1, items.length)
-      items = items.slice(0, split_index)
+      unparsed = []
+      unless split_index.nil?
+        unparsed = items.slice(split_index + 1, items.length)
+        items = items.slice(0, split_index)
+      end
+
+      @unparsed = unparsed.map do |c|
+        "\'#{c.gsub("'", '\\\'').gsub('(', '\\(').gsub(')', '\\)')}\'"
+      end.join(' ')
     end
-
-    @unparsed = unparsed.map do |c|
-      "\'#{c.gsub("'", '\\\'').gsub('(', '\\(').gsub(')', '\\)')}\'"
-    end.join(' ')
 
     old_parse!(items, &block)
   end

@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "ruby-progressbar", "~> 1.4.1"
   spec.add_dependency "teerb", "~> 0.0.1"
   spec.add_dependency "os", "~> 0.9.6"
+  spec.add_dependency "net-ssh-simple", "~> 1.6.3"
 
   spec.add_development_dependency "aruba", "~> 0.5.4"
   spec.add_development_dependency "rspec", "~> 2.14.1"

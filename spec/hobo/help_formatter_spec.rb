@@ -38,8 +38,8 @@ describe Hobo::HelpFormatter do
 
     help = Hobo::HelpFormatter.new slop
     help.command_map = map
-    HighLine.use_color = false
     Hobo.ui = Hobo::Ui.new
+    Hobo.ui.use_color false
   end
 
   describe "help" do

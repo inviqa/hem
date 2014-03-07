@@ -14,7 +14,7 @@ module Hobo
           seed.update
           seed.export config[:project_path]
           config[:seed][:version] = seed.version
-          config[:hostname] = "#{config[:name]}.development.local"
+          config[:hostname] = "#{config[:name]}.dev"
           config[:asset_bucket] = "inviqa-assets-#{config[:name]}"
 
           @opts[:replacer].replace(config[:project_path], config)
