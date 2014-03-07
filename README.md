@@ -10,7 +10,7 @@ Many more features are planned including assisting with host machine configurati
 
 # Installing & using
 
-Full instructions for installing and using hobo are available on the wiki at [https://github.com/inviqa/hobo-gem/wiki/User-guide]. For information on the task DSL, see [https://github.com/inviqa/hobo-gem/wiki/Hobofile-DSL].
+Full instructions for installing and using hobo are available in the [User guide](https://github.com/inviqa/hobo-gem/wiki/User-guide). For information on the task DSL, see the  [DSL guide](https://github.com/inviqa/hobo-gem/wiki/Hobofile-DSL).
 
 If you have a working development configuration (and are using OSX / linux), you may skip reading those instructions and go straight to installing the gem:
 
