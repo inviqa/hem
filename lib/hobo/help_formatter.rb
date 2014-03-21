@@ -1,8 +1,3 @@
-require 'slop'
-require 'highline'
-require 'hobo/ui'
-require 'hobo/patches/slop'
-
 module Hobo
   class HelpFormatter
     attr_accessor :command_map

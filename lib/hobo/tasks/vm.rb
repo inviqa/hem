@@ -11,7 +11,7 @@ namespace :vm do
     opts = { :realtime => true, :indent => 2 }
     color = Hobo.ui.supports_color? ? '--color' : '--no-color'
 
-    if OS.windows?
+    if Hobo.windows?
       opts[:env] = { 'VAGRANT_HOME' => windows_short(dir) } if ENV['HOME'].match(/\s+/) && !ENV['VAGRANT_HOME']
     end
 
@@ -19,7 +19,7 @@ namespace :vm do
     args.push color
     args.push opts
 
-    bundle_shell *args
+    shell *args
   end
 
   def windows_short dir
@@ -37,10 +37,10 @@ namespace :vm do
   end
 
   desc "Start & provision VM"
-  task :up => [ 'deps:chef', 'assets:download', 'vm:start', 'vm:provision', 'deps:composer', 'assets:apply' ]
+  task :up => [ 'assets:download', 'vm:start', 'vm:provision', 'deps:composer', 'assets:apply' ]
 
   desc "Stop VM"
-  task :stop => [ "deps:gems" ] do
+  task :stop do
     vagrantfile do
       Hobo.ui.title "Stopping VM"
       vagrant_exec 'suspend'
@@ -52,7 +52,7 @@ namespace :vm do
   task :rebuild => [ 'vm:destroy', 'vm:up' ]
 
   desc "Destroy VM"
-  task :destroy => [ "deps:gems" ] do
+  task :destroy do
     vagrantfile do
       Hobo.ui.title "Destroying VM"
       vagrant_exec 'destroy', '--force'
@@ -61,7 +61,7 @@ namespace :vm do
   end
 
   desc "Start VM without provision"
-  task :start => [ "deps:gems", "deps:vagrant_plugins" ] do
+  task :start => [ "deps:gems", "deps:chef", "deps:vagrant_plugins" ] do
     vagrantfile do
       Hobo.ui.title "Starting vagrant VM"
       vagrant_exec 'up', '--no-provision'
@@ -70,7 +70,7 @@ namespace :vm do
   end
 
   desc "Provision VM"
-  task :provision => [ "deps:gems" ] do
+  task :provision => [ "deps:chef" ] do
      vagrantfile do
       Hobo.ui.title "Provisioning VM"
       vagrant_exec 'provision'

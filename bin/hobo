@@ -3,10 +3,12 @@
 # Hack to allow testing with Aruba (for now)
 $:.push File.expand_path(File.join("..", "..", "lib"), __FILE__)
 
+# Suppress Net/SSH/Simple warning on windows
+#$SUPPRESS_32BIT_WARNING=1
+
 require 'hobo'
-require 'slop'
-require 'teerb'
-require 'tmpdir'
+
+$HOBO_ARGV = ARGV
 
 error_handler = Hobo::ErrorHandlers::Friendly.new
 
@@ -17,6 +19,8 @@ Hobo.logger.level = Logger::WARN
 # Options parsed here will be hidden from the main app
 slop = Slop.parse! do
   on '--debug', 'Enable debugging' do
+    require 'teerb'
+    require 'tmpdir'
     error_handler = Hobo::ErrorHandlers::Debug.new
     debug_log = File.open(File.join(Dir.tmpdir, 'hobo_debug.log'), 'w+')
     Hobo.logger = Logger.new(TeeRb::IODelegate.new(STDOUT, debug_log))
@@ -31,11 +35,16 @@ slop = Slop.parse! do
     level = self.to_hash[:'log-level'].upcase
     Hobo.logger.level = Logger.const_get(level) if [ 'DEBUG', 'INFO' ].include? level
   end
+
+  on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
 end
 
 Hobo.logger.formatter = proc do |severity, datetime, progname, msg|
   "#{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{severity}: #{msg}\n"
 end
+
+opts = slop.to_hash
+Hobo.ui.interactive = !(opts[:'non-interactive'] == true)
 
 begin
   Hobo::Lib::HostCheck.check(:filter => /not_using_system_ruby/)

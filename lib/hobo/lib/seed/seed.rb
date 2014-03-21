@@ -1,5 +1,3 @@
-require 'tempfile'
-
 module Hobo
   module Lib
     module Seed
@@ -23,10 +21,11 @@ module Hobo
             Hobo::Helper.shell "git clone . #{tmp_path}"
           end
 
-          Hobo.ui.success "Exporting seed submodules"
-
           Dir.chdir tmp_path do
-            Hobo::Helper.shell "git submodule update --init"
+            Hobo.ui.success "Cloning submodules"
+            Hobo::Helper.shell "git submodule update --init", :realtime => true, :indent => 2
+
+            Hobo.ui.success "Exporting seed"
             Hobo::Helper.shell "git archive master | tar -x -C #{path.shellescape}"
 
             # Export submodules
@@ -36,6 +35,7 @@ module Hobo
               matches = line.match /^\s*[a-z0-9]+ (.+) \(.*\)/
               next unless matches
               submodule_path = matches[1]
+              Hobo.ui.success "Exporting '#{submodule_path}' seed submodule"
               Hobo::Helper.shell "cd #{tmp_path}/#{submodule_path.shellescape} && git archive HEAD | tar -x -C #{path}/#{submodule_path.shellescape}"
             end
           end
@@ -49,7 +49,8 @@ module Hobo
           if File.exists? File.join(@seed_path, 'HEAD')
             Dir.chdir @seed_path do
               logger.info "Updating seed in #{@seed_path}"
-              Hobo::Helper.shell 'git', 'fetch', '--all'
+              # Need to be specific here as GH for windows adds an invalid "upstream" remote to all repos
+              Hobo::Helper.shell 'git', 'fetch', 'origin'
             end
           else
             logger.info "Cloning seed from #{@url} to #{@seed_path}"

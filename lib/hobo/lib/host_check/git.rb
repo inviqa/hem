@@ -1,9 +1,9 @@
 module Hobo
   module Lib
     module HostCheck
-      def git_present
+      def git_present opts
         advice = "The Git command could not be detected on your system.\n\n"
-        if OS.windows?
+        if Hobo.windows?
           advice += "Please install it from http://git-scm.com/downloads ensuring you select the 'Use git and unix tools everywhere' option."
         else
           advice += "Please install it using your package manager."
@@ -16,7 +16,7 @@ module Hobo
         end
       end
 
-      def git_config_name_set
+      def git_config_name_set opts
         advice = <<-EOF
 You have not set your name in git config!
 
@@ -30,7 +30,7 @@ EOF
         end
       end
 
-      def git_config_email_set
+      def git_config_email_set opts
         advice = <<-EOF
 You have not set your email in git config!
 
@@ -45,8 +45,8 @@ EOF
         end
       end
 
-      def git_autocrlf_disabled
-        return unless OS.windows?
+      def git_autocrlf_disabled opts
+        return unless Hobo.windows?
 
         advice = <<-EOF
 You're using git with the core.autocrlf option enabled.

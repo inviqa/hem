@@ -1,6 +1,3 @@
-require 'open3'
-require 'tempfile'
-
 module Hobo
   module Helper
 
@@ -20,6 +17,9 @@ module Hobo
     end
 
     def shell *args, &block
+      require 'open3'
+      require 'tempfile'
+
       def chunk_line_iterator stream
         begin
           until (chunk = stream.readpartial(1024)).nil? do
@@ -40,7 +40,8 @@ module Hobo
         :indent => 0,
         :realtime => false,
         :env => {},
-        :ignore_errors => false
+        :ignore_errors => false,
+        :exit_status => false
       }.merge! opts
 
       Hobo::Logging.logger.debug("helper.shell: Invoking '#{args.join(" ")}' with #{opts.to_s}")
@@ -71,6 +72,8 @@ module Hobo
 
         buffer.fsync
         buffer.rewind
+
+        return external.value.exitstatus if opts[:exit_status]
 
         raise ::Hobo::ExternalCommandError.new(args.join(" "), external.value.exitstatus, buffer) if external.value.exitstatus != 0 && !opts[:ignore_errors]
 

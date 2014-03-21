@@ -16,6 +16,9 @@ module Hobo
           config[:seed][:version] = seed.version
           config[:hostname] = "#{config[:name]}.dev"
           config[:asset_bucket] = "inviqa-assets-#{config[:name]}"
+          config[:vm] = {
+            :project_mount_path => "/vagrant"
+          }
 
           @opts[:replacer].replace(config[:project_path], config)
           load_seed_init(config)

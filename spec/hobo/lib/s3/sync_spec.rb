@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Hobo::Lib::S3Sync do
+describe Hobo::Lib::S3::Sync do
   before do
     AWS.stub!
   end

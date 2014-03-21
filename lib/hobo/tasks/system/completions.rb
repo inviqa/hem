@@ -18,7 +18,7 @@ function __hobo_completion -d "Create hobo completions"
   set -l hobo_cache_file "$cache_dir/$hashed_pwd"
 
   if not test -f "$hobo_cache_file"
-    hobo system completions fish > "$hobo_cache_file"
+    hobo system completions fish --skip-host-checks > "$hobo_cache_file"
   end
 
   cat "$hobo_cache_file"

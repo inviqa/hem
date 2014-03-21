@@ -12,5 +12,4 @@ Feature: Subcommands
   Scenario: Subcommand should execute
     When I run `hobo test non-interactive` interactively
     And I type "Testing"
-    Then the output should contain "Subcommand test"
-    And the output should contain "Testing"
+    Then the output should contain "Testing"

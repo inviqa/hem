@@ -1,5 +1,3 @@
-require 'rake'
-
 module Rake
   class Task
     attr_accessor :opts

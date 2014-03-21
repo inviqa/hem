@@ -15,7 +15,7 @@ describe Hobo::Helper do
 
     Hobo.ui = Hobo::Ui.new
 
-    vmi_double = double(Hobo::Helper::VmInspector).as_null_object
+    vmi_double = double(Hobo::Lib::Vm::Inspector).as_null_object
     vmi_double.should_receive(:ssh_config).and_return({
       :ssh_host => 'fakehost',
       :ssh_user => 'fakeuser',
@@ -23,7 +23,7 @@ describe Hobo::Helper do
       :ssh_identity => 'fakeidentity'
     })
 
-    Hobo::Helper::VmCommand.class_eval do
+    Hobo::Lib::Vm::Command.class_eval do
       class_variable_set '@@vm_inspector', vmi_double
     end
   end
@@ -33,18 +33,6 @@ describe Hobo::Helper do
       vm_command("my_command", :pwd => '/').to_s.should match /-c my_command/
     end
 
-<<<<<<< HEAD
-    it "should default to using a psuedo tty" do
-      vm_command("my_command", :pwd => '/').to_s.should match /\s-t\s/
-    end
-
-    it "should default to vagrant user" do
-      vm_command("my_command", :pwd => '/').to_s.should match /vagrant@/
-    end
-
-    it "should default to project host name" do
-      vm_command("my_command", :pwd => '/').to_s.should match /@test_hostname/
-=======
     it "should default to not using a psuedo tty" do
       vm_command("my_command", :pwd => '/').to_s.should_not match /\s-t\s/
     end
@@ -55,7 +43,6 @@ describe Hobo::Helper do
 
     it "should default to ssh_config host name" do
       vm_command("my_command", :pwd => '/').to_s.should match /@fakehost/
->>>>>>> 0.0.6-bugfixes
     end
 
     it "should not wrap piped commands with echo by default" do
@@ -76,19 +63,11 @@ describe Hobo::Helper do
 
     it "should not pass user / pass if project config mysql credentials not set" do
       Hobo.project_config = DeepStruct.wrap({})
-<<<<<<< HEAD
-      vm_mysql(:pwd => '/').to_s.should match /-c mysql'$/
-    end
-
-    it "should allow specifying the database in options" do
-      vm_mysql(:pwd => '/', :db => "test_db").to_s.should match /-c mysql.*test_db'$/
-=======
       vm_mysql(:pwd => '/').to_s.should match /-c mysql'/
     end
 
     it "should allow specifying the database in options" do
       vm_mysql(:pwd => '/', :db => "test_db").to_s.should match /-c mysql.*test_db'/
->>>>>>> 0.0.6-bugfixes
     end
 
     it "should enable auto echo of piped commands" do
