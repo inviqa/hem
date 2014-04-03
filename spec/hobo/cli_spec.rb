@@ -16,7 +16,8 @@ describe Hobo::Cli do
 
     Hobo.ui = double(Hobo::Ui).as_null_object
     help = double(Hobo::HelpFormatter).as_null_object
-    cli = Hobo::Cli.new help: help
+    host_check = double(Hobo::Lib::HostCheck).as_null_object
+    cli = Hobo::Cli.new help: help, host_check: host_check
 
     hobofile = File.read(File.join(File.dirname(__FILE__), '../../Hobofile'))
 
@@ -24,8 +25,6 @@ describe Hobo::Cli do
     FakeFS.activate!
 
     File.write('Hobofile', hobofile)
-
-    double(Hobo::Lib::HostCheck).as_null_object
   end
 
   after do
@@ -102,11 +101,6 @@ describe Hobo::Cli do
     map["test:metadata"].hidden.should be true
   end
 
-  it "should set non-interactive mode in ui if --non-interactive" do
-    Hobo.ui.should_receive('interactive=').with(false)
-    cli.start(test_args(['--non-interactive']))
-  end
-
   it "should show help if no args or opts passed" do
     help.should_receive(:help)
     cli.start(test_args([]))
@@ -153,13 +147,7 @@ describe Hobo::Cli do
   end
 
   it "should propagate unparsed arguments in :_unparsed opt" do
-    Hobo.ui.should_receive(:info).with("ls --help")
-    cli.slop.unparsed = "ls --help"
-    cli.start test_args(["test", "unparsed", "--skip-host-checks"])
-  end
-
-  it "should propagate unparsed arguments in :_unparsed opt" do
-    Hobo.ui.should_receive(:info).with("ls --help")
+    Hobo.ui.should_receive(:info).with("'ls' '--help'")
     cli.start ["test", "unparsed", "--", "ls", "--help"]
   end
 

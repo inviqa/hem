@@ -1,5 +1,3 @@
-require 'find'
-
 module Hobo
   module Lib
     module Seed
@@ -20,6 +18,7 @@ module Hobo
         private
 
         def search_replace(path, tokens, &block)
+          require 'find'
           files = []
           excludes = Regexp.new(EXCLUDES.join("|"))
           Find.find(path) do |candidate|

@@ -1,5 +1,3 @@
-require 'highline'
-
 module Hobo
   class << self
     attr_accessor :ui
@@ -38,7 +36,7 @@ module Hobo
     end
 
     def supports_color?
-      return @output_io.tty? unless OS.windows?
+      return @output_io.tty? unless Hobo.windows?
       return (ENV['ANSICON'] || ENV['TERM'] == 'xterm') && @output_io.tty? # ANSICON or MinTTY && output is TTY
     end
 

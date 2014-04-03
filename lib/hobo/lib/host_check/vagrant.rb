@@ -1,9 +1,8 @@
-require 'semantic'
-
 module Hobo
   module Lib
     module HostCheck
-      def vagrant_version
+      def vagrant_version opts
+        require 'semantic'
         begin
           version = shell "vagrant --version", :capture => true
           version.gsub!(/^Vagrant /, '')

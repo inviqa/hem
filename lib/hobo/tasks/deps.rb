@@ -1,11 +1,10 @@
-require 'bundler'
-
 desc "Dependency related tasks"
 hidden true
 namespace :deps do
 
   desc "Install Gem dependencies"
   task :gems do
+    require 'bundler'
     locate "*Gemfile" do
       Hobo.ui.title "Installing Gem dependencies"
       Bundler.with_clean_env do
@@ -27,7 +26,7 @@ namespace :deps do
 
         check = Hobo::Lib::HostCheck.check(:filter => /php_present/)
 
-        if check["Php present"] == :ok
+        if check[:php_present] == :ok
           begin
             shell *args
             complete = true
@@ -66,6 +65,7 @@ namespace :deps do
 
   desc "Install chef dependencies"
   task :chef => [ "deps:gems" ] do
+    require 'bundler'
     locate "*Cheffile" do
       Hobo.ui.title "Installing chef dependencies via librarian"
       Bundler.with_clean_env do

@@ -4,10 +4,13 @@ namespace :system do
   desc "Check system configuration for potential problems"
   task :check do
     Hobo::Lib::HostCheck.check.each do |k,v|
+      name = k.to_s.gsub('_', ' ')
+      name[0] = name[0].upcase
+
       if v == :ok
-        Hobo.ui.success "#{k}: OK"
+        Hobo.ui.success "#{name}: OK"
       else
-        Hobo.ui.error "#{k}: FAILED\n"
+        Hobo.ui.error "#{name}: FAILED\n"
         Hobo.ui.warning v.advice.gsub(/^/, '  ')
       end
     end

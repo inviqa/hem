@@ -1,5 +1,3 @@
-require 'logger'
-
 module Hobo
   class << self
     attr_accessor :logger

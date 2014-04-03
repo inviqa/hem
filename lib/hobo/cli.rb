@@ -1,6 +1,3 @@
-require 'slop'
-require 'deepstruct'
-
 module Hobo
 
   class << self
@@ -20,10 +17,10 @@ module Hobo
       @slop = opts[:slop] || Slop.new
       @help_formatter = opts[:help] || Hobo::HelpFormatter.new(@slop)
       @help_opts = {}
+      @host_check = opts[:host_check] || Hobo::Lib::HostCheck
     end
 
     def start args = ARGV
-
       load_user_config
       load_builtin_tasks
       load_hobofiles
@@ -37,10 +34,9 @@ module Hobo
         @slop.parse! args
         opts = @slop.to_hash
 
-        Hobo::Lib::HostCheck.check(:filter => /vagrant.*|.*present/, :raise => true) unless opts[:'skip-host-checks']
+        perform_host_checks unless opts[:'skip-host-checks']
 
         @help_opts[:all] = opts[:all]
-        Hobo.ui.interactive = !(opts[:'non-interactive'] == true)
 
         @slop.add_callback :empty do
           show_help
@@ -105,10 +101,16 @@ module Hobo
       end
     end
 
+    def perform_host_checks
+      @host_check.check(
+        :filter => /vagrant.*|.*present|latest_hobo_version/,
+        :raise => true
+      )
+    end
+
     def define_global_opts slop
       slop.on '-a', '--all', 'Show hidden commands'
       slop.on '-h', '--help', 'Display help'
-      slop.on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
       slop.on '--skip-host-checks', 'Skip host checks'
 
       slop.on '-v', '--version', 'Print version information' do

@@ -32,3 +32,12 @@ Feature: Basics
   Scenario: --non-interactive should cause default options to be used
     When I run `hobo test non-interactive --non-interactive`
     Then the output should contain "Used defaults"
+
+  Scenario: --all should list all tasks
+    When I run `hobo --all`
+    Then the output should contain "hobo-debug"
+
+  Scenario: --skip-host-checks should skip host checks
+    Given "test_files/vagrant_fail/" is appended to the PATH environment variable
+    When I run `hobo --skip-host-checks`
+    Then the output should not contain "Hobo has detected a problem"

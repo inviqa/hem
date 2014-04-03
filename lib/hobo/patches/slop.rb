@@ -1,5 +1,3 @@
-require 'slop'
-
 class Slop
   attr_accessor :long_desc, :arg_list, :hidden, :desc, :unparsed
 

@@ -1,5 +1,3 @@
-require 'deepstruct'
-
 # Copied from the DeepStruct gem
 # Modified to return Null on unknown key
 module DeepStruct

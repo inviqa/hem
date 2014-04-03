@@ -1,9 +1,8 @@
-require 'net/http'
-require 'uri'
-
 module Hobo
   module Helper
     def http_download url, target_file, opts = {}
+      require 'net/http'
+      require 'uri'
       opts = { :progress => Hobo.method(:progress) }.merge(opts)
       uri = URI.parse(url)
       size = 0

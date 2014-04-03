@@ -1,8 +1,8 @@
 module Hobo
   module Lib
     module HostCheck
-      def not_using_system_ruby
-        return if OS.windows?
+      def not_using_system_ruby opts
+        return if Hobo.windows?
         advice = <<-EOF
 You're using a system ruby install which can cause issues with installing Gems and running some older projects.
 
@@ -20,8 +20,8 @@ EOF
         end
       end
 
-      def system_paths_for_ruby
-        return if OS.windows?
+      def system_paths_for_ruby opts
+        return if Hobo.windows?
 
         advice = <<-EOF
 The ordering of your system paths may cause a problem with Gems.

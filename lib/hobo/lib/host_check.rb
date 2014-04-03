@@ -15,16 +15,14 @@ module Hobo
           methods.each do |method|
             next if opts[:filter] && !method.match(opts[:filter])
 
-            name = method.to_s.gsub('_', ' ')
-            name[0] = name[0].upcase
             if opts[:raise]
-              self.send method
+              self.send method, opts
             else
               begin
-                self.send method
-                results[name] = :ok
+                self.send method, opts
+                results[method] = :ok
               rescue Hobo::Error => error
-                results[name] = error
+                results[method] = error
               end
             end
           end

@@ -1,11 +1,10 @@
-require 'tmpdir' # Needed for Dir.tmpdir
-
 module Hobo
   module ErrorHandlers
     class Friendly
       include Hobo::ErrorHandlers::ExitCodeMap
 
       def handle error
+        require 'tmpdir'
         log_file = File.join(Dir.tmpdir, 'hobo_error.log')
 
         # Not possible to match Interrupt class unless we use class name as string for some reason!

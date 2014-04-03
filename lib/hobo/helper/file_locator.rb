@@ -1,5 +1,3 @@
-require 'open3'
-
 module Hobo
   module Helper
     def locate(pattern, opts = {}, &block)
