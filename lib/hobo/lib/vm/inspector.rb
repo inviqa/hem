@@ -46,7 +46,7 @@ module Hobo
           return @ssh_config if @ssh_config
           config = nil
           locate "*Vagrantfile" do
-            config = bundle_shell "vagrant ssh-config", :capture => true
+            config = shell "vagrant ssh-config", :capture => true
           end
 
           raise Exception.new "Could not retrieve VM ssh configuration" unless config

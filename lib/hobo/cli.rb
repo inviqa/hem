@@ -4,14 +4,23 @@ module Hobo
     attr_accessor :cli
   end
 
+  # Utility error to shortcut exit routine within actions
   class Halt < Error
   end
 
+  # Main application class
   class Cli
     include Hobo::Logging
 
     attr_accessor :slop, :help_formatter
 
+    # @param [Hash] Initialization accepts several options in a hash:
+    #     - :slop - Slop instance
+    #     - :help - Help formatter instance
+    #     - :host_check - Host check invocation class
+    #
+    # :help and :host_check are only used by tests.
+    # :slop is used to ensure low-level args parsed in bin/hobo are propagated to the application
     def initialize opts = {}
       @opts = opts
       @slop = opts[:slop] || Slop.new
@@ -20,6 +29,8 @@ module Hobo
       @host_check = opts[:host_check] || Hobo::Lib::HostCheck
     end
 
+    # entry point for application
+    # @param [Array] Arguments from ARGV. Defaults to ARGV
     def start args = ARGV
       load_user_config
       load_builtin_tasks
@@ -58,6 +69,9 @@ module Hobo
       return 0
     end
 
+    # Display help and exit
+    # @param [Hash] Options to apss to help formatter.
+    # Options are mostly used for filtering
     def show_help(opts = {})
       Hobo.ui.info @help_formatter.help(@help_opts.merge(opts))
       halt
@@ -68,7 +82,7 @@ module Hobo
     def load_builtin_tasks
       require 'hobo/tasks/assets'
       require 'hobo/tasks/config'
-      require 'hobo/tasks/debug'
+      require 'hobo/tasks/self'
       require 'hobo/tasks/deps'
       require 'hobo/tasks/system'
       require 'hobo/tasks/system/completions'
@@ -111,7 +125,6 @@ module Hobo
     def define_global_opts slop
       slop.on '-a', '--all', 'Show hidden commands'
       slop.on '-h', '--help', 'Display help'
-      slop.on '--skip-host-checks', 'Skip host checks'
 
       slop.on '-v', '--version', 'Print version information' do
         Hobo.ui.info "Hobo version #{Hobo::VERSION}"
@@ -123,6 +136,13 @@ module Hobo
       raise Halt.new
     end
 
+    # Takes a nested hash of commands and creates nested Slop instances populated with metadata.
+    #
+    # @param [Hash] A nested hash of namespaces & commands.
+    # @param [Slop] A slop instance on which to define tasks.
+    # @param [Array] Stack of string names of parental namespaces.
+    # @param [Hash] Hash of "namespace:command" => Slop instances.
+    # @return [Hash] Hash of "namespace:command" => Slop instances.
     def define_tasks structured_list, scope, stack = [], map = {}
       structured_list.each do |k, v|
         name = (stack + [k]).join(':')
@@ -204,6 +224,7 @@ module Hobo
     end
 
     # Expand flat task list in to hierarchy (non-recursive)
+    # @param [Array] List of strings with entries of the form "namespace1:namespace2:task"
     def structure_tasks list
       out = {}
       list.each do |name|

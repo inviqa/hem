@@ -86,6 +86,9 @@ module Hobo
             Hobo.ui.error "  This can sometimes be caused by missing AWS credentials"
           rescue AWS::S3::Errors::NoSuchBucket
             Hobo.ui.error "  Asset bucket #{Hobo.project_config.asset_bucket} does not exist!"
+          rescue AWS::S3::Errors::AccessDenied
+            Hobo.ui.error "  Your AWS key does not have access to the #{Hobo.project_config.asset_bucket} S3 bucket!"
+            Hobo.ui.error "  Please request access to this bucket from your TTL or via an internal support request"
           rescue AWS::Errors::MissingCredentialsError
             Hobo.ui.warning "  AWS credentials not set!"
             Hobo.ui.warning "  Either set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars or run `hobo config` to set them jsut for hobo."

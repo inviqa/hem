@@ -63,9 +63,12 @@ namespace :vm do
   desc "Start VM without provision"
   task :start => [ "deps:gems", "deps:chef", "deps:vagrant_plugins" ] do
     vagrantfile do
-      Hobo.ui.title "Starting vagrant VM"
-      vagrant_exec 'up', '--no-provision'
-      Hobo.ui.separator
+      state = shell("vagrant --machine-readable status | grep ,state, | cut -d, -f4", :capture => true).strip
+      unless state == 'running'
+        Hobo.ui.title "Starting vagrant VM"
+        vagrant_exec 'up', '--no-provision'
+        Hobo.ui.separator
+      end
     end
   end
 

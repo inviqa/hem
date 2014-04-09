@@ -63,11 +63,6 @@ module Hobo
               scp_put opts[:ssh_host], tmp.path, remote_file, ssh_opts
               result = ssh opts[:ssh_host], "cd #{opts[:pwd]}; exec /bin/bash #{remote_file}", ssh_opts
               ssh opts[:ssh_host], "rm #{remote_file}", ssh_opts
-              with_session opts[:ssh_host], opts do |session|
-                session.process.popen3 do |input, output, error|
-
-                end
-              end
 
               # Throw exception if exit code not 0
 

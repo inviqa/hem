@@ -4,8 +4,7 @@ module Hobo
       match = nil
 
       Dir.chdir Hobo.project_path do
-        match = locate_git(pattern, false, &block)
-        match = locate_git(pattern, true, &block) if !match
+        match = locate_git(pattern, &block)
       end
 
       return true if match
@@ -16,9 +15,8 @@ module Hobo
 
     private
 
-    def locate_git pattern, others, &block
+    def locate_git pattern, &block
       args = [ 'git', 'ls-files', pattern ]
-      args.push '-o' if others
       output = Hobo::Helper.shell *args, :capture => true
       paths = output.split("\n")
       found = false

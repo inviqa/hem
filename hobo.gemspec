@@ -6,14 +6,16 @@ require 'hobo/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "hobo-inviqa"
-  spec.version       = Hobo::VERSION
+  spec.version       = Hobo::VERSION.gsub('-', '.pre.')
   spec.authors       = ["Mike Simons"]
   spec.email         = ["msimons@inviqa.com"]
   spec.description   = %q{Inviqan toolbelt}
   spec.summary       = %q{Inviqan toolbelt}
   spec.homepage      = ""
 
-  spec.files         = `git ls-files`.split($/)
+  # This file will get interpretted at runtime due to Bundler.setup
+  # Without the $HOBO_ARGV check (set in bin/hobo) fatal: not a git repository errors show up
+  spec.files         = `git ls-files`.split($/) unless $HOBO_ARGV
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
@@ -28,14 +30,21 @@ Gem::Specification.new do |spec|
   spec.add_dependency "aws-sdk", "~> 1.34.0"
   spec.add_dependency "ruby-progressbar", "~> 1.4.1"
   spec.add_dependency "teerb", "~> 0.0.1"
-  spec.add_dependency "os", "~> 0.9.6"
   spec.add_dependency "net-ssh-simple", "~> 1.6.3"
+  spec.add_dependency "pry", "~> 0.9.12"
 
-  spec.add_development_dependency "aruba", "~> 0.5.4"
-  spec.add_development_dependency "rspec", "~> 2.14.1"
-  spec.add_development_dependency "fakefs", "~> 0.5.0"
-  spec.add_development_dependency "rr", "~> 1.1.2"
-  spec.add_development_dependency "guard", "~> 2.2.5"
-  spec.add_development_dependency "guard-rspec", "~> 4.2.4"
-  spec.add_development_dependency "guard-cucumber", "~> 1.4.1"
+  # Not actually a dep! gem insists on installing 1.6.2.rc2 however!
+  spec.add_dependency "nokogiri", "= 1.6.1"
+
+  # This prevents Bundler.setup from complaining that rubygems did not install dev deps
+  # If you want to run dev deps you need to ensure HOBO_ENV=dev is set for bundle install & bundle exec
+  if ENV['HOBO_ENV'] == 'dev'
+    spec.add_development_dependency "aruba", "~> 0.5.4"
+    spec.add_development_dependency "rspec", "~> 2.14.1"
+    spec.add_development_dependency "fakefs", "~> 0.5.0"
+    spec.add_development_dependency "rr", "~> 1.1.2"
+    spec.add_development_dependency "guard", "~> 2.2.5"
+    spec.add_development_dependency "guard-rspec", "~> 4.2.4"
+    spec.add_development_dependency "guard-cucumber", "~> 1.4.1"
+  end
 end

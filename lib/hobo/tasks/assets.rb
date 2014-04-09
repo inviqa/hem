@@ -39,6 +39,7 @@ namespace :assets do
 
   desc "Apply project assets"
   option "-e=", "--env=", "Environment"
+  project_only
   task :apply do |task, args|
     env = task.opts[:env] || args[:env] || 'development'
     path = "tools/assets/#{env}"

@@ -4,13 +4,13 @@ namespace :deps do
 
   desc "Install Gem dependencies"
   task :gems do
-    require 'bundler'
     locate "*Gemfile" do
-      Hobo.ui.title "Installing Gem dependencies"
-      Bundler.with_clean_env do
+      required = shell("bundle", "check", :exit_status => true) != 0
+      if required
+        Hobo.ui.title "Installing Gem dependencies"
         shell "bundle", "install", realtime: true, indent: 2
+        Hobo.ui.separator
       end
-      Hobo.ui.separator
     end
   end
 
@@ -57,7 +57,7 @@ namespace :deps do
         next if plugins.include? "#{plugin} "
 
         Hobo.ui.title "Installing vagrant plugin: #{plugin}"
-        bundle_shell "vagrant", "plugin", "install", plugin, :realtime => true, :indent => 2
+        shell "vagrant", "plugin", "install", plugin, :realtime => true, :indent => 2
         Hobo.ui.separator
       end
     end
@@ -65,23 +65,18 @@ namespace :deps do
 
   desc "Install chef dependencies"
   task :chef => [ "deps:gems" ] do
-    require 'bundler'
     locate "*Cheffile" do
       Hobo.ui.title "Installing chef dependencies via librarian"
-      Bundler.with_clean_env do
-        bundle_shell "librarian-chef", "install", "--verbose", :realtime => true, :indent => 2 do |line|
-          line =~ /Installing.*</ ? line.strip + "\n" : nil
-        end
+      bundle_shell "librarian-chef", "install", "--verbose", :realtime => true, :indent => 2 do |line|
+        line =~ /Installing.*</ ? line.strip + "\n" : nil
       end
       Hobo.ui.separator
     end
 
     locate "*Berksfile" do
       Hobo.ui.title "Installing chef dependencies via berkshelf"
-      Bundler.with_clean_env do
-        bundle_shell "berks", "install", :realtime => true, :indent => 2
-        bundle_shell "berks", "install", "--path", "cookbooks"
-      end
+      bundle_shell "berks", "install", :realtime => true, :indent => 2
+      bundle_shell "berks", "install", "--path", "cookbooks"
       Hobo.ui.separator
     end
   end

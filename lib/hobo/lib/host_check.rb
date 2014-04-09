@@ -3,7 +3,6 @@ module Hobo
     module HostCheck
       class << self
         include Hobo::Lib::HostCheck
-
         def check opts = {}
           opts = {
             :filter => nil,

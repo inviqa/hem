@@ -4,19 +4,23 @@
 $:.push File.expand_path(File.join("..", "..", "lib"), __FILE__)
 
 # Suppress Net/SSH/Simple warning on windows
-#$SUPPRESS_32BIT_WARNING=1
-
-require 'hobo'
-
+# Note that $HOBO_ARGV is used as an indicator in the gemspec as to whether it needs to build a filelist
+#   Removing it or moving it after the bundler setup will cause "fatal: Not a git repository" errors
+$SUPPRESS_32BIT_WARNING=1
 $HOBO_ARGV = ARGV
 
-error_handler = Hobo::ErrorHandlers::Friendly.new
+require 'hobo/init/bundler_context'
+require 'hobo'
 
+# Default main classes
+error_handler = Hobo::ErrorHandlers::Friendly.new
 Hobo.ui = Hobo::Ui.new
 Hobo.logger = Logger.new(STDOUT)
 Hobo.logger.level = Logger::WARN
 
-# Options parsed here will be hidden from the main app
+# Low level / early arg parsing
+# Anything that can alter ui / logger / cli should be here
+# Early termination args should also go here
 slop = Slop.parse! do
   on '--debug', 'Enable debugging' do
     require 'teerb'
@@ -37,6 +41,7 @@ slop = Slop.parse! do
   end
 
   on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
+  on '--skip-host-checks', 'Skip host checks'
 end
 
 Hobo.logger.formatter = proc do |severity, datetime, progname, msg|
@@ -47,7 +52,7 @@ opts = slop.to_hash
 Hobo.ui.interactive = !(opts[:'non-interactive'] == true)
 
 begin
-  Hobo::Lib::HostCheck.check(:filter => /not_using_system_ruby/)
+  Hobo::Lib::HostCheck.check(:filter => /not_using_system_ruby/, :raise => true) unless opts[:'skip-host-checks']
   Hobo.cli = Hobo::Cli.new(slop: slop)
   Hobo.cli.start
 rescue Exception => error

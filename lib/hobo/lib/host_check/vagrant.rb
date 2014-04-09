@@ -5,8 +5,8 @@ module Hobo
         require 'semantic'
         begin
           version = shell "vagrant --version", :capture => true
-          version.gsub!(/^Vagrant /, '')
-          version = ::Semantic::Version.new version
+          version.gsub!(/^Vagrant[^0-9]+/, '')
+          version = ::Semantic::Version.new version.strip
           minimum_version = ::Semantic::Version.new "1.3.5"
 
           advice = <<-EOF
