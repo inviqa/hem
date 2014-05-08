@@ -116,8 +116,14 @@ module Hobo
     end
 
     def perform_host_checks
+      checks = [
+        'vagrant.*',
+        '.*present'
+      ]
+      checks.push 'latest_hobo_version' unless $HOBO_BUNDLE_MODE
+
       @host_check.check(
-        :filter => /vagrant.*|.*present|latest_hobo_version/,
+        :filter => /#{checks.join('|')}/,
         :raise => true
       )
     end
@@ -127,7 +133,7 @@ module Hobo
       slop.on '-h', '--help', 'Display help'
 
       slop.on '-v', '--version', 'Print version information' do
-        Hobo.ui.info "Hobo version #{Hobo::VERSION}"
+        Hobo.ui.info "Hobo version #{Hobo::VERSION}#{" (Bundle mode)" if $HOBO_BUNDLE_MODE}"
         halt
       end
     end

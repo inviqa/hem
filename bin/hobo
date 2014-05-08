@@ -3,58 +3,73 @@
 # Hack to allow testing with Aruba (for now)
 $:.push File.expand_path(File.join("..", "..", "lib"), __FILE__)
 
+# TODO bundler context detection
+def init_hobo
+  require 'hobo/init/bundler_context' unless $HOBO_BUNDLE_MODE
+  require 'hobo'
+
+  # Default main classes
+  error_handler = Hobo::ErrorHandlers::Friendly.new
+  Hobo.ui = Hobo::Ui.new
+  Hobo.logger = Logger.new(STDOUT)
+  Hobo.logger.level = Logger::WARN
+
+  # Low level / early arg parsing
+  # Anything that can alter ui / logger / cli should be here
+  # Early termination args should also go here
+  slop = Slop.parse! do
+    on '--debug', 'Enable debugging' do
+      require 'teerb'
+      require 'tmpdir'
+      error_handler = Hobo::ErrorHandlers::Debug.new
+      debug_log = File.open(File.join(Dir.tmpdir, 'hobo_debug.log'), 'w+')
+      Hobo.logger = Logger.new(TeeRb::IODelegate.new(STDOUT, debug_log))
+      Hobo.logger.level = Logger::DEBUG
+    end
+
+    on '--ansi', 'Enable / disable ansi output', :invertable => true do
+      Hobo.ui.use_color self.to_hash[:ansi]
+    end
+
+    on '--log-level=', 'Set log level' do
+      level = self.to_hash[:'log-level'].upcase
+      Hobo.logger.level = Logger.const_get(level) if [ 'DEBUG', 'INFO' ].include? level
+    end
+
+    on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
+    on '--skip-host-checks', 'Skip host checks'
+  end
+
+  Hobo.logger.formatter = proc do |severity, datetime, progname, msg|
+    "#{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{severity}: #{msg}\n"
+  end
+
+  opts = slop.to_hash
+  Hobo.ui.interactive = !(opts[:'non-interactive'] == true)
+
+  begin
+    Hobo::Lib::HostCheck.check(:filter => /not_using_system_ruby/, :raise => true) unless opts[:'skip-host-checks']
+    Hobo.cli = Hobo::Cli.new(slop: slop)
+    Hobo.cli.start
+  rescue Exception => error
+    exit error_handler.handle(error)
+  end
+end
+
+require 'hobo/patches/rubygems'
+require 'bundler'
+
 # Suppress Net/SSH/Simple warning on windows
 # Note that $HOBO_ARGV is used as an indicator in the gemspec as to whether it needs to build a filelist
 #   Removing it or moving it after the bundler setup will cause "fatal: Not a git repository" errors
 $SUPPRESS_32BIT_WARNING=1
 $HOBO_ARGV = ARGV
+$HOBO_BUNDLE_MODE = (!!ENV['BUNDLE_GEMFILE'] && Bundler.environment.specs.to_hash['hobo-inviqa'])
 
-require 'hobo/init/bundler_context'
-require 'hobo'
-
-# Default main classes
-error_handler = Hobo::ErrorHandlers::Friendly.new
-Hobo.ui = Hobo::Ui.new
-Hobo.logger = Logger.new(STDOUT)
-Hobo.logger.level = Logger::WARN
-
-# Low level / early arg parsing
-# Anything that can alter ui / logger / cli should be here
-# Early termination args should also go here
-slop = Slop.parse! do
-  on '--debug', 'Enable debugging' do
-    require 'teerb'
-    require 'tmpdir'
-    error_handler = Hobo::ErrorHandlers::Debug.new
-    debug_log = File.open(File.join(Dir.tmpdir, 'hobo_debug.log'), 'w+')
-    Hobo.logger = Logger.new(TeeRb::IODelegate.new(STDOUT, debug_log))
-    Hobo.logger.level = Logger::DEBUG
+if $HOBO_BUNDLE_MODE
+  init_hobo
+else
+  Bundler.with_clean_env do
+    init_hobo
   end
-
-  on '--ansi', 'Enable / disable ansi output', :invertable => true do
-    Hobo.ui.use_color self.to_hash[:ansi]
-  end
-
-  on '--log-level=', 'Set log level' do
-    level = self.to_hash[:'log-level'].upcase
-    Hobo.logger.level = Logger.const_get(level) if [ 'DEBUG', 'INFO' ].include? level
-  end
-
-  on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
-  on '--skip-host-checks', 'Skip host checks'
-end
-
-Hobo.logger.formatter = proc do |severity, datetime, progname, msg|
-  "#{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{severity}: #{msg}\n"
-end
-
-opts = slop.to_hash
-Hobo.ui.interactive = !(opts[:'non-interactive'] == true)
-
-begin
-  Hobo::Lib::HostCheck.check(:filter => /not_using_system_ruby/, :raise => true) unless opts[:'skip-host-checks']
-  Hobo.cli = Hobo::Cli.new(slop: slop)
-  Hobo.cli.start
-rescue Exception => error
-  exit error_handler.handle(error)
 end

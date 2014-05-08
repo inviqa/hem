@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
 
   # This file will get interpretted at runtime due to Bundler.setup
   # Without the $HOBO_ARGV check (set in bin/hobo) fatal: not a git repository errors show up
-  spec.files         = `git ls-files`.split($/) unless $HOBO_ARGV
+  spec.files         = `git ls-files`.split($/) if ENV['HOBO_BUILD'] == '1'
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "highline", "~> 1.6.20"
   spec.add_dependency "rake", "~> 10.1.1"
   spec.add_dependency "rake-hooks", "~> 1.2.3"
-  spec.add_dependency "bundler", "~> 1.5.2"
+  spec.add_dependency "bundler", ">= 1.5.2"
   spec.add_dependency "deepstruct", "~> 0.0.5"
   spec.add_dependency "semantic", "~> 1.3.0"
   spec.add_dependency "aws-sdk", "~> 1.34.0"
@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pry", "~> 0.9.12"
 
   # Not actually a dep! gem insists on installing 1.6.2.rc2 however!
-  spec.add_dependency "nokogiri", "= 1.6.1"
+  #spec.add_dependency "nokogiri", "= 1.6.1"
 
   # This prevents Bundler.setup from complaining that rubygems did not install dev deps
   # If you want to run dev deps you need to ensure HOBO_ENV=dev is set for bundle install & bundle exec

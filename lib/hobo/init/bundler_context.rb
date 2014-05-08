@@ -2,22 +2,25 @@
 ENV['BUNDLE_GEMFILE'] = File.expand_path('../../../../Gemfile', __FILE__)
 
 require 'shellwords'
-require 'hobo/version'
 
-# gem install != bundle install
-# Gem may well skip some deps that bundler wants
-bundler_check = File.join(ENV['HOME'], '.hobo', 'bundler_check')
-unless File.exists?(bundler_check) && File.read(bundler_check).strip == Hobo::VERSION
-  `bundle check --gemfile=#{ENV['BUNDLE_GEMFILE'].shellescape}`
-  unless $?.success?
-    puts "Hobo has detected missing dependencies. Please wait while they're installed"
-    `bundle install --gemfile=#{ENV['BUNDLE_GEMFILE'].shellescape}`
-    Kernel.exec('hobo', *$HOBO_ARGV)
+begin
+  Bundler.setup(:default)
+rescue Bundler::GemNotFound => e
+  puts 'Missing dependencies detected!'
+  print 'These will automatically be installed now, please wait'
+  rval = nil
+  IO::popen("bundle install --gemfile=#{ENV['BUNDLE_GEMFILE'].shellescape}") do |io|
+    while line = io.gets
+      print '.'
+    end
+    puts ' done'
+    io.close
+    rval = $?.to_i
   end
-  File.write(bundler_check, Hobo::VERSION)
+
+  if rval == 0
+    Kernel.exec('hobo', *$HOBO_ARGV)
+  else
+    throw e
+  end
 end
-
-require 'hobo/patches/rubygems'
-require 'bundler'
-
-Bundler.setup(:default)
