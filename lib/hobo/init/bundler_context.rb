@@ -21,6 +21,10 @@ rescue Bundler::GemNotFound => e
   if rval == 0
     Kernel.exec('hobo', *$HOBO_ARGV)
   else
+    puts
+    puts "Failed to install dependencies. Hobo can not proceed."
+    puts "Please see the error below:"
+    puts
     throw e
   end
 end
