@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    hobo-inviqa (0.0.10.pre.rc11)
+    hobo-inviqa (0.0.10)
       aws-sdk (~> 1.34.0)
       bundler (>= 1.5.2)
       deepstruct (~> 0.0.5)

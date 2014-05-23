@@ -1,3 +1,3 @@
 module Hobo
-  VERSION = '0.0.10-rc11'
+  VERSION = '0.0.10'
 end

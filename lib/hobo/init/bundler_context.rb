@@ -5,14 +5,25 @@ require 'shellwords'
 
 begin
   Bundler.setup(:default)
-rescue Bundler::GemNotFound => e
+rescue Bundler::GemNotFound => exception
+  puts exception
+  puts
   puts 'Missing dependencies detected!'
   print 'These will automatically be installed now, please wait'
   rval = nil
+
+  fake_progress = Thread.new do
+    while true
+      print '.'
+      sleep 10
+    end
+  end
+
   IO::popen("bundle install --gemfile=#{ENV['BUNDLE_GEMFILE'].shellescape}") do |io|
     while line = io.gets
       print '.'
     end
+    fake_progress.exit
     puts ' done'
     io.close
     rval = $?.to_i

@@ -3,7 +3,6 @@
 # Hack to allow testing with Aruba (for now)
 $:.push File.expand_path(File.join("..", "..", "lib"), __FILE__)
 
-# TODO bundler context detection
 def init_hobo
   require 'hobo/init/bundler_context' unless $HOBO_BUNDLE_MODE
   require 'hobo'
@@ -53,6 +52,8 @@ def init_hobo
     Hobo.cli.start
   rescue Exception => error
     exit error_handler.handle(error)
+  ensure
+    ENV['BUNDLE_GEMFILE'] = $OLD_BUNDLE_GEMFILE
   end
 end
 
@@ -64,7 +65,10 @@ require 'bundler'
 #   Removing it or moving it after the bundler setup will cause "fatal: Not a git repository" errors
 $SUPPRESS_32BIT_WARNING=1
 $HOBO_ARGV = ARGV
+# Bundler.environment tries to do Bundler.setup!
+# In the event that bundle is missing deps, the means BUNDLE_GEMFILE will not be set!
 $HOBO_BUNDLE_MODE = (!!ENV['BUNDLE_GEMFILE'] && Bundler.environment.specs.to_hash['hobo-inviqa'])
+$OLD_BUNDLE_GEMFILE = ENV['BUNDLE_GEMFILE']
 
 if $HOBO_BUNDLE_MODE
   init_hobo
