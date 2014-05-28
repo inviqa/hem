@@ -58,16 +58,13 @@ def init_hobo
 end
 
 require 'hobo/patches/rubygems'
+require 'hobo/bundler'
 require 'bundler'
 
 # Suppress Net/SSH/Simple warning on windows
-# Note that $HOBO_ARGV is used as an indicator in the gemspec as to whether it needs to build a filelist
-#   Removing it or moving it after the bundler setup will cause "fatal: Not a git repository" errors
 $SUPPRESS_32BIT_WARNING=1
 $HOBO_ARGV = ARGV
-# Bundler.environment tries to do Bundler.setup!
-# In the event that bundle is missing deps, the means BUNDLE_GEMFILE will not be set!
-$HOBO_BUNDLE_MODE = (!!ENV['BUNDLE_GEMFILE'] && Bundler.environment.specs.to_hash['hobo-inviqa'])
+$HOBO_BUNDLE_MODE = Hobo::Bundler.is_hobo_bundled?
 $OLD_BUNDLE_GEMFILE = ENV['BUNDLE_GEMFILE']
 
 if $HOBO_BUNDLE_MODE
