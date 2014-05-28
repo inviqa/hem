@@ -4,7 +4,6 @@
 $:.push File.expand_path(File.join("..", "..", "lib"), __FILE__)
 
 def init_hobo
-  require 'hobo/init/bundler_context' unless $HOBO_BUNDLE_MODE
   require 'hobo'
 
   # Default main classes
@@ -57,6 +56,25 @@ def init_hobo
   end
 end
 
+if Process.uid == 0
+  puts
+  puts "Hobo must not be run as root"
+  puts
+  exit 147
+end
+
+require "rbconfig"
+ruby_path = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
+
+unless ruby_path =~ /\/rvm\/|\.rvm|\.rbenv/
+  puts
+  puts "Hobo is not compatible with system ruby installs"
+  puts
+  puts "Please install ruby via rbenv and re-install hobo-inviqa"
+  puts
+  exit 148
+end
+
 require 'hobo/patches/rubygems'
 require 'hobo/bundler'
 require 'bundler'
@@ -64,13 +82,13 @@ require 'bundler'
 # Suppress Net/SSH/Simple warning on windows
 $SUPPRESS_32BIT_WARNING=1
 $HOBO_ARGV = ARGV
-$HOBO_BUNDLE_MODE = Hobo::Bundler.is_hobo_bundled?
 $OLD_BUNDLE_GEMFILE = ENV['BUNDLE_GEMFILE']
+$HOBO_BUNDLE_MODE = Hobo::Bundler.is_hobo_bundled?
 
 if $HOBO_BUNDLE_MODE
   init_hobo
 else
-  Bundler.with_clean_env do
+  Hobo::Bundler.isolate do
     init_hobo
   end
 end
