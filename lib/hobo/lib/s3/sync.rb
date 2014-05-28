@@ -54,7 +54,7 @@ module Hobo
               destination_file.write({ :size => source_file.size }) do |buffer, bytes|
                 chunk = source_file.read(bytes)
                 buffer.write(chunk)
-                opts[:progress].call(file, chunk.length, size, :update)
+                opts[:progress].call(file, (chunk || '').length, size, :update)
               end
 
               destination_file.close
