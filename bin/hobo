@@ -57,7 +57,27 @@ def init_hobo
   end
 end
 
-require 'hobo/patches/rubygems'
+Gem.configuration.verbose = false
+
+if Process.uid == 0
+  puts
+  puts "Hobo must not be run as root"
+  puts
+  exit 147
+end
+
+require "rbconfig"
+ruby_path = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
+
+unless ruby_path =~ /\/rvm\/|\.rvm|\.rbenv/
+  puts
+  puts "Hobo is not compatible with system ruby installs"
+  puts
+  puts "Please install ruby via rbenv and re-install hobo-inviqa"
+  puts
+  exit 148
+end
+
 require 'hobo/bundler'
 require 'bundler'
 
