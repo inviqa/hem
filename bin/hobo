@@ -56,6 +56,8 @@ def init_hobo
   end
 end
 
+Gem.configuration.verbose = false
+
 if Process.uid == 0
   puts
   puts "Hobo must not be run as root"
