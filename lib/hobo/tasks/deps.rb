@@ -24,14 +24,16 @@ namespace :deps do
         args = [ "php bin/composer.phar install #{ansi} --prefer-dist", { realtime: true, indent: 2 } ]
         complete = false
 
-        check = Hobo::Lib::HostCheck.check(:filter => /php_present/)
+        if maybe(Hobo.project_config.tasks.deps.composer.disable_host_run)
+          check = Hobo::Lib::HostCheck.check(:filter => /php_present/)
 
-        if check[:php_present] == :ok
-          begin
-            shell *args
-            complete = true
-          rescue Hobo::ExternalCommandError
-            Hobo.ui.warning "Installing composer dependencies locally failed!"
+          if check[:php_present] == :ok
+            begin
+              shell *args
+              complete = true
+            rescue Hobo::ExternalCommandError
+              Hobo.ui.warning "Installing composer dependencies locally failed!"
+            end
           end
         end
 
@@ -76,7 +78,13 @@ namespace :deps do
     locate "*Berksfile" do
       Hobo.ui.title "Installing chef dependencies via berkshelf"
       bundle_shell "berks", "install", :realtime => true, :indent => 2
-      bundle_shell "berks", "install", "--path", "cookbooks"
+      version = bundle_shell "berks", "-v", :capture => true
+      if version =~ /^[3-9]/
+        shell "rm -rf cookbooks"
+        bundle_shell "berks", "vendor", "cookbooks"
+      else
+        bundle_shell "berks", "install", "--path", "cookbooks"
+      end
       Hobo.ui.separator
     end
   end
