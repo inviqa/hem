@@ -118,7 +118,8 @@ module Hobo
     def perform_host_checks
       checks = [
         'vagrant.*',
-        '.*present'
+        'ssh_present',
+        'git_present'
       ]
       checks.push 'latest_hobo_version' unless $HOBO_BUNDLE_MODE
 
