@@ -14,8 +14,9 @@ You can install it with the following command:
 Once installed, run the following to set it as the default ruby and re-install hobo-inviqa:
   rbenv install 1.9.3-p448 && rbenv global 1.9.3-448 && gem install hobo-inviqa
 EOF
-        which = shell "which ruby", :capture => true
-        unless which =~ /\.rbenv|\.rvm/
+	require "rbconfig"
+	which = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
+        unless which =~ /\.rbenv|\.rvm|jruby/
           raise Hobo::HostCheckError.new("Hobo is running under a system ruby", advice)
         end
       end
