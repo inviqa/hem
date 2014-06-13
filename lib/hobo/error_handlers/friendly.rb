@@ -38,6 +38,8 @@ module Hobo
           when "Hobo::HostCheckError"
             Hobo.ui.error "\nHobo has detected a problem with your system configuration:\n"
             Hobo.ui.warning error.advice.gsub(/^/, '  ')
+          when "Hobo::Error"
+            Hobo.ui.error "\n#{error.message}\n"
           else
             File.write(log_file, "(#{error.class}) #{error.message}\n\n#{error.backtrace.join("\n")}")
             Hobo.ui.error <<-ERROR

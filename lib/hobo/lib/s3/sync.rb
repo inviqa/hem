@@ -26,7 +26,10 @@ module Hobo
           delta = {:add => [], :remove => []}
 
           handle_s3_error do
-            opts = { :progress => Hobo.method(:progress) }.merge(opts)
+            opts = {
+              :dry => false,
+              :progress => Hobo.method(:progress)
+            }.merge(opts)
 
             source_io = io_handler(source)
             destination_io = io_handler(dest)
@@ -42,6 +45,7 @@ module Hobo
 
             delta = delta(source_listing, destination_listing)
             logger.debug("s3sync: Delta #{delta}")
+            break if opts[:dry]
 
             delta[:add].each do |file|
               logger.debug("s3sync: Synchronizing #{file}")
@@ -79,19 +83,24 @@ module Hobo
         end
 
         def handle_s3_error
+          exception = Hobo::Error.new("Could not sync assets")
           begin
             yield
           rescue Errno::ENETUNREACH
             Hobo.ui.error "  Could not contact Amazon servers."
             Hobo.ui.error "  This can sometimes be caused by missing AWS credentials"
+            raise exception
           rescue AWS::S3::Errors::NoSuchBucket
             Hobo.ui.error "  Asset bucket #{Hobo.project_config.asset_bucket} does not exist!"
+            # We allow this one to be skipped as there are obviously no assets to sync
           rescue AWS::S3::Errors::AccessDenied
             Hobo.ui.error "  Your AWS key does not have access to the #{Hobo.project_config.asset_bucket} S3 bucket!"
             Hobo.ui.error "  Please request access to this bucket from your TTL or via an internal support request"
+            raise exception
           rescue AWS::Errors::MissingCredentialsError
             Hobo.ui.warning "  AWS credentials not set!"
-            Hobo.ui.warning "  Either set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars or run `hobo config` to set them jsut for hobo."
+            Hobo.ui.warning "  Please request credentials from internalsupport@inivqa.com or in #devops and configure them with `hobo config`"
+            raise exception
           end
         end
 

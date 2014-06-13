@@ -9,7 +9,8 @@ module Hobo
         'Hobo::MissingArgumentsError' => 5,
         'Hobo::UserError' => 6,
         'Hobo::ProjectOnlyError' => 7,
-        'Hobo::HostCheckError' => 8
+        'Hobo::HostCheckError' => 8,
+        'Hobo::Error' => 9
       }
     end
   end
