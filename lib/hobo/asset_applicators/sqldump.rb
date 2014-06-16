@@ -23,12 +23,12 @@ Hobo.asset_applicators.register /.*\.sql\.gz/ do |file|
 
   if status[:db_exists] && !status[:db_has_tables]
     # Db exists but is empty
-    shell(vm_mysql(:mysql => 'mysqladmin', :append => "drop #{db.shellescape}"))
+    shell(vm_mysql(:mysql => 'mysqladmin', :append => " --force drop #{db.shellescape}"))
   end
 
   begin
     Hobo.ui.title "Applying mysqldump (#{file})"
-    shell(vm_mysql(:mysql => 'mysqladmin', :append => "create #{db.shellescape}"))
+    shell(vm_mysql(:mysql => 'mysqladmin', :append => " create #{db.shellescape}"))
     shell(vm_mysql(:auto_echo => false, :db => db) < "zcat #{file.shellescape}")
   rescue Hobo::ExternalCommandError => exception
     Hobo.ui.error "Could not apply #{file} due to the following error:\n"
