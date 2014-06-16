@@ -33,9 +33,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "net-ssh-simple", "~> 1.6.3"
   spec.add_dependency "pry", "~> 0.9.12"
 
-  # Not actually a dep! gem insists on installing 1.6.2.rc2 however!
-  #spec.add_dependency "nokogiri", "= 1.6.1"
-
   # This prevents Bundler.setup from complaining that rubygems did not install dev deps
   # If you want to run dev deps you need to ensure HOBO_ENV=dev is set for bundle install & bundle exec
   if ENV['HOBO_ENV'] == 'dev'
@@ -46,5 +43,6 @@ Gem::Specification.new do |spec|
     spec.add_development_dependency "guard", "~> 2.2.5"
     spec.add_development_dependency "guard-rspec", "~> 4.2.4"
     spec.add_development_dependency "guard-cucumber", "~> 1.4.1"
+    spec.add_development_dependency "simplecov", "~> 0.7.1"
   end
 end
