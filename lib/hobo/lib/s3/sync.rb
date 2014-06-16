@@ -14,9 +14,11 @@ module Hobo
             :max_retries => 15
           }.merge(opts)
 
-          # AWS::S3 is flakey about actually raising this error when nil is provided
-          [:access_key_id, :secret_access_key].each do |k|
-            raise AWS::Errors::MissingCredentialsError if @opts[k].nil?
+          handle_s3_error do
+            # AWS::S3 is flakey about actually raising this error when nil is provided
+            [:access_key_id, :secret_access_key].each do |k|
+              raise AWS::Errors::MissingCredentialsError if @opts[k].nil?
+            end
           end
 
           logger.debug("s3sync: Options #{@opts}")
