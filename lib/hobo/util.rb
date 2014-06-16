@@ -53,5 +53,10 @@ module Hobo
       require 'rbconfig'
       !!(RbConfig::CONFIG['host_os'] =~ /mswin|msys|mingw|cygwin|bccwin|wince|emc/)
     end
+
+    def system_ruby?
+      require 'rbconfig'
+      File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"]).match(/\/rvm\/|\/\.rvm\/|\/\.rbenv/) != nil
+    end
   end
 end

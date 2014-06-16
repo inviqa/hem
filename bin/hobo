@@ -46,7 +46,6 @@ def init_hobo
   Hobo.ui.interactive = !(opts[:'non-interactive'] == true)
 
   begin
-    Hobo::Lib::HostCheck.check(:filter => /not_using_system_ruby/, :raise => true) unless opts[:'skip-host-checks']
     Hobo.cli = Hobo::Cli.new(slop: slop)
     Hobo.cli.start
   rescue Exception => error
@@ -65,14 +64,16 @@ if Process.uid == 0
   exit 147
 end
 
-require "rbconfig"
-ruby_path = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
+require "hobo/util"
 
-unless ruby_path =~ /\/rvm\/|\.rvm|\.rbenv/
+if Hobo.windows? and not Hobo.system_ruby?
   puts
   puts "Hobo is not compatible with system ruby installs"
   puts
-  puts "Please install ruby via rbenv and re-install hobo-inviqa"
+  puts "Please see the installation instructions for hobo on the wiki at https://github.com/inviqa/hobo-gem/wiki"
+  puts "It is also recommended that you wipe system gems so as to avoid interference. You can achieve this with the following command:"
+  puts
+  puts "  gem list --no-version | xargs sudo gem uninstall -aIx" 
   puts
   exit 148
 end
