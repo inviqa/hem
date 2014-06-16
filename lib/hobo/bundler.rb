@@ -1,5 +1,7 @@
 module Hobo
   module Bundler
+    require 'rubygems/user_interaction'
+    
     class GemUi < Gem::SilentUI
       def download_reporter(*args)
         VerboseDownloadReporter.new(STDOUT, *args)

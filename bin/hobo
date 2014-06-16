@@ -57,25 +57,29 @@ end
 
 Gem.configuration.verbose = false
 
-if Process.uid == 0
-  puts
-  puts "Hobo must not be run as root"
-  puts
-  exit 147
-end
+require 'hobo/util'
 
-require "hobo/util"
+unless Hobo.windows?
+  if Process.uid == 0
+    puts
+    puts "Hobo must not be run as root"
+    puts
+    exit 147
+  end
 
-if Hobo.windows? and not Hobo.system_ruby?
-  puts
-  puts "Hobo is not compatible with system ruby installs"
-  puts
-  puts "Please see the installation instructions for hobo on the wiki at https://github.com/inviqa/hobo-gem/wiki"
-  puts "It is also recommended that you wipe system gems so as to avoid interference. You can achieve this with the following command:"
-  puts
-  puts "  gem list --no-version | xargs sudo gem uninstall -aIx" 
-  puts
-  exit 148
+  require "hobo/util"
+
+  if Hobo.windows? and not Hobo.system_ruby?
+    puts
+    puts "Hobo is not compatible with system ruby installs"
+    puts
+    puts "Please see the installation instructions for hobo on the wiki at https://github.com/inviqa/hobo-gem/wiki"
+    puts "It is also recommended that you wipe system gems so as to avoid interference. You can achieve this with the following command:"
+    puts
+    puts "  gem list --no-version | xargs sudo gem uninstall -aIx" 
+    puts
+    exit 148
+  end
 end
 
 require 'hobo/patches/rubygems'
