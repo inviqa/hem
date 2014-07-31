@@ -54,7 +54,7 @@ namespace :deps do
     locate "*Vagrantfile" do
       to_install = []
       File.read("Vagrantfile").split("\n").each do |line|
-        if line.match /#\s+ Hobo.vagrant_plugin (.*)/
+        if line.match /#\s*Hobo.vagrant_plugin (.*)/
           to_install << $1
         else
           next if line.match /^\s*#/
