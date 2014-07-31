@@ -75,7 +75,12 @@ module Hobo
 
         class << self
           def name_to_url name
-            name.match(/\./) ? name : "git@github.com:inviqa/hobo-seed-#{name}"
+            path = File.expand_path name
+            if name.match(/^(\.|\/|\/~)/) && path
+              path
+            else
+              "git@github.com:inviqa/hobo-seed-#{name}"
+            end
           end
         end
       end

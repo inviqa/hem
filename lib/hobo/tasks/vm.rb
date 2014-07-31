@@ -43,7 +43,7 @@ namespace :vm do
   task :stop do
     vagrantfile do
       Hobo.ui.title "Stopping VM"
-      vagrant_exec 'suspend'
+      vagrant_exec 'halt'
       Hobo.ui.separator
     end
   end

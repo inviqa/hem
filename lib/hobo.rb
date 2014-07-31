@@ -8,6 +8,7 @@ require 'deepstruct'
 require 'logger'
 require 'highline'
 require 'fileutils'
+require 'openssl'
 
 # DSL enhancements
 require 'hobo/metadata'
@@ -55,6 +56,7 @@ require 'hobo/asset_applicators/files'
 require 'hobo/lib/seed/project'
 require 'hobo/lib/seed/replacer'
 require 'hobo/lib/seed/seed'
+require 'hobo/lib/self_signed_cert_generator'
 
 # Host checks
 require 'hobo/lib/host_check/git'

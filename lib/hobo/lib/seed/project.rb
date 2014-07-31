@@ -6,7 +6,8 @@ module Hobo
           @opts = {
             :replacer => Replacer.new,
             :config_class => Hobo::Config::File,
-            :project_config_file => Hobo.project_config_file
+            :project_config_file => Hobo.project_config_file,
+            :ssl_cert_generator => Hobo::Lib::SelfSignedCertGenerator
           }.merge! opts
         end
 
@@ -19,12 +20,19 @@ module Hobo
           config[:vm] = {
             :project_mount_path => "/vagrant"
           }
+          config[:ssl] = @opts[:ssl_cert_generator].generate config[:hostname]
+          config[:chef_ssl] = {}
+          config[:ssl].each do |k, v|
+            config[:chef_ssl][k] = v.gsub("\n", "\\n")
+          end
 
           @opts[:replacer].replace(config[:project_path], config)
           load_seed_init(config)
 
           project_path = config[:project_path]
           config.delete :project_path
+          config.delete :ssl
+          config.delete :chef_ssl
           @opts[:config_class].save @opts[:project_config_file], config
 
           initialize_git project_path, config[:git_url]

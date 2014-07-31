@@ -52,12 +52,20 @@ namespace :deps do
   task :vagrant_plugins => [ "deps:gems" ] do
     plugins = shell "vagrant plugin list", :capture => true
     locate "*Vagrantfile" do
+      to_install = []
       File.read("Vagrantfile").split("\n").each do |line|
-        next if line.match /^\s*#/
-        next unless line.match /Vagrant\.require_plugin (.*)/
-        plugin = $1.gsub(/['"]*/, '')
-        next if plugins.include? "#{plugin} "
+        if line.match /#\s+ Hobo.vagrant_plugin (.*)/
+          to_install << $1
+        else
+          next if line.match /^\s*#/
+          next unless line.match /Vagrant\.require_plugin (.*)/
+          to_install << $1
+        end
+      end
 
+      to_install.each do |plugin|
+        plugin.gsub!(/['"]*/, '')
+        next if plugins.include? "#{plugin} "
         Hobo.ui.title "Installing vagrant plugin: #{plugin}"
         shell "vagrant", "plugin", "install", plugin, :realtime => true, :indent => 2
         Hobo.ui.separator
