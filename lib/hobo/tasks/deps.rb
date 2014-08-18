@@ -24,7 +24,7 @@ namespace :deps do
         args = [ "php bin/composer.phar install #{ansi} --prefer-dist", { realtime: true, indent: 2 } ]
         complete = false
 
-        if maybe(Hobo.project_config.tasks.deps.composer.disable_host_run)
+        unless maybe(Hobo.project_config.tasks.deps.composer.disable_host_run)
           check = Hobo::Lib::HostCheck.check(:filter => /php_present/)
 
           if check[:php_present] == :ok
