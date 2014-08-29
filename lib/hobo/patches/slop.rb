@@ -48,6 +48,8 @@ class Slop
   end
 
   class Option
+    DEFAULT_OPTIONS[:key_delimiter] = '='
+
     alias :old_value= :value=
     def value=(new_value)
       if config[:as].to_s.downcase == 'hash'
