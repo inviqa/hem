@@ -47,19 +47,21 @@ class Slop
     old_parse!(items, &block)
   end
 
-  alias :old_value= :value=
-  def value=(new_value)
-    if config[:as].to_s.downcase == 'hash'
-      @value ||= {}
+  class Option
+    alias :old_value= :value=
+    def value=(new_value)
+      if config[:as].to_s.downcase == 'hash'
+        @value ||= {}
 
-      if new_value.respond_to?(:split)
-        new_array_hash = new_value.split(config[:delimiter], config[:limit]).map do |v|
-          v.split(config[:key_delimiter], 2)
+        if new_value.respond_to?(:split)
+          new_array_hash = new_value.split(config[:delimiter], config[:limit]).map do |v|
+            v.split(config[:key_delimiter], 2)
+          end
+          @value.merge(Hash[new_array_hash])
         end
-        @value.merge(Hash[new_array_hash])
+      else
+        self.old_value = new_value
       end
-    else
-      self.old_value = new_value
     end
   end
 end
