@@ -64,7 +64,12 @@ module Hobo
 
         if opt.long
           description += ". (Disable with --no-#{opt.long})" if opt.config[:invertable]
-          value = opt.config[:argument] ? "#{opt.long.upcase}" : ""
+          case opt.config[:as].to_s.downcase
+          when 'hash'
+            value = opt.config[:argument] ? "KEY#{opt.config[:key_delimiter]}VALUE" : ""
+          else
+            value = opt.config[:argument] ? "#{opt.long.upcase}" : ""
+          end
           value = "[#{value}]" if opt.accepts_optional_argument?
           value = "=#{value}" unless value.empty?
 
