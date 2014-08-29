@@ -31,7 +31,7 @@ namespace :seed do
 
     unless t.opts[:data].nil?
       data = t.opts[:data].inject({}){|hash,(k,v)| hash[k.to_sym] = v; hash}
-      config[:seed].merge!(data)
+      config.merge!(data)
     end
 
     seed = Hobo::Lib::Seed::Seed.new(

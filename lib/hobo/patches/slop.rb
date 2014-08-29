@@ -59,7 +59,7 @@ class Slop
           new_array_hash = new_value.split(config[:delimiter], config[:limit]).map do |v|
             v.split(config[:key_delimiter], 2)
           end
-          @value.merge(Hash[new_array_hash])
+          @value.merge!(Hash[new_array_hash])
         end
       else
         self.old_value = new_value
