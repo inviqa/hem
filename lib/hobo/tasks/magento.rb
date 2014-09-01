@@ -94,10 +94,14 @@ namespace :magento do
 
       sync = Hobo::Lib::S3::Sync.new(Hobo.aws_credentials)
 
+      patches_path = "tools/patches"
+      incoming_path = "#{patches_path}/incoming"
+
       Hobo.ui.success("Downloading Magento #{config[:magento_edition].capitalize} #{config[:magento_version]} patches")
       changes = sync.sync(
         "s3://inviqa-assets-magento/#{config[:magento_edition]}/patches/#{config[:magento_version]}/",
-        "tools/patches/general/"
+        "#{incoming_path}/",
+        :delete => false
       )
       Hobo.ui.separator
 
@@ -105,17 +109,31 @@ namespace :magento do
 
       Hobo.ui.separator
 
-      changes[:add].each do |filename|
+      Dir.glob("#{incoming_path}/*.{sh,patch,diff}") do |file|
+        filename = File.basename(file)
+
+        if File.exist?("#{patches_path}/#{filename}")
+          Hobo.ui.success("Patch #{filename} has already been applied, so skipping it")
+          File.delete file
+        end
+
         Hobo.ui.success("Applying patch #{filename}")
 
-        file = "tools/patches/general/#{filename}"
         if /\.sh$/.match(file)
-          vm_shell "cp #{file} #{magento_path} && cd #{magento_path} && sh #{filename} && rm #{filename}"
+          File.rename file, "#{magento_path}/#{filename}"
+          file = "#{magento_path}/#{filename}"
+
+          vm_shell "cd #{magento_path} && sh #{filename}", :realtime => true, :indent => 2
+          File.rename file, "#{patches_path}/#{filename}"
+
           shell "git add #{magento_path}"
           shell "git commit -m 'Apply Magento patch #{filename}'"
         else
           shell "git am #{file}"
+          File.rename file, "#{patches_path}/#{filename}"
         end
+        shell "git add #{patches_path}/#{filename}"
+        shell "git commit --amend --reuse-message HEAD"
 
         Hobo.ui.separator
       end
