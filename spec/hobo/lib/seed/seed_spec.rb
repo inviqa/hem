@@ -75,6 +75,7 @@ describe Hobo::Lib::Seed::Seed do
     end
 
     it "should export seed submodules to the specified directory"
+    it "should export a specifified git :ref"
   end
 
   describe "version", :integration do

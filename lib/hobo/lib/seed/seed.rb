@@ -9,33 +9,41 @@ module Hobo
           @url = url
         end
 
-        def export path
+        def export path, opts = {}
+          opts = {
+            :name => 'seed',
+            :ref => 'master'
+          }.merge(opts)
+
           path = File.expand_path(path)
           FileUtils.mkdir_p path
 
-          Hobo.ui.success "Exporting seed to #{path}"
+          Hobo.ui.success "Exporting #{opts[:name]} to #{path}"
 
           tmp_path = Dir.mktmpdir("hobo-seed-export")
 
           Dir.chdir @seed_path do
-            Hobo::Helper.shell "git clone . #{tmp_path}"
+            Hobo::Helper.shell "git clone --branch #{opts[:ref].shellescape} . #{tmp_path}"
           end
 
           Dir.chdir tmp_path do
+            Hobo.ui.success "Exporting #{opts[:name]}"
+            Hobo::Helper.shell "git archive #{opts[:ref].shellescape} | tar -x -C #{path.shellescape}"
+
+            submodules = Hobo::Helper.shell "git submodule status", :capture => true, :strip => false
+
+            next if submodules.empty?
+
             Hobo.ui.success "Cloning submodules"
             Hobo::Helper.shell "git submodule update --init", :realtime => true, :indent => 2
 
-            Hobo.ui.success "Exporting seed"
-            Hobo::Helper.shell "git archive master | tar -x -C #{path.shellescape}"
-
             # Export submodules
             # git submodule foreach does not play nice on windows so we fake it here
-            submodules = Hobo::Helper.shell "git submodule status", :capture => true
             submodules.split("\n").each do |line|
-              matches = line.match /^\s*[a-z0-9]+ (.+) \(.*\)/
+              matches = line.match /^[\s-][a-z0-9]+ (.+)/
               next unless matches
               submodule_path = matches[1]
-              Hobo.ui.success "Exporting '#{submodule_path}' seed submodule"
+              Hobo.ui.success "Exporting '#{submodule_path}' #{opts[:name]} submodule"
               Hobo::Helper.shell "cd #{tmp_path}/#{submodule_path.shellescape} && git archive HEAD | tar -x -C #{path}/#{submodule_path.shellescape}"
             end
           end
