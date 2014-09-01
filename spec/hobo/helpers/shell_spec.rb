@@ -17,5 +17,7 @@ describe Hobo::Helper do
     it "should throw Hobo::ExternalCommandError on non-zero exit code"
     it "should colour stderr output with red"
     it "should set ENV args for command if specified with :env"
+    it "should strip leading and trailing whitespace in captured output"
+    it "should preserve whitespace in captured output if :strip false"
   end
 end

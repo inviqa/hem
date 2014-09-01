@@ -19,9 +19,12 @@ namespace :magento do
     end
 
     def detect_clean
-      status = shell('git status -z', :capture => true)
-      status.scan(/(\S+)\s+([^\0]*)/).each do |status, filename|
-        if status[0] != ' ' || filename.start_with?(magento_path)
+      status = shell('git status -z', :capture => true, :strip => false)
+      status.split("\u0000").each do |line|
+        match = line.match(/^([\s\S]{2})\s+(.*)$/)
+        next if match.nil?
+
+        if ![' ', '?'].include?($1[0]) || $2.start_with?(magento_path)
           raise Hobo::UserError.new "Please remove all files from the git index, and stash all changes in '#{magento_path}' before continuing"
         end
       end

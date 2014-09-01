@@ -37,6 +37,7 @@ module Hobo
       opts = (args.size > 1 && args.last.is_a?(Hash)) ? args.pop : {}
       opts = {
         :capture => false,
+        :strip => true,
         :indent => 0,
         :realtime => false,
         :env => {},
@@ -59,8 +60,13 @@ module Hobo
             threads.push(::Thread.new do
               chunk_line_iterator stream do |line|
                 line = ::Hobo.ui.color(line, :error) if key == :err
-                buffer.write("#{line.strip}\n")
-                Hobo::Logging.logger.debug("helper.shell: #{line.strip}")
+                line_formatted = if opts[:strip]
+                  line.strip
+                else
+                  line
+                end
+                buffer.write("#{line_formatted}\n")
+                Hobo::Logging.logger.debug("helper.shell: #{line_formatted}")
                 line = yield line if block
                 print indent + line if opts[:realtime] && !line.nil?
               end
@@ -78,7 +84,12 @@ module Hobo
 
           raise ::Hobo::ExternalCommandError.new(args.join(" "), external.value.exitstatus, buffer) if external.value.exitstatus != 0 && !opts[:ignore_errors]
 
-          return opts[:capture] ? buffer.read.strip : nil
+          if opts[:capture]
+            return buffer.read unless opts[:strip]
+            return buffer.read.strip
+          else
+            return nil
+          end
         end
       end
     end
