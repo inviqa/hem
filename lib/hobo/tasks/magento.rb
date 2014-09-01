@@ -121,6 +121,8 @@ namespace :magento do
 
         if File.exist?("#{patches_path}/#{filename}")
           Hobo.ui.success("Patch #{filename} has already been applied, so skipping it")
+          Hobo.ui.separator
+
           File.delete file
           next
         end
