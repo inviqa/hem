@@ -78,7 +78,7 @@ namespace :magento do
     def detect_tools
       ['patch'].each do |tool|
         status = vm_shell("which #{tool}", :exit_status => true)
-        if status
+        if status != 0
           raise Hobo::UserError.new "Please install '#{tool}' on the VM before continuing"
         end
       end
