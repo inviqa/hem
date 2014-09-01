@@ -13,9 +13,16 @@ namespace :magento do
   desc "Patch tasks"
   namespace :patches do
     def magento_path
-      magento_version_file = 'public/app/Mage.php'
-      /(?:(.*)\/)app\/Mage\.php/.match(magento_version_file)
-      $1
+      unless @magento_path
+        files = locate('*app/Mage.php')
+        unless files.length > 0
+          raise Hobo::UserError.new "Could not find app/Mage.php in the git repository, this command should only be run for Magento projects"
+        end
+
+        /(?:(.*)\/)app\/Mage\.php/.match(files[0])
+        @magento_path = $1
+      end
+      @magento_path
     end
 
     def detect_clean
@@ -115,6 +122,7 @@ namespace :magento do
         if File.exist?("#{patches_path}/#{filename}")
           Hobo.ui.success("Patch #{filename} has already been applied, so skipping it")
           File.delete file
+          next
         end
 
         Hobo.ui.success("Applying patch #{filename}")
