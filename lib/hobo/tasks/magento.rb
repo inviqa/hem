@@ -184,6 +184,12 @@ namespace :magento do
         File.rename file, "#{patches_path}/#{filename}"
         shell "git add #{magento_path}"
         shell "git add #{patches_path}/#{filename}"
+
+        if File.exist?(yaml_file)
+          yaml_filename = File.basename(yaml_file)
+          File.rename yaml_file, "#{patches_path}/#{yaml_filename}"
+          shell "git add #{patches_path}/#{yaml_filename}"  
+        end
         shell "git commit -m #{metadata['commit_message'].shellescape}"
 
         Hobo.ui.separator
