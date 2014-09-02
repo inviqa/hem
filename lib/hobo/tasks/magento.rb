@@ -125,14 +125,16 @@ namespace :magento do
       )
       Hobo.ui.separator
 
-      Hobo.ui.success("#{changes[:add].length} new patches found")
-
-      Hobo.ui.separator
-
       use_vm = false
       use_vm = detect_tools if Dir.glob("#{incoming_path}/*.sh").length > 0
 
-      Dir.glob("#{incoming_path}/*.{sh,patch,diff}") do |file|
+      patch_files = Dir.glob("#{incoming_path}/*.{sh,patch,diff}")
+
+      Hobo.ui.success("#{patch_files.length} new patches found")
+
+      Hobo.ui.separator
+
+      patch_files.each do |file|
         filename = File.basename(file)
         base_filename = File.basename(filename, File.extname(filename))
 
@@ -195,7 +197,7 @@ namespace :magento do
         Hobo.ui.separator
       end
 
-      Hobo.ui.success("Finished applying #{changes[:add].length} patches")
+      Hobo.ui.success("Finished applying #{patch_files.length} patches")
     end
   end
 
