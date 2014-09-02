@@ -83,19 +83,32 @@ namespace :magento do
     end
 
     def detect_tools
-      ['patch'].each do |tool|
-        status = vm_shell("which #{tool}", :exit_status => true)
-        if status != 0
-          raise Hobo::UserError.new "Please install '#{tool}' on the VM before continuing"
-        end
+      use_vm = shell("which which", :exit_status => true) != 0
+
+      tools = ['patch', 'sed']
+      tools_command = tools.map {|tool| "which #{tool}"}.join " && "
+      status = 0
+
+      unless use_vm
+        status = shell(tools_command, :exit_status => true)
+        use_vm = status != 0
       end
+
+      if use_vm
+        status = vm_shell(tools_command, :exit_status => true)
+      end
+
+      if status != 0
+        raise Hobo::UserError.new "Please make sure '#{tools.join(',')}' is installed on your host or VM before continuing"
+      end
+
+      use_vm
     end
 
     desc "Apply patches to Magento"
     task "apply" do
       detect_clean
       detect_version
-      detect_tools
 
       config = Hobo.project_config
 
@@ -116,34 +129,62 @@ namespace :magento do
 
       Hobo.ui.separator
 
+      use_vm = false
+      use_vm = detect_tools if Dir.glob("#{incoming_path}/*.sh").length > 0
+
       Dir.glob("#{incoming_path}/*.{sh,patch,diff}") do |file|
         filename = File.basename(file)
+        base_filename = File.basename(filename, File.extname(filename))
 
         if File.exist?("#{patches_path}/#{filename}")
-          Hobo.ui.success("Patch #{filename} has already been applied, so skipping it")
-          Hobo.ui.separator
+          Hobo.ui.debug("Patch #{filename} has already been applied, so skipping it")
 
+          File.delete file
+          next
+        end
+
+        if File.exist?("#{patches_path}/#{base_filename}.skip")
           File.delete file
           next
         end
 
         Hobo.ui.success("Applying patch #{filename}")
 
+        yaml_file = File.join(File.dirname(file), base_filename + ".yaml")
+
+        metadata = {
+          'commit_message' => "Apply Magento patch #{filename}"
+        }
+        if File.exist?(yaml_file)
+          metadata = Hobo::Config::File.load(yaml_file)
+        end
+
+        Hobo.ui.success(metadata['description']) unless metadata['description'].nil?
+
+        if ['n','N','no'].include? Hobo.ui.ask('Do you want to apply this patch?')
+          File.delete file
+          File.write("#{patches_path}/#{base_filename}.skip", '')
+
+          shell "git add '#{patches_path}/#{base_filename}.skip'"
+          shell "git commit -m 'Add a skip file for patch #{filename}'"
+          next
+        end
+
         if /\.sh$/.match(file)
           File.rename file, "#{magento_path}/#{filename}"
           file = "#{magento_path}/#{filename}"
-
-          vm_shell "cd #{magento_path} && sh #{filename}", :realtime => true, :indent => 2
-          File.rename file, "#{patches_path}/#{filename}"
-
-          shell "git add #{magento_path}"
-          shell "git commit -m 'Apply Magento patch #{filename}'"
+          if use_vm
+            vm_shell "cd #{magento_path} && sh #{filename}", :realtime => true, :indent => 2
+          else
+            shell "cd #{magento_path} && sh #{filename}", :realtime => true, :indent => 2
+          end
         else
-          shell "git am #{file}"
-          File.rename file, "#{patches_path}/#{filename}"
+          shell "git apply --directory #{magento_path} #{file}"
         end
+        File.rename file, "#{patches_path}/#{filename}"
+        shell "git add #{magento_path}"
         shell "git add #{patches_path}/#{filename}"
-        shell "git commit --amend --reuse-message HEAD"
+        shell "git commit -m #{metadata['commit_message'].shellescape}"
 
         Hobo.ui.separator
       end
