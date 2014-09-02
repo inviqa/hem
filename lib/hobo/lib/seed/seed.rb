@@ -9,6 +9,15 @@ module Hobo
           @url = url
         end
 
+        def tags
+          tags = []
+          Dir.chdir @seed_path do
+            tag_output = Hobo::Helper.shell "git tag", :capture => true
+            tags = tag_output.split("\n")
+          end
+          tags
+        end
+
         def export path, opts = {}
           opts = {
             :name => 'seed',
