@@ -62,6 +62,42 @@ describe Hobo::Ui do
     end
   end
 
+  describe "ask_choice" do
+    it "should return default if in non-interactive mode" do
+      ui = test_ui()
+      ui.interactive = false
+      ui.ask_choice("Question", ['default', 'non-default'], :default => "default").should match "default"
+    end
+
+    it "should raise error if no default provided in non-interactive mode" do
+      ui = test_ui(:answer => "Answer\n")
+      ui.interactive = false
+      expect { ui.ask_choice("Question", ['one', 'two']) }.to raise_exception(Hobo::NonInteractiveError)
+    end
+
+    it "should format prompt to include default if provided"
+
+    it "should give a choice prompt with each option in"
+
+    it "should convert a number choice to its value if given" do
+      test_ui(:answer => "2\n").ask_choice("Question", ['default', 'non-default'], :default => "default").should match "non-default"
+    end
+
+    it "should use default answer if given answer is empty" do
+      test_ui(:answer => "\n").ask_choice("Question", ['default', 'non-default'], :default => "default").should match "default"
+    end
+
+    it "should handle stdin EOF (Ctrl+d)" do
+      test_ui(:eof => true).ask_choice("Question", ['default', 'non-default']).should be_empty
+    end
+
+    it "should always return an instance of String" do
+      test_ui(:answer => "Answer\n").ask_choice("Question", ['Answer']).should be_an_instance_of String
+      test_ui(:answer => "\n").ask_choice("Question", ['Answer'], :default => "").should be_an_instance_of String
+      test_ui(:answer => "\x04").ask_choice("Question", ['Answer']).should be_an_instance_of String
+    end
+  end
+
   describe "color" do
     it "should format message with ansi style" do
       ui = test_ui
