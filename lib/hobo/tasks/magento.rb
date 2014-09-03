@@ -161,7 +161,7 @@ namespace :magento do
           metadata = Hobo::Config::File.load(yaml_file)
         end
 
-        Hobo.ui.success(metadata['description']) unless metadata['description'].nil?
+        Hobo.ui.info(metadata['description']) unless metadata['description'].nil?
 
         if ['n','N','no'].include? Hobo.ui.ask('Do you want to apply this patch?')
           File.delete file
