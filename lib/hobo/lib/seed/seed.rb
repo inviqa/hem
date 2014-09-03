@@ -36,7 +36,6 @@ module Hobo
           end
 
           Dir.chdir tmp_path do
-            Hobo.ui.success "Exporting #{opts[:name]}"
             Hobo::Helper.shell "git archive #{opts[:ref].shellescape} | tar -x -C #{path.shellescape}"
 
             submodules = Hobo::Helper.shell "git submodule status", :capture => true, :strip => false
