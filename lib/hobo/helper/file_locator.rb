@@ -7,6 +7,7 @@ module Hobo
         match = locate_git(pattern, &block)
       end
 
+      return match unless block_given?
       return true if match
 
       Hobo.ui.warning opts[:missing] if opts[:missing]
@@ -22,6 +23,11 @@ module Hobo
       found = false
       paths.each do |path|
         path.strip!
+      end
+
+      return paths unless block_given?
+
+      paths.each do |path|
         Dir.chdir File.dirname(path) do
           Hobo::Logging.logger.debug "helper.locator: Found #{path} for #{pattern}"
           yield File.basename(path), path

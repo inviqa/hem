@@ -11,6 +11,7 @@ describe Hobo::Lib::S3::Sync do
     it "should add files that only exist in source"
     it "should update files that have changed"
     it "should remove files that do not exist in source"
+    it "should keep files that do not exist in source if :delete false"
     it "should update progress as files are transferred"
   end
 end

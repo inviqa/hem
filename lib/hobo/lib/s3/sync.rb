@@ -29,6 +29,7 @@ module Hobo
 
           handle_s3_error do
             opts = {
+              :delete => true,
               :dry => false,
               :progress => Hobo.method(:progress)
             }.merge(opts)
@@ -68,6 +69,7 @@ module Hobo
 
               opts[:progress].call(file, 0, size, :finish)
             end
+            break unless opts[:delete]
 
             delta[:remove].each do |file|
               logger.debug("s3sync: Removing #{file}")

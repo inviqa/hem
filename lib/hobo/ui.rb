@@ -71,6 +71,39 @@ module Hobo
       end
     end
 
+    def ask_choice question, choices, opts = {}
+      unless @interactive
+        raise Hobo::NonInteractiveError.new(question) if opts[:default].nil?
+        return opts[:default].to_s
+      end
+
+      question = "#{question} [#{opts[:default]}]" if opts[:default]
+      question += ":"
+      info question
+
+      choice_map = {}
+      choices.to_enum.with_index(1) do |choice, index|
+        choice_map[index.to_s] = choice
+        info "#{index}] #{choice}"
+      end
+
+      begin
+        answer = @out.ask("?  ") do |q|
+          q.validate = lambda do |a| 
+            s = a.strip
+            s.empty? || (choice_map.keys + choices).include?(s)
+          end
+          q.readline
+        end
+        answer = answer.to_s
+        answer = choice_map[answer] if /^\d+$/.match(answer.strip)
+        answer.strip.empty? ? opts[:default].to_s : answer.strip
+      rescue EOFError
+        Hobo.ui.info ""
+        ""
+      end
+    end
+
     def section title
       Hobo.ui.title title
       yield

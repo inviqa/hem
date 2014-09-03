@@ -26,6 +26,12 @@ describe Hobo::Lib::Seed::Seed do
     end
   end
 
+  def tag_repo path, tag
+    Dir.chdir path do
+      `git tag #{tag}`
+    end
+  end
+
   describe "update", :integration do
     it "should fetch the seed if it does not exist locally" do
       # Create test repo as seed remote
@@ -75,6 +81,35 @@ describe Hobo::Lib::Seed::Seed do
     end
 
     it "should export seed submodules to the specified directory"
+    it "should export a specifified git :ref"
+  end
+
+  describe "tags" do
+    it "should return no tags if the repository doesn't have any" do
+      # Create test repo as seed remote
+      remote_seed_path = File.join(tmp_dir, "seed_5")
+      create_test_repo remote_seed_path, "version_test"
+
+      # Update seed and export
+      seed = Hobo::Lib::Seed::Seed.new 'seeds/seed_3', remote_seed_path
+      seed.update
+
+      seed.tags.should eq []
+    end
+
+    it "should return a list of tags if there are any" do
+      # Create test repo as seed remote
+      remote_seed_path = File.join(tmp_dir, "seed_5")
+      create_test_repo remote_seed_path, "version_test"
+      tag_repo remote_seed_path, "1.2.3"
+      tag_repo remote_seed_path, "1.2.4"
+
+      # Update seed and export
+      seed = Hobo::Lib::Seed::Seed.new 'seeds/seed_3', remote_seed_path
+      seed.update
+
+      seed.tags.should eq ['1.2.3', '1.2.4']
+    end
   end
 
   describe "version", :integration do

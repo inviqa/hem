@@ -6,6 +6,7 @@ namespace :seed do
 
   option '-g=', '--git-url=', 'Git repository for project'
   option '-s=', '--seed=', 'Seed name or URL to use'
+  option '-d=', '--data=', 'Seed data to save to the project hobo configuration', :as => Hash
 
   task :plant, [ :name ] do |t, args|
     name = args[:name]
@@ -27,6 +28,11 @@ namespace :seed do
       :name => File.basename(seed_name),
       :url => Hobo::Lib::Seed::Seed.name_to_url(seed_name)
     }
+
+    unless t.opts[:data].nil?
+      data = t.opts[:data].inject({}){|hash,(k,v)| hash[k.to_sym] = v; hash}
+      config.merge!(data)
+    end
 
     seed = Hobo::Lib::Seed::Seed.new(
       File.join(Hobo.seed_cache_path, config[:seed][:name]),

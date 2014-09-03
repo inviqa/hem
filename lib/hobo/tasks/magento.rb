@@ -10,6 +10,197 @@ end
 desc "Magento related tasks"
 namespace :magento do
 
+  desc "Patch tasks"
+  namespace :patches do
+    def magento_path
+      unless @magento_path
+        files = locate('*app/Mage.php')
+        unless files.length > 0
+          raise Hobo::UserError.new "Could not find app/Mage.php in the git repository, this command should only be run for Magento projects"
+        end
+
+        /(?:(.*)\/)app\/Mage\.php/.match(files[0])
+        @magento_path = $1
+      end
+      @magento_path
+    end
+
+    def detect_clean
+      status = shell('git status -z', :capture => true, :strip => false)
+      status.split("\u0000").each do |line|
+        match = line.match(/^([\s\S]{2})\s+(.*)$/)
+        next if match.nil?
+
+        if ![' ', '?'].include?($1[0]) || $2.start_with?(magento_path)
+          raise Hobo::UserError.new "Please remove all files from the git index, and stash all changes in '#{magento_path}' before continuing"
+        end
+      end
+    end
+
+    def detect_version
+      config_dirty = false
+      magento_version_file = "#{magento_path}/app/Mage.php"
+
+      if Hobo.project_config[:magento_edition].nil?
+        magento_edition = nil
+        if magento_version_file
+          args = [ "php -r \"require '#{magento_version_file}'; echo Mage::getEdition();\""]
+
+          magento_edition = vm_shell(*args, :capture => true).to_s.downcase
+        end
+
+        edition_options = ['community', 'enterprise', 'professional', 'go']
+
+        unless edition_options.include? magento_edition
+          raise Hobo::Error.new "Invalid Magento edition '#{magento_edition}' was found when calling Mage::getEdition(), skipping patches"
+        end
+
+        Hobo.project_config[:magento_edition] = magento_edition
+        config_dirty = true
+      end
+
+      if Hobo.project_config[:magento_version].nil?
+        magento_version = nil
+        if magento_version_file
+          args = [ "php -r \"require '#{magento_version_file}'; echo Mage::getVersion();\""]
+
+          magento_version = vm_shell(*args, :capture => true)
+        end
+
+        version_regex = /^\d+(\.\d+){3}$/
+
+        unless version_regex.match(magento_version)
+          raise Hobo::Error.new "Invalid Magento version '#{magento_version}' was found when calling Mage::getVersion(), skipping patches"
+        end
+
+        Hobo.project_config[:magento_version] = magento_version
+        config_dirty = true
+      end
+
+      if config_dirty
+        Hobo::Config::File.save(Hobo.project_config_file, Hobo.project_config)
+      end
+    end
+
+    def detect_tools
+      use_vm = shell("which which", :exit_status => true) != 0
+
+      tools = ['patch', 'sed']
+      tools_command = tools.map {|tool| "which #{tool}"}.join " && "
+      status = 0
+
+      unless use_vm
+        status = shell(tools_command, :exit_status => true)
+        use_vm = status != 0
+      end
+
+      if use_vm
+        status = vm_shell(tools_command, :exit_status => true)
+      end
+
+      if status != 0
+        raise Hobo::UserError.new "Please make sure '#{tools.join(',')}' is installed on your host or VM before continuing"
+      end
+
+      use_vm
+    end
+
+    desc "Apply patches to Magento"
+    task "apply" do
+      detect_clean
+      detect_version
+
+      config = Hobo.project_config
+
+      sync = Hobo::Lib::S3::Sync.new(Hobo.aws_credentials)
+
+      patches_path = "tools/patches"
+      incoming_path = "#{patches_path}/incoming"
+
+      Hobo.ui.success("Downloading Magento #{config[:magento_edition].capitalize} #{config[:magento_version]} patches")
+      changes = sync.sync(
+        "s3://inviqa-assets-magento/#{config[:magento_edition]}/patches/#{config[:magento_version]}/",
+        "#{incoming_path}/",
+        :delete => false
+      )
+      Hobo.ui.separator
+
+      use_vm = false
+      use_vm = detect_tools if Dir.glob("#{incoming_path}/*.sh").length > 0
+
+      patch_files = Dir.glob("#{incoming_path}/*.{sh,patch,diff}")
+
+      Hobo.ui.success("#{patch_files.length} new patches found")
+
+      Hobo.ui.separator
+
+      patch_files.each do |file|
+        filename = File.basename(file)
+        base_filename = File.basename(filename, File.extname(filename))
+
+        if File.exist?("#{patches_path}/#{filename}")
+          Hobo.ui.debug("Patch #{filename} has already been applied, so skipping it")
+
+          File.delete file
+          next
+        end
+
+        if File.exist?("#{patches_path}/#{base_filename}.skip")
+          File.delete file
+          next
+        end
+
+        Hobo.ui.success("Applying patch #{filename}")
+
+        yaml_file = File.join(File.dirname(file), base_filename + ".yaml")
+
+        metadata = {
+          'commit_message' => "Apply Magento patch #{filename}"
+        }
+        if File.exist?(yaml_file)
+          metadata = Hobo::Config::File.load(yaml_file)
+        end
+
+        Hobo.ui.info(metadata['description']) unless metadata['description'].nil?
+
+        if ['n','N','no'].include? Hobo.ui.ask('Do you want to apply this patch?')
+          File.delete file
+          File.write("#{patches_path}/#{base_filename}.skip", '')
+
+          shell "git add '#{patches_path}/#{base_filename}.skip'"
+          shell "git commit -m 'Add a skip file for patch #{filename}'"
+          next
+        end
+
+        if /\.sh$/.match(file)
+          File.rename file, "#{magento_path}/#{filename}"
+          file = "#{magento_path}/#{filename}"
+          if use_vm
+            vm_shell "cd #{magento_path} && sh #{filename}", :realtime => true, :indent => 2
+          else
+            shell "cd #{magento_path} && sh #{filename}", :realtime => true, :indent => 2
+          end
+        else
+          shell "git apply --directory #{magento_path} #{file}"
+        end
+        File.rename file, "#{patches_path}/#{filename}"
+        shell "git add #{magento_path}"
+        shell "git add #{patches_path}/#{filename}"
+
+        if File.exist?(yaml_file)
+          yaml_filename = File.basename(yaml_file)
+          File.rename yaml_file, "#{patches_path}/#{yaml_filename}"
+          shell "git add #{patches_path}/#{yaml_filename}"  
+        end
+        shell "git commit -m #{metadata['commit_message'].shellescape}"
+
+        Hobo.ui.separator
+      end
+
+      Hobo.ui.success("Finished applying #{patch_files.length} patches")
+    end
+  end
+
   desc "Setup script tasks"
   namespace :'setup-scripts' do
     desc "Run magento setup scripts"
