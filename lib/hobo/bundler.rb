@@ -28,12 +28,13 @@ module Hobo
       begin
         bundler_install.run
         Kernel.exec('hobo', *$HOBO_ARGV)
-      rescue Exception => e
+      rescue Exception => exception
         puts
         puts "Failed to install dependencies. Hobo can not proceed."
         puts "Please see the error below:"
         puts
-        throw exception
+        puts exception.message
+        puts exception.backtrace
       end
     end
 
@@ -45,6 +46,12 @@ module Hobo
         # Ensure Bundler is not caching anything
         ::Bundler.instance_variable_set('@load', nil)
         ::Bundler.definition true
+
+        # This is required as of 1.6.5 due to this commit:
+        # https://github.com/bundler/bundler/commit/4870340132878c30d49a5d5fc27257e2abe46e7e
+        ::Bundler.class_eval do
+          @root = Pathname.new File.dirname(ENV['BUNDLE_GEMFILE'])
+        end
 
         begin
           ::Bundler.setup(:default)
