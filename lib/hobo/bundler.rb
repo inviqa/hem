@@ -33,8 +33,7 @@ module Hobo
         puts "Failed to install dependencies. Hobo can not proceed."
         puts "Please see the error below:"
         puts
-        puts exception.message
-        puts exception.backtrace
+        raise
       end
     end
 
