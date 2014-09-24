@@ -22,7 +22,13 @@ namespace :seed do
       :git_url => t.opts[:'git-url'] || Hobo.ui.ask("Repository URL", default: "git@github.com:inviqa/#{name}")
     }
 
-    seed_name = t.opts[:seed] || Hobo.ui.ask("Project seed", default: "default")
+    seed_options = %w( default magento symfony custom )
+
+    seed_name = t.opts[:seed] || Hobo.ui.ask_choice('Project seed', seed_options, default: 'default')
+
+    if seed_name == 'custom'
+      seed_name = Hobo.ui.ask('Please enter a git url or a path to a local git checkout containing the seed')
+    end
 
     config[:seed] = {
       :name => File.basename(seed_name),
