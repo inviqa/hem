@@ -31,7 +31,7 @@ namespace :seed do
     end
 
     config[:seed] = {
-      :name => File.basename(seed_name),
+      :name => File.basename(seed_name, '.git'),
       :url => Hobo::Lib::Seed::Seed.name_to_url(seed_name)
     }
 
