@@ -25,14 +25,16 @@ namespace :seed do
     seed_options = %w( default magento symfony custom )
 
     seed_name = t.opts[:seed] || Hobo.ui.ask_choice('Project seed', seed_options, default: 'default')
+    use_short_seed_name = true
 
     if seed_name == 'custom'
       seed_name = Hobo.ui.ask('Please enter a git url or a path to a local git checkout containing the seed')
+      use_short_seed_name = false
     end
 
     config[:seed] = {
       :name => File.basename(seed_name, '.git'),
-      :url => Hobo::Lib::Seed::Seed.name_to_url(seed_name)
+      :url => Hobo::Lib::Seed::Seed.name_to_url(seed_name, :use_short_seed_name => use_short_seed_name)
     }
 
     unless t.opts[:data].nil?

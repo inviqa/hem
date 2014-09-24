@@ -90,11 +90,15 @@ module Hobo
         end
 
         class << self
-          def name_to_url name
+          def name_to_url name, options = {}
+            options = {
+              :use_short_seed_name => true
+            }.merge(options)
+
             path = File.expand_path name
             if name.include?(':')
               name
-            elsif name.match(/^(\.|\/|~)/) && path
+            elsif !options[:use_short_seed_name] || (name.match(/^(\.|\/|~)/) && path)
               path
             else
               "git@github.com:inviqa/hobo-seed-#{name}"
