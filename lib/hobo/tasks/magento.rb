@@ -226,9 +226,9 @@ namespace :magento do
     desc "Configure magento base URLs"
     task :'configure-urls' => ['tools:n98magerun'] do
       Hobo.ui.success "Configuring magento base urls"
-      url = "http://#{Hobo.project_config.hostname}/"
-      vm_shell("bin/n98-magerun.phar config:set web/unsecure/base_url '#{url}'", :realtime => true, :indent => 2)
-      vm_shell("bin/n98-magerun.phar config:set web/secure/base_url '#{url}'", :realtime => true, :indent => 2)
+      domain = Hobo.project_config.hostname
+      vm_shell("bin/n98-magerun.phar config:set web/unsecure/base_url 'http://#{domain}'", :realtime => true, :indent => 2)
+      vm_shell("bin/n98-magerun.phar config:set web/secure/base_url 'https://#{domain}'", :realtime => true, :indent => 2)
       Hobo.ui.separator
     end
 
