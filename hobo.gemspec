@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
 
   # This file will get interpretted at runtime due to Bundler.setup
   # Without the $HOBO_ARGV check (set in bin/hobo) fatal: not a git repository errors show up
-  spec.files         = `git ls-files`.split($/) if ENV['HOBO_BUILD'] == '1'
+  spec.files         = `git ls-files | grep -v omnibus-installer`.split($/) if ENV['HOBO_BUILD'] == '1'
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "teerb", "~> 0.0.1"
   spec.add_dependency "net-ssh-simple", "~> 1.6.3"
   spec.add_dependency "pry", "~> 0.9.12"
+#  spec.add_dependency "executable-hooks", "~> 1.3.2"
 
   # This prevents Bundler.setup from complaining that rubygems did not install dev deps
   # If you want to run dev deps you need to ensure HOBO_ENV=dev is set for bundle install & bundle exec

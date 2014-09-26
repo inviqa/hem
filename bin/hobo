@@ -59,7 +59,7 @@ Gem.configuration.verbose = false
 
 require 'hobo/util'
 
-unless Hobo.windows?
+unless Hobo.windows? or Hobo.omnibus_ruby?
   if Process.uid == 0
     puts
     puts "Hobo must not be run as root"

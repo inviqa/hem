@@ -58,5 +58,10 @@ module Hobo
       require 'rbconfig'
       File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"]).match(/\/rvm\/|\/\.rvm\/|\/\.rbenv/) != nil
     end
+
+    def omnibus_ruby?
+      require 'rbconfig'
+      File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"]).match(/\/embedded\/bin\//) != nil
+    end
   end
 end
