@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# Perform necessary omnibus removal steps
+# after package is uninstalled.
+#
+
+echo "omnibus has been uninstalled!"
+
+exit 0

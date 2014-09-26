@@ -2,3 +2,4 @@ pkg/
 coverage/
 tmp/
 omnibus-installer/pkg
+omnibus-installer/local
