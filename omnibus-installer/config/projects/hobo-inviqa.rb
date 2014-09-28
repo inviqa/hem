@@ -6,6 +6,12 @@ install_dir     "#{default_root}/#{name}"
 build_version   "0.0.15"
 build_iteration 1
 
+
+override :nokogiri,       version: "1.6.3.1"
+override :ruby,           version: "2.1.2"
+override :'ruby-windows', version: "2.0.0-p451"
+override :rubygems,       version: "2.4.1"
+
 # creates required build directories
 dependency 'preparation'
 
