@@ -7,6 +7,7 @@ else
   dependency "ruby"
   dependency "rubygems"
 end
+dependency "openssl-customization"
 dependency "rubygems-customization"
 
 # The devkit has to be installed after rubygems-customization so the
