@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gem 'berkshelf', '~> 3.0'
 
 # Install omnibus software
-gem 'omnibus', '~> 4.0.0.beta.1'
+gem 'omnibus', '~> 4.0.0.rc.1'
 gem "ohai"
 
 # Use Chef's software definitions. It is recommended that you write your own

@@ -1,4 +1,4 @@
-pkg/
+/pkg/
 coverage/
 tmp/
 omnibus-installer/pkg

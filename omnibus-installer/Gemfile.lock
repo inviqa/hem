@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/opscode/omnibus-software.git
-  revision: 1229a2b0aa5eb6aae255ef647a0ad13e3c99c5c5
+  revision: 4922b246253ff180a6c18ae4dd8122bc002d3e81
   specs:
     omnibus-software (4.0.0)
 
@@ -38,7 +38,7 @@ GEM
     celluloid-io (0.16.0)
       celluloid (>= 0.16.0)
       nio4r (>= 1.0.0)
-    chef-sugar (2.2.0)
+    chef-sugar (2.3.0)
     cleanroom (1.0.0)
     dep-selector-libgecode (1.0.2)
     dep_selector (1.0.3)
@@ -85,7 +85,7 @@ GEM
       mixlib-shellout (~> 1.2)
       systemu (~> 2.6.4)
       wmi-lite (~> 1.0)
-    omnibus (4.0.0.beta.1)
+    omnibus (4.0.0.rc.1)
       chef-sugar (~> 2.2)
       cleanroom (~> 1.0)
       mixlib-shellout (~> 1.4)
@@ -142,6 +142,6 @@ DEPENDENCIES
   berkshelf (~> 3.0)
   kitchen-vagrant (~> 0.14)
   ohai
-  omnibus (~> 4.0.0.beta.1)
+  omnibus (~> 4.0.0.rc.1)
   omnibus-software!
   test-kitchen (~> 1.2)
