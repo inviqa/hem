@@ -10,14 +10,33 @@ end
 dependency "openssl-customization"
 dependency "rubygems-customization"
 
-# Pre-compile lib dependencies
-dependency "dep-selector-libgecode"
-dependency "nokogiri"
-
 # The devkit has to be installed after rubygems-customization so the
 # file it installs gets patched.
 dependency "ruby-windows-devkit" if windows?
 
+# Pre-compile lib dependencies
+dependency "dep-selector-libgecode"
+dependency "nokogiri"
+
 build do
+  if windows?
+    # Normally we would symlink the required unix tools.
+    # However with the introduction of git-cache to speed up omnibus builds,
+    # we can't do that anymore since git on windows doesn't support symlinks.
+    # https://groups.google.com/forum/#!topic/msysgit/arTTH5GmHRk
+    # Therefore we copy the tools to the necessary places.
+    # We need tar for 'knife cookbook site install' to function correctly
+    {
+      'tar.exe'          => 'bsdtar.exe',
+      'libarchive-2.dll' => 'libarchive-2.dll',
+      'libexpat-1.dll'   => 'libexpat-1.dll',
+      'liblzma-1.dll'    => 'liblzma-1.dll',
+      'libbz2-2.dll'     => 'libbz2-2.dll',
+      'libz-1.dll'       => 'libz-1.dll',
+    }.each do |target, to|
+      copy "#{install_dir}/embedded/mingw/bin/#{to}", "#{install_dir}/bin/#{target}"
+    end
+  end
+
   gem "install hobo-inviqa -n #{install_dir}/bin --no-rdoc --no-ri -v #{version}"
 end
