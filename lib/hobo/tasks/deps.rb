@@ -4,15 +4,11 @@ namespace :deps do
 
   desc "Install Gem dependencies"
   task :gems do
-    gemfiles = locate "*Gemfile"
-    break if gemfiles.length == 0
-    gemfile = gemfiles[0]
-
-    Dir.chdir Hobo.project_path do
-      required = shell("bundle", "check", "--gemfile=#{gemfile}", :exit_status => true) != 0
+    locate "*Gemfile" do
+      required = shell("bundle", "check", :exit_status => true) != 0
       if required
         Hobo.ui.title "Installing Gem dependencies"
-        shell "bundle", "install", "--path=.bundle/gems", "--binstubs=.bundle/bin", "--gemfile=#{gemfile}", realtime: true, indent: 2
+        shell "bundle", "install", realtime: true, indent: 2
         Hobo.ui.separator
       end
     end
