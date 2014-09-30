@@ -1,3 +1,9 @@
+## 0.0.16 (unreleased)
+
+IMPROVEMENTS:
+
+  * tasks/magento: Set magento secure url to use https
+
 ## 0.0.15 (5 September 2014)
 
 FEATURES:
