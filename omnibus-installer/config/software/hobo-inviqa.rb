@@ -1,7 +1,7 @@
 name "hobo-inviqa"
 default_version "0.0.15"
 
-source :path => dir
+source :path => File.expand_path('../../../', __FILE__)
 
 if windows?
   dependency "ruby-windows"
