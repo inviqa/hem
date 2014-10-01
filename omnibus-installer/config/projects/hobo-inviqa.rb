@@ -37,6 +37,9 @@ end
 
 package :msi do
   upgrade_code "A58AC989-0E19-42BC-A13F-415F274ED972"
+  parameters({
+    'RubyVersion' => '2.0.0'
+  })
 end
 
 compress :dmg

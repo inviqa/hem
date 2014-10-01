@@ -38,7 +38,7 @@
           <Environment Id="HOBOPROJECTBIN"
             Name="PATH" Action="set" Part="last" System="yes" Value="[PROJECTLOCATION]bin" />
           <Environment Id="HOBOUSERBIN"
-            Name="PATH" Action="set" Part="last" System="no" Value="%USERPROFILE%/.hobo/gems/ruby/2.0.0/bin" />
+            Name="PATH" Action="set" Part="last" System="no" Value="%USERPROFILE%/.hobo/gems/ruby/$(var.RubyVersion)/bin" />
         </Component>
 <% hierarchy.keys.each.with_index do |_, index| -%>
         <%= '  '*(hierarchy.size - index-1) %></Directory>
