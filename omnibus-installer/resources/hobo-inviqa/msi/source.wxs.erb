@@ -34,6 +34,12 @@
 <% hierarchy.each.with_index do |(name, id), index| -%>
         <%= '  '*index %><Directory Id="<%= id %>" Name="<%= name %>">
 <% end -%>
+        <Component Id="HoboInviqaPath" Guid="{F898D7AB-1C46-4CF0-BA3A-EF6542F8A919}" >
+          <Environment Id="HOBOPROJECTBIN"
+            Name="PATH" Action="set" Part="last" System="yes" Value="[PROJECTLOCATION]bin" />
+          <Environment Id="HOBOUSERBIN"
+            Name="PATH" Action="set" Part="last" System="no" Value="%USERPROFILE%/.hobo/gems/ruby/2.0.0/bin" />
+        </Component>
 <% hierarchy.keys.each.with_index do |_, index| -%>
         <%= '  '*(hierarchy.size - index-1) %></Directory>
 <% end -%>
@@ -45,12 +51,13 @@
     <!-- Set the components defined in our fragment files that will be used for our feature  -->
     <Feature Id="ProjectFeature" Title="!(loc.FeatureMainName)" Absent="disallow" AllowAdvertise="no" Level="1" ConfigurableDirectory="<%= wix_install_dir %>">
       <ComponentGroupRef Id="ProjectDir" />
+      <ComponentRef Id="HoboInviqaPath" />
     </Feature>
 
     <!-- UI Stuff -->
     <Icon Id="project.ico" SourceFile="Resources\assets\project_16x16.ico"/>
     <Property Id="ARPPRODUCTICON" Value="project.ico" />
-    <Property Id="ARPHELPLINK" Value="http://www.getchef.com/" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/inviqa/hobo-gem/" />
     <Property Id="WIXUI_INSTALLDIR" Value="<%= wix_install_dir %>" />
 
     <UIRef Id="ProjectUI_InstallDir"/>
