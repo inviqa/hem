@@ -1,24 +1,30 @@
 name "hobo-inviqa"
 default_version "0.0.15"
 
+source :path => dir
+
 if windows?
   dependency "ruby-windows"
 else
   dependency "ruby"
   dependency "rubygems"
 end
-dependency "openssl-customization"
-dependency "rubygems-customization"
 
-# The devkit has to be installed after rubygems-customization so the
+dependency "openssl-customization"
+
+# The devkit has to be installed after openssl-customization so the
 # file it installs gets patched.
 dependency "ruby-windows-devkit" if windows?
 
 # Pre-compile lib dependencies
 dependency "dep-selector-libgecode"
 dependency "nokogiri"
+dependency "bundler"
+dependency "appbundler"
 
 build do
+  env = with_standard_compiler_flags(with_embedded_path)
+
   if windows?
     # Normally we would symlink the required unix tools.
     # However with the introduction of git-cache to speed up omnibus builds,
@@ -38,5 +44,7 @@ build do
     end
   end
 
-  gem "install hobo-inviqa -n #{install_dir}/bin --no-rdoc --no-ri -v #{version}"
+  bundle "install", env: env
+  appbundle "hobo-inviqa"
+
 end

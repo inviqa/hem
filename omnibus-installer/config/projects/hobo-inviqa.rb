@@ -18,11 +18,18 @@ dependency 'preparation'
 # omnibus dependencies/components
 dependency "hobo-inviqa"
 
+# we make this happen after the fact so the gem installs in hobo-inviqa don't get messed up
+dependency "rubygems-customization"
+
 # version manifest file
 dependency 'version-manifest'
 
 exclude "**/.git"
 exclude "**/bundler/git"
+exclude "**/embedded/man"
+exclude "**/cache/**.gem"
+exclude "**/hobo-inviqa/omnibus-installer"
+exclude "**/hobo-inviqa/specs"
 
 package :pkg do
   identifier "com.inviqa.pkg.hobo"
