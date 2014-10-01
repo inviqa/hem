@@ -1,7 +1,7 @@
 module Hobo
   module Bundler
     require 'rubygems/user_interaction'
-    
+
     class GemUi < Gem::SilentUI
       def download_reporter(*args)
         VerboseDownloadReporter.new(STDOUT, *args)
@@ -38,6 +38,7 @@ module Hobo
     end
 
     def self.isolate
+      return yield if Hobo.omnibus_ruby?
       ::Bundler.with_clean_env do
         # Override gemfile for bundler to use
         ENV['BUNDLE_GEMFILE'] = File.expand_path('../../../Gemfile', __FILE__)
@@ -65,6 +66,7 @@ module Hobo
     end
 
     def self.is_hobo_bundled?
+      return false if Hobo.omnibus_ruby?
       begin
         ::Bundler.root
         ::Bundler.definition.dependencies.select do |dep|
