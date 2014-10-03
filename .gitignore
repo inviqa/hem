@@ -1,4 +1,4 @@
 pkg/
 coverage/
 tmp/
-temp_log/
+temp_log
