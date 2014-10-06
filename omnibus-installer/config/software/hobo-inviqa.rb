@@ -10,6 +10,7 @@ else
   dependency "rubygems"
 end
 
+dependency "cacerts"
 dependency "openssl-customization"
 
 # The devkit has to be installed after openssl-customization so the
