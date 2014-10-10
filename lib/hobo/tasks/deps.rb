@@ -4,11 +4,12 @@ namespace :deps do
 
   desc "Install Gem dependencies"
   task :gems do
+    path = Hobo.omnibus_ruby? ? "--path=~/.hobo/gems" : ""
     locate "*Gemfile" do
-      required = shell("bundle", "check", :exit_status => true) != 0
+      required = shell("bundle", "check", path, :exit_status => true) != 0
       if required
         Hobo.ui.title "Installing Gem dependencies"
-        shell "bundle", "install", realtime: true, indent: 2
+        shell "bundle", "install", path, realtime: true, indent: 2
         Hobo.ui.separator
       end
     end
