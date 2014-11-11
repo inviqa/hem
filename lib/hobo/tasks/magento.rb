@@ -114,7 +114,7 @@ namespace :magento do
 
       sync = Hobo::Lib::S3::Sync.new(Hobo.aws_credentials)
 
-      patches_path = "tools/patches"
+      patches_path = "#{Hobo.project_path}/tools/patches"
       incoming_path = "#{patches_path}/incoming"
 
       Hobo.ui.success("Downloading Magento #{config[:magento_edition].capitalize} #{config[:magento_version]} patches")

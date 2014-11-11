@@ -53,7 +53,7 @@ namespace :assets do
     Hobo.ui.section "Synchronizing assets (download)" do
       env = task.opts[:env] || args[:env] || 'development'
       src = "s3://#{Hobo.project_config.asset_bucket}/#{env}/"
-      dst = "tools/assets/#{env}"
+      dst = "#{Hobo.project_path}/tools/assets/#{env}"
       do_sync src, dst, env, "download"
     end
   end
@@ -64,7 +64,7 @@ namespace :assets do
     Hobo.ui.section "Synchronizing assets (upload)" do
       env = task.opts[:env] || args[:env] || 'development'
       dst = "s3://#{Hobo.project_config.asset_bucket}/#{env}/"
-      src = "tools/assets/#{env}"
+      src = "#{Hobo.project_path}/tools/assets/#{env}"
       Hobo.ui.warning "Please note that asset uploads can be destructive and will affect the whole team!"
       Hobo.ui.warning "Only upload if you're sure your assets are free from errors and will not impact other team members"
       do_sync src, dst, env, "upload"
@@ -76,7 +76,7 @@ namespace :assets do
   project_only
   task :apply do |task, args|
     env = task.opts[:env] || args[:env] || 'development'
-    path = "tools/assets/#{env}"
+    path = "#{Hobo.project_path}/tools/assets/#{env}"
 
     next unless File.exists? path
 
