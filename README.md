@@ -39,3 +39,11 @@ If you wish to contribute to hobo:
 - Submit a PR with details of changes
 
 You can run tests using Guard by executing "guard" in a terminal in the project folder. Guard will re-run tests where it knows how but otherwise run cucumber tests with "cucumber" (in the guard terminal) and rspec tests with "rspec" (in the guard terminal).
+
+# Available seeds
+Currently available seeds are `default`, `magento` and `symfony`. 
+```
+hobo seed plant <my-symfony-project-name> --seed=symfony
+```
+The easiest way is to look for more custom seeds is just to search gihub. https://github.com/inviqa?query=hobo-seed
+
