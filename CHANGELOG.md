@@ -1,8 +1,8 @@
 ## 0.0.16 (unreleased)
 
-IMPROVEMENTS:
-
   * tasks/magento: Set magento secure url to use https
+  * tasks/seed: Change the project seed prompt to list available seeds as choices.
+  * tasks/seed: Add support for specifying full git repository urls in seed names
 
 ## 0.0.15 (5 September 2014)
 
