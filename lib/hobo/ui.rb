@@ -62,7 +62,7 @@ module Hobo
       begin
         answer = @out.ask(question) do |q|
           q.validate = opts[:validate] if opts[:validate]
-          q.echo = :echo == true
+          q.echo = opts[:echo]
           q.readline
         end
         answer = answer.to_s
