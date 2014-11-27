@@ -48,7 +48,8 @@ module Hobo
     def ask question, opts = {}
       opts = {
         :validate => nil,
-        :default => nil
+        :default => nil,
+        :echo => true
       }.merge(opts)
 
       unless @interactive
@@ -61,6 +62,7 @@ module Hobo
       begin
         answer = @out.ask(question) do |q|
           q.validate = opts[:validate] if opts[:validate]
+          q.echo = :echo == true
           q.readline
         end
         answer = answer.to_s

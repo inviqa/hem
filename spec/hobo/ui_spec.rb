@@ -60,6 +60,8 @@ describe Hobo::Ui do
       test_ui(:answer => "\n").ask("Question", :default => "").should be_an_instance_of String
       test_ui(:answer => "\x04").ask("Question").should be_an_instance_of String
     end
+
+    it "should support hidden text for password inputs"
   end
 
   describe "ask_choice" do
