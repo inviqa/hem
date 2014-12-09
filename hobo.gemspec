@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "teerb", "~> 0.0.1"
   spec.add_dependency "net-ssh-simple", "~> 1.6.3"
   spec.add_dependency "pry", "~> 0.9.12"
+  spec.add_dependency "octokit", "~> 3.0"
 
   # This prevents Bundler.setup from complaining that rubygems did not install dev deps
   # If you want to run dev deps you need to ensure HOBO_ENV=dev is set for bundle install & bundle exec

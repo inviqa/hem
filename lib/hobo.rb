@@ -9,6 +9,7 @@ require 'logger'
 require 'highline'
 require 'fileutils'
 require 'openssl'
+require 'octokit'
 
 # DSL enhancements
 require 'hobo/metadata'
