@@ -36,12 +36,18 @@ PR_DOD
       pr_content['PR_DOD'] = '# No DoD.md file found, add one to your project root.'
     end
 
+    editor = Hobo.project_config.editor.nil? ? ENV['EDITOR'] : Hobo.project_config.editor
+    if editor.nil?
+      Hobo::ui.error 'You must define a preferred editor in your shell or config.yaml.'
+      exit 1
+    end
+
     tmp = Tempfile.new('hobo_pr')
     begin
       tmp.write pr_content
       tmp.rewind
       tmp.close
-      system('vi '+tmp.path)
+      system([editor, tmp.path].join(' '))
       tmp.open
       pr_body = tmp.read
     rescue Exception => e
