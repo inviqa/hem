@@ -36,7 +36,7 @@ PR_DOD
       pr_content['PR_DOD'] = '# No DoD.md file found, add one to your project root.'
     end
 
-    editor = Hobo.project_config.editor.nil? ? ENV['EDITOR'] : Hobo.project_config.editor
+    editor = Hobo.user_config.editor.nil? ? ENV['EDITOR'] : Hobo.user_config.editor
     if editor.nil?
       Hobo::ui.error 'You must define a preferred editor in your shell or config.yaml.'
       exit 1
