@@ -11,6 +11,11 @@ namespace :test do
     Hobo.ui.info Hobo.ui.ask "A question", default: "Used defaults"
   end
 
+  desc 'Performs interactive requests without echo'
+  task 'no-echo' do
+    Hobo.ui.info Hobo.ui.ask 'A question', echo: false
+  end
+
   task "subcommand" do
     Hobo.ui.info "Subcommand test"
   end
