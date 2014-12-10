@@ -45,7 +45,6 @@ PR_DOD
     tmp = Tempfile.new('hobo_pr')
     begin
       tmp.write pr_content
-      tmp.rewind
       tmp.close
       system([editor, tmp.path].join(' '))
       tmp.open
