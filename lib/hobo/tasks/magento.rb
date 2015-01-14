@@ -190,7 +190,7 @@ namespace :magento do
         if File.exist?(yaml_file)
           yaml_filename = File.basename(yaml_file)
           File.rename yaml_file, "#{patches_path}/#{yaml_filename}"
-          shell "git add #{patches_path}/#{yaml_filename}"  
+          shell "git add #{patches_path}/#{yaml_filename}"
         end
         shell "git commit -m #{metadata['commit_message'].shellescape}"
 
@@ -227,8 +227,8 @@ namespace :magento do
     task :'configure-urls' => ['tools:n98magerun'] do
       Hobo.ui.success "Configuring magento base urls"
       domain = Hobo.project_config.hostname
-      vm_shell("bin/n98-magerun.phar config:set web/unsecure/base_url 'http://#{domain}'", :realtime => true, :indent => 2)
-      vm_shell("bin/n98-magerun.phar config:set web/secure/base_url 'https://#{domain}'", :realtime => true, :indent => 2)
+      vm_shell("bin/n98-magerun.phar config:set web/unsecure/base_url 'http://#{domain}/'", :realtime => true, :indent => 2)
+      vm_shell("bin/n98-magerun.phar config:set web/secure/base_url 'https://#{domain}/'", :realtime => true, :indent => 2)
       Hobo.ui.separator
     end
 
