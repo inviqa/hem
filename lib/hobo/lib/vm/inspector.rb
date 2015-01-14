@@ -19,11 +19,11 @@ module Hobo
             pattern = Hobo.windows? ? 'vboxsf' : Hobo.project_path.shellescape
 
             sed = 's/.* on \(.*\) type.*/\1\/%%/g'.gsub('%%', locator_file)
-            locator_results = Command.new(
+            locator_results = vm_shell(
                 "mount | grep #{pattern} | sed -e\"#{sed}\" | xargs md5sum",
                 :capture => true,
                 :pwd => '/'
-            ).run
+            )
           ensure
             tmp.unlink
           end
@@ -42,11 +42,17 @@ module Hobo
           return @vm_project_mount_path
         end
 
-        def ssh_config
+        def ssh_config file = nil
           return @ssh_config if @ssh_config
-          config = nil
-          locate "*Vagrantfile" do
-            config = shell "vagrant ssh-config", :capture => true
+
+          config = if file and File.exist? file
+            File.read(file)
+          end
+
+          if config.nil?
+            locate "*Vagrantfile" do
+              config = shell "vagrant ssh-config", :capture => true
+            end
           end
 
           raise Exception.new "Could not retrieve VM ssh configuration" unless config
