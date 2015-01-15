@@ -22,11 +22,10 @@ module Hobo
 
       def chunk_line_iterator stream
         begin
-          until (chunk = stream.readpartial(1024)).nil? do
-            chunk.each_line do |outer_line|
-              outer_line.each_line("\r") do |line|
-                yield line
-              end
+          while true
+            (@buf ||= '') << stream.readpartial(1024)
+            while line = @buf.slice!(/(.*)\r?\n/)
+              yield line
             end
           end
         rescue EOFError
