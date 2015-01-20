@@ -85,13 +85,17 @@ namespace :deps do
 
     locate "*Berksfile" do
       Hobo.ui.title "Installing chef dependencies via berkshelf"
-      bundle_shell "berks", "install", :realtime => true, :indent => 2
-      version = bundle_shell "berks", "-v", :capture => true
+      executor = (shell("which berks", :capture => true).strip =~ /chefdk/) ?
+        lambda { |*args| shell *args } :
+        lambda { |*args| bundle_shell *args }
+
+      executor.call "berks", "install", :realtime => true, :indent => 2
+      version = executor.call "berks", "-v", :capture => true
       if version =~ /^[3-9]/
         shell "rm -rf cookbooks"
-        bundle_shell "berks", "vendor", "cookbooks"
+        executor.call "berks", "vendor", "cookbooks"
       else
-        bundle_shell "berks", "install", "--path", "cookbooks"
+        executor.call "berks", "install", "--path", "cookbooks"
       end
       Hobo.ui.separator
     end

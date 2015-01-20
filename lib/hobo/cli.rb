@@ -36,6 +36,7 @@ module Hobo
       load_builtin_tasks
       load_hobofiles
       load_project_config
+      Hobo.chefdk_compat
 
       tasks = structure_tasks Hobo::Metadata.metadata.keys
       define_global_opts @slop

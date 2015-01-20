@@ -48,6 +48,7 @@ module Hobo
       Hobo::Logging.logger.debug("helper.shell: Invoking '#{args.join(" ")}' with #{opts.to_s}")
 
       ::Bundler.with_clean_env do
+        Hobo.chefdk_compat
         indent = " " * opts[:indent]
         ::Open3.popen3 opts[:env], *args do |stdin, out, err, external|
           buffer = ::Tempfile.new 'hobo_run_buf'

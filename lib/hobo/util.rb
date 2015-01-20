@@ -58,5 +58,19 @@ module Hobo
       require 'rbconfig'
       File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"]).match(/\/rvm\/|\/\.rvm\/|\/\.rbenv/) != nil
     end
+
+    def chefdk_compat
+      return if maybe(Hobo.user_config.hobo.disable_chefdk_compat) || ENV['HOBO_DISABLE_CHEFDK_COMPAT']
+      return if Hobo.windows?
+      which_ruby = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
+      if which_ruby =~ /rbenv/
+        split_path = ENV['PATH'].split ':'
+        paths = split_path.reject do |p|
+          p =~ /chefdk/
+        end
+        chef_paths = split_path - paths
+        ENV['PATH'] = (chef_paths + paths).join ':'
+      end
+    end
   end
 end
