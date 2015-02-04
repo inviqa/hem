@@ -37,6 +37,7 @@ module Hobo
         end
 
         def upload_command_file command, opts = {}
+          require 'net/ssh'
           require 'net/ssh/simple'
           Net::SSH::Simple.sync do
             ssh_opts = {
@@ -66,9 +67,7 @@ module Hobo
               tmp.write "exit $R"
 
               tmp.rewind
-              logger.debug "vmcommand: Uploading #{remote_file}"
-              logger.debug "vmcommand: #{command}#{opts[:append]}"
-              logger.debug "vmcommand: #{tmp.read}"
+              logger.debug "vmcommand: Uploading `#{command}#{opts[:append]}` as '#{remote_file}'"
 
               tmp.close
 
@@ -82,13 +81,20 @@ module Hobo
           end
         end
 
+        def inner_command
+          [
+              @pipe_in_vm,
+              @command
+          ].compact.join(" | ")
+        end
+
         def to_s
           inspector = @opts[:inspector] || @@vm_inspector
           opts = inspector.ssh_config(@opts[:ssh_config_file]).merge(@opts)
 
           psuedo_tty = opts[:psuedo_tty] ? "-t" : ""
 
-          ssh_command = [
+          command = [
               "ssh",
               "-o 'UserKnownHostsFile /dev/null'",
               "-o 'StrictHostKeyChecking no'",
@@ -100,17 +106,8 @@ module Hobo
               "#{opts[:ssh_user].shellescape}@#{opts[:ssh_host].shellescape}"
           ].join(" ")
 
-          vm_command = [
-              @pipe_in_vm,
-              @command
-          ].compact.join(" | ")
-
-          vm_command_file = upload_command_file(vm_command, opts) unless vm_command.empty?
-
-          command = [
-              ssh_command,
-              vm_command_file
-          ].compact.join(" -- bash ")
+          vm_command = inner_command
+          command = "#{command} -- bash " + upload_command_file(vm_command, opts) unless vm_command.empty?
 
           [
               @pipe,
