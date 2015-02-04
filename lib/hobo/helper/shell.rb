@@ -45,7 +45,9 @@ module Hobo
         :exit_status => false
       }.merge! opts
 
-      Hobo::Logging.logger.debug("helper.shell: Invoking '#{args.join(" ")}' with #{opts.to_s}")
+      cmd = args.join(" ")
+
+      Hobo::Logging.logger.debug("helper.shell: Invoking '#{cmd}' with #{opts.to_s}#{" real command: #{opts[:real_command]}" if opts[:real_command]}")
 
       ::Bundler.with_clean_env do
         indent = " " * opts[:indent]
@@ -82,7 +84,7 @@ module Hobo
 
           return external.value.exitstatus if opts[:exit_status]
 
-          raise ::Hobo::ExternalCommandError.new(args.join(" "), external.value.exitstatus, buffer) if external.value.exitstatus != 0 && !opts[:ignore_errors]
+          raise ::Hobo::ExternalCommandError.new(cmd, external.value.exitstatus, buffer) if external.value.exitstatus != 0 && !opts[:ignore_errors]
 
           if opts[:capture]
             return buffer.read unless opts[:strip]
