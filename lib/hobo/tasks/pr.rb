@@ -38,8 +38,7 @@ PR_DOD
 
     editor = Hobo.user_config.editor.nil? ? ENV['EDITOR'] : Hobo.user_config.editor
     if editor.nil?
-      Hobo::ui.error 'You must define a preferred editor in your shell or config.yaml.'
-      exit 1
+      raise Hobo::UndefinedEditorError.new
     end
 
     tmp = Tempfile.new('hobo_pr')
@@ -50,7 +49,7 @@ PR_DOD
       tmp.open
       pr_body = tmp.read
     rescue Exception => e
-      Hobo::ui.error e.message
+      raise Hobo::Error.new e.message
     ensure
       tmp.close
       tmp.unlink

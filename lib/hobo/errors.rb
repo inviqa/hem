@@ -74,4 +74,7 @@ module Hobo
       super("Host check failed: #{summary}")
     end
   end
+
+  class UndefinedEditorError < Error
+  end
 end
