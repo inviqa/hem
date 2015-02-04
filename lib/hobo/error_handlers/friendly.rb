@@ -40,6 +40,8 @@ module Hobo
             Hobo.ui.warning error.advice.gsub(/^/, '  ')
           when "Hobo::Error"
             Hobo.ui.error "\n#{error.message}\n"
+          when "Hobo::VmNotStartedError"
+            Hobo.ui.error "\nThe VM was expected to be running but is not\n"
           else
             File.write(log_file, "(#{error.class}) #{error.message}\n\n#{error.backtrace.join("\n")}")
             Hobo.ui.error <<-ERROR

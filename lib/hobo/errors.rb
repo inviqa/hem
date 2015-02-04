@@ -52,6 +52,9 @@ module Hobo
   class ProjectOnlyError < Error
   end
 
+  class VmNotStartedError < Error
+  end
+
   class NonInteractiveError < Error
     def initialize question
       @question = question

@@ -51,11 +51,13 @@ module Hobo
 
           if config.nil?
             locate "*Vagrantfile" do
-              config = shell "vagrant ssh-config", :capture => true
+              begin
+                config = shell "vagrant ssh-config", :capture => true
+              rescue Hobo::ExternalCommandError => e
+                raise Hobo::VmNotStartedError.new
+              end
             end
           end
-
-          raise Exception.new "Could not retrieve VM ssh configuration" unless config
 
           patterns = {
               :ssh_user => /^\s*User (.*)$/,

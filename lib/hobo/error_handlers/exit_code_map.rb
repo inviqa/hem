@@ -10,7 +10,8 @@ module Hobo
         'Hobo::UserError' => 6,
         'Hobo::ProjectOnlyError' => 7,
         'Hobo::HostCheckError' => 8,
-        'Hobo::Error' => 9
+        'Hobo::Error' => 9,
+        'Hobo::VmNotStarted' => 10
       }
     end
   end
