@@ -19,18 +19,28 @@ module Hobo
           }.merge(opts)
         end
 
-        def << pipe
-          pipe = "echo #{pipe.shellescape}" if opts[:auto_echo]
-          @pipe = pipe
+        def pipe cmd, pipe_opts = {}
+          pipe_opts = pipe_opts.merge({ :on => :vm })
+          cmd = "echo #{cmd.shellescape}" if @opts[:auto_echo]
+
+          case pipe_opts[:on]
+            when :vm
+              @pipe_in_vm = cmd
+            when :host
+              @pipe = cmd
+            else
+              raise "Unknown pipe source: #{pipe_opts[:on]}"
+          end
           @opts[:psuedo_tty] = false
           return self
         end
 
-        def < pipe
-          pipe = "echo '#{pipe.shellescape}'" if opts[:auto_echo]
-          @pipe_in_vm = pipe
-          @opts[:psuedo_tty] = false
-          return self
+        def << cmd
+          pipe cmd, :on => :host
+        end
+
+        def < cmd
+          pipe cmd, :on => :vm
         end
 
         # TODO Refactor in to ssh helper with similar opts to shell helper
