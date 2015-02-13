@@ -2,7 +2,32 @@ module Hobo
   module Lib
     module Vm
       class Inspector
-        attr_accessor :ssh_config, :project_mount_path, :project_config
+        attr_accessor :ssh_config, :project_mount_path, :project_config, :path
+
+        class << self
+          attr_accessor :instances
+
+          def instances
+            @instances = (@instances || {})
+          end
+
+          def register handle, instance
+            instances[handle] = instance
+          end
+
+          def instance handle
+            handle = handle.downcase.to_sym
+            register(handle, Inspector.new) if handle == :default and !instances[handle]
+            instances[handle]
+          end
+        end
+
+        def initialize opts = {}
+          @path = opts[:path] if opts[:path]
+          @project_mount_path = opts[:project_mount_path] if opts[:project_mount_path]
+          self.class.register(opts[:register_as], self) if opts[:register_as]
+          @ssh_config = opts[:ssh_config] || ssh_config(opts[:ssh_config_file])
+        end
 
         def project_mount_path
           configured_path = maybe(Hobo.project_config.vm.project_mount_path)
@@ -22,7 +47,8 @@ module Hobo
             locator_results = vm_shell(
                 "mount | grep #{pattern} | sed -e\"#{sed}\" | xargs md5sum",
                 :capture => true,
-                :pwd => '/'
+                :pwd => '/',
+                :inspector => self
             )
           ensure
             tmp.unlink
@@ -50,7 +76,7 @@ module Hobo
           end
 
           if config.nil?
-            locate "*Vagrantfile" do
+            locate "*Vagrantfile", :path => @path do
               begin
                 config = shell "vagrant ssh-config", :capture => true
               rescue Hobo::ExternalCommandError => e

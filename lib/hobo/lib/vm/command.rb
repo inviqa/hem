@@ -4,22 +4,20 @@ module Hobo
       class Command
         include Hobo::Logging
 
-        class << self
-          attr_accessor :vm_inspector
-          @@vm_inspector = Inspector.new
-        end
-
         attr_accessor :opts, :command
 
         def initialize command, opts = {}
+          default_inspector = Inspector.instance(:default)
           @command = command
           @opts = {
               :auto_echo => false,
               :psuedo_tty => false,
-              :pwd => opts[:pwd] || @@vm_inspector.project_mount_path,
+              :pwd => opts[:pwd] || default_inspector.project_mount_path,
               :append => '',
-              :indent => 0
+              :indent => 0,
+              :inspector => default_inspector
           }.merge(opts)
+          @opts[:inspector] = Inspector.instance(@opts[:inspector]) if @opts[:inspector].is_a? Symbol
         end
 
         def << pipe
@@ -89,8 +87,7 @@ module Hobo
         end
 
         def to_s
-          inspector = @opts[:inspector] || @@vm_inspector
-          opts = inspector.ssh_config(@opts[:ssh_config_file]).merge(@opts)
+          opts = @opts[:inspector].ssh_config(@opts[:ssh_config_file]).merge(@opts)
 
           psuedo_tty = opts[:psuedo_tty] ? "-t" : ""
 
