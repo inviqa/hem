@@ -7,5 +7,6 @@ describe Hobo::Helper do
     it "should chdir to file path before yielding"
     it "should yield once for each matching file"
     it "should return path array if block not supplied"
+    it "should change to path supplied in opts"
   end
 end

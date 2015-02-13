@@ -3,7 +3,7 @@ module Hobo
     def locate(pattern, opts = {}, &block)
       match = nil
 
-      Dir.chdir Hobo.project_path do
+      Dir.chdir(opts[:path] || Hobo.project_path) do
         match = locate_git(pattern, &block)
       end
 
