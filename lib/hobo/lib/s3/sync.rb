@@ -10,14 +10,14 @@ module Hobo
           @opts = {
             :access_key_id => nil,
             :secret_access_key => nil,
-            :verify_response_body_content_length => false,
-            :max_retries => 15
+            :region => 'eu-west-1',
+            :retry_limit => 15
           }.merge(opts)
 
           handle_s3_error do
             # AWS::S3 is flakey about actually raising this error when nil is provided
             [:access_key_id, :secret_access_key].each do |k|
-              raise AWS::Errors::MissingCredentialsError if @opts[k].nil?
+              raise Aws::Errors::MissingCredentialsError if @opts[k].nil?
             end
           end
 
@@ -58,9 +58,7 @@ module Hobo
               source_file.buffer
 
               size = source_file.size
-              destination_file.write({ :size => source_file.size }) do |buffer, bytes|
-                chunk = source_file.read(bytes)
-                buffer.write(chunk)
+              destination_file.copy_from(source_file.read_io, :content_length => size) do |chunk|
                 opts[:progress].call(file, (chunk || '').length, size, :update)
               end
 
@@ -83,7 +81,7 @@ module Hobo
         private
 
         def s3
-          @s3 ||= AWS::S3.new @opts
+          @s3 ||= Aws::S3::Resource.new @opts
         end
 
         def handle_s3_error
@@ -94,14 +92,14 @@ module Hobo
             Hobo.ui.error "  Could not contact Amazon servers."
             Hobo.ui.error "  This can sometimes be caused by missing AWS credentials"
             raise exception
-          rescue AWS::S3::Errors::NoSuchBucket
+          rescue Aws::S3::Errors::NoSuchBucket
             Hobo.ui.error "  Asset bucket #{Hobo.project_config.asset_bucket} does not exist!"
             # We allow this one to be skipped as there are obviously no assets to sync
-          rescue AWS::S3::Errors::AccessDenied
+          rescue Aws::S3::Errors::AccessDenied
             Hobo.ui.error "  Your AWS key does not have access to the #{Hobo.project_config.asset_bucket} S3 bucket!"
             Hobo.ui.error "  Please request access to this bucket from your TTL or via an internal support request"
             raise exception
-          rescue AWS::Errors::MissingCredentialsError
+          rescue Aws::Errors::MissingCredentialsError
             Hobo.ui.warning "  AWS credentials not set!"
             Hobo.ui.warning "  Please request credentials from internalsupport@inivqa.com or in #devops and configure them with `hobo config`"
             raise exception

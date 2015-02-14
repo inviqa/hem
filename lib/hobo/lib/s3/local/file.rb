@@ -11,23 +11,27 @@ module Hobo
             # NOP
           end
 
-          def read bytes
-            @file.read bytes
-          end
-
-          def write opts = {}
-            opts = { :chunk_size => 4096 }.merge(opts)
-            while @file.size < opts[:size] do
-              yield @file, opts[:chunk_size]
-            end
-          end
-
           def size
             @file.size
           end
 
           def close
             @file.close
+          end
+
+          def read_io
+            @file
+          end
+
+          def copy_from io, opts = {}, &block
+            begin
+              while (data = io.readpartial 16984) do
+                @file.write data
+                yield data if block_given?
+              end
+            rescue EOFError
+              # NOP
+            end
           end
         end
       end
