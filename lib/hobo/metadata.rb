@@ -23,6 +23,14 @@ module Hobo
         metadata[task][type] = data
       end
 
+      def to_store task
+        reset_store
+        return unless metadata[task]
+        metadata[task].each do |k,v|
+          store[k] = v
+        end
+      end
+
       def reset_store
         @store = {}
         @defaults.each do |k, v|
