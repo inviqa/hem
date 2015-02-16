@@ -6,7 +6,7 @@ describe Hobo::Cli do
   hobofile = nil
 
   def test_args args
-    args.concat(['--skip-host-checks'])
+    args.concat([])
   end
 
   before do
@@ -42,6 +42,16 @@ describe Hobo::Cli do
     File.write(Hobo.user_hobofile_path, "namespace :user do\ntask :user do\nend\nend")
     cli.start test_args([])
     Rake::Task["user:user"].should_not be nil
+  end
+
+  it "should present Hobofile path in eval error" do
+    FileUtils.mkdir_p(File.dirname(Hobo.hobofile_path))
+    File.write(Hobo.hobofile_path, "An invalid hobofile")
+    begin
+      cli.start test_args([])
+    rescue Exception => e
+      e.backtrace[0].should match 'Hobofile'
+    end
   end
 
   it "should load project config if present" do
