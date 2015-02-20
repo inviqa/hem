@@ -33,9 +33,9 @@ module Hobo
     # @param [Array] Arguments from ARGV. Defaults to ARGV
     def start args = ARGV
       load_user_config
+      load_project_config
       load_builtin_tasks
       load_hobofiles
-      load_project_config
 
       tasks = structure_tasks Hobo::Metadata.metadata.keys
       define_global_opts @slop
