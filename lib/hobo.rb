@@ -29,6 +29,7 @@ require 'hobo/error_handlers/debug'
 require 'hobo/error_handlers/friendly'
 require 'hobo/config/file'
 require 'hobo/config'
+require 'hobo/sharedvm'
 
 # Asset sync
 require 'hobo/lib/s3/sync'
@@ -42,6 +43,7 @@ require 'hobo/helper/shell'
 require 'hobo/helper/file_locator'
 require 'hobo/helper/http_download'
 require 'hobo/helper/vm_command'
+require 'hobo/helper/sharedvm'
 
 require 'hobo/lib/vm/inspector'
 require 'hobo/lib/vm/command'
