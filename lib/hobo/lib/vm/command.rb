@@ -21,15 +21,15 @@ module Hobo
         end
 
         def << pipe
-          pipe = "echo #{pipe.shellescape}" if opts[:auto_echo]
-          @pipe = pipe
+          pipe = "echo #{pipe.shellescape}" if @opts[:auto_echo]
+          @opts[:pipe] = pipe
           @opts[:psuedo_tty] = false
           return self
         end
 
         def < pipe
-          pipe = "echo '#{pipe.shellescape}'" if opts[:auto_echo]
-          @pipe_in_vm = pipe
+          pipe = "echo #{pipe.shellescape}" if @opts[:auto_echo]
+          @opts[:pipe_in_vm] = pipe
           @opts[:psuedo_tty] = false
           return self
         end
@@ -52,6 +52,7 @@ module Hobo
 
             tmp = Tempfile.new "vm_command_exec"
             filename = File.basename(tmp.path)
+
 
             begin
               # TODO make this trapped
@@ -79,15 +80,18 @@ module Hobo
           end
         end
 
-        def inner_command
+        def inner_command opts = @opts
           [
-              @pipe_in_vm,
-              @command
+              @opts[:pipe_in_vm],
+              (@command.is_a? Proc) ? @command.call(opts) : @command
           ].compact.join(" | ")
         end
 
         def to_s
-          opts = @opts[:inspector].ssh_config(@opts[:ssh_config_file]).merge(@opts)
+          ssh_config = @opts[:inspector].ssh_config(@opts[:ssh_config_file])
+          return "" if ssh_config.nil?
+
+          opts = ssh_config.merge(@opts)
 
           psuedo_tty = opts[:psuedo_tty] ? "-t" : ""
 
@@ -107,7 +111,7 @@ module Hobo
           command = "#{command} -- bash " + upload_command_file(vm_command, opts) unless vm_command.empty?
 
           [
-              @pipe,
+              @opts[:pipe],
               command
           ].compact.join(" | ")
         end
