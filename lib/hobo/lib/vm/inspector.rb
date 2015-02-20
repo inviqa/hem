@@ -84,12 +84,11 @@ module Hobo
         def ssh_config file = nil
           return @ssh_config if @ssh_config
 
-          config = if file and File.exist? file
-            File.read(file)
-          end
+          if file
+            return nil unless File.exist? file
 
-          if config.nil? and !Hobo.in_project?
-            return nil
+            config = File.read(file)
+            return nil if config.nil?
           end
 
           if config.nil?
