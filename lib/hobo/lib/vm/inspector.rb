@@ -29,6 +29,22 @@ module Hobo
           @ssh_config = opts[:ssh_config] || ssh_config(opts[:ssh_config_file])
         end
 
+        def started?
+          require 'net/ssh/simple'
+          begin
+            result = vm_shell "/bin/true", :exit_status => true, :inspector => self
+            return result == 0
+          rescue Net::SSH::Simple::Error => e
+            puts e
+            # NOP - not started
+          rescue Hobo::VmNotStartedError => e
+            puts e
+            # NOP - not started
+          end
+
+          return false
+        end
+
         def project_mount_path
           configured_path = maybe(Hobo.project_config.vm.project_mount_path)
           return configured_path if configured_path

@@ -1,6 +1,10 @@
 module Hobo
   module Helper
 
+    def vm_started?
+      ::Hobo::Lib::Vm::Inspector.instance(:default).started?
+    end
+
     def vm_shell command, opts = {}
       shell ::Hobo::Lib::Vm::Command.new(command, opts).to_s, opts
     end
