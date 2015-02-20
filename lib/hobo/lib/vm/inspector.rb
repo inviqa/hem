@@ -36,10 +36,8 @@ module Hobo
             result = vm_shell "/bin/true", :exit_status => true, :inspector => self
             return result == 0
           rescue Net::SSH::Simple::Error => e
-            puts e
             # NOP - not started
           rescue Hobo::VmNotStartedError => e
-            puts e
             # NOP - not started
           end
 
