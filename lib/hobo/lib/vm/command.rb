@@ -7,17 +7,17 @@ module Hobo
         attr_accessor :opts, :command
 
         def initialize command, opts = {}
-          default_inspector = Inspector.instance(:default)
           @command = command
           @opts = {
               :auto_echo => false,
               :psuedo_tty => false,
-              :pwd => opts[:pwd] || default_inspector.project_mount_path,
               :append => '',
-              :indent => 0,
-              :inspector => default_inspector
+              :indent => 0
           }.merge(opts)
+
           @opts[:inspector] = Inspector.instance(@opts[:inspector]) if @opts[:inspector].is_a? Symbol
+          @opts[:inspector] = Inspector.instance(:default) unless @opts[:inspector]
+          @opts[:pwd] = @opts[:inspector].project_mount_path unless @opts[:pwd]
         end
 
         def << pipe
