@@ -23,8 +23,9 @@ module Hobo
         end
 
         def initialize opts = {}
+          configured_path = maybe(Hobo.project_config.vm.project_mount_path)
           @path = opts[:path] if opts[:path]
-          @project_mount_path = opts[:project_mount_path] if opts[:project_mount_path]
+          @project_mount_path = opts[:project_mount_path] || configured_path
           self.class.register(opts[:register_as], self) if opts[:register_as]
           @ssh_config = opts[:ssh_config] || ssh_config(opts[:ssh_config_file])
         end
@@ -46,8 +47,6 @@ module Hobo
         end
 
         def project_mount_path
-          configured_path = maybe(Hobo.project_config.vm.project_mount_path)
-          return configured_path if configured_path
           return @project_mount_path if @project_mount_path
 
           tmp = Tempfile.new('vm_command_locator', Hobo.project_path)
@@ -74,14 +73,14 @@ module Hobo
 
           raise Exception.new("Unable to locate project mount point in VM") if !match
 
-          @vm_project_mount_path = File.dirname(match[2])
+          @project_mount_path = File.dirname(match[2])
 
           # Stash it in config
           Hobo.project_config[:vm] ||= {}
-          Hobo.project_config[:vm][:project_mount_path] = @vm_project_mount_path
+          Hobo.project_config[:vm][:project_mount_path] = @project_mount_path
           Hobo::Config::File.save(Hobo.project_config_file, Hobo.project_config)
 
-          return @vm_project_mount_path
+          return @project_mount_path
         end
 
         def ssh_config file = nil
