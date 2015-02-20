@@ -88,6 +88,10 @@ module Hobo
             File.read(file)
           end
 
+          if config.nil? and !Hobo.in_project?
+            return nil
+          end
+
           if config.nil?
             locate "*Vagrantfile", :path => @path do
               begin
