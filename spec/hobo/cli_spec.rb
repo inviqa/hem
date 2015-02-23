@@ -6,7 +6,7 @@ describe Hobo::Cli do
   hobofile = nil
 
   def test_args args
-    args.concat(['--skip-host-checks'])
+    args.concat([])
   end
 
   before do
