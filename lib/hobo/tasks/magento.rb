@@ -1,14 +1,20 @@
 namespace :tools do
   desc "Fetches the n98-magerun utility"
   task :n98magerun do
-    FileUtils.mkdir_p "bin"
-    vm_shell '"wget" --no-check-certificate "https://raw.github.com/netz98/n98-magerun/master/n98-magerun.phar" -O bin/n98-magerun.phar'
-    FileUtils.chmod 0755, "bin/n98-magerun.phar"
+    if !File.exist? "#{Hobo.project_path}/bin/n98-magerun.phar"
+      FileUtils.mkdir_p "bin"
+      vm_shell '"wget" --no-check-certificate "https://raw.github.com/netz98/n98-magerun/master/n98-magerun.phar" -O bin/n98-magerun.phar'
+      FileUtils.chmod 0755, "bin/n98-magerun.phar"
+    end
   end
 end
 
 desc "Magento related tasks"
 namespace :magento do
+
+  def magento_container_name
+    maybe(Hobo.project_config.sharedvm.magento_container) || "app:app"
+  end
 
   desc "Patch tasks"
   namespace :patches do
@@ -46,7 +52,7 @@ namespace :magento do
         if magento_version_file
           args = [ "php -r \"require '#{magento_version_file}'; echo Mage::getEdition();\""]
 
-          magento_edition = vm_shell(*args, :capture => true).to_s.downcase
+          magento_edition = vm_shell(*args, :capture => true, :container => magento_container_name).to_s.downcase
         end
 
         edition_options = ['community', 'enterprise', 'professional', 'go']
@@ -64,7 +70,7 @@ namespace :magento do
         if magento_version_file
           args = [ "php -r \"require '#{magento_version_file}'; echo Mage::getVersion();\""]
 
-          magento_version = vm_shell(*args, :capture => true)
+          magento_version = vm_shell(*args, :capture => true, :container => magento_container_name)
         end
 
         version_regex = /^\d+(\.\d+){3}$/
@@ -83,7 +89,7 @@ namespace :magento do
     end
 
     def detect_tools
-      use_vm = shell("which which", :exit_status => true) != 0
+      use_vm = shell("which which", :exit_status => true, :container => magento_container_name) != 0
 
       tools = ['patch', 'sed']
       tools_command = tools.map {|tool| "which #{tool}"}.join " && "
@@ -95,7 +101,7 @@ namespace :magento do
       end
 
       if use_vm
-        status = vm_shell(tools_command, :exit_status => true)
+        status = vm_shell(tools_command, :exit_status => true, :container => magento_container_name)
       end
 
       if status != 0
@@ -176,7 +182,7 @@ namespace :magento do
           File.rename file, "#{magento_path}/#{filename}"
           file = "#{magento_path}/#{filename}"
           if use_vm
-            vm_shell "cd #{magento_path} && sh #{filename}", :realtime => true, :indent => 2
+            vm_shell "cd #{magento_path} && sh #{filename}", :realtime => true, :indent => 2, :container => magento_container_name
           else
             shell "cd #{magento_path} && sh #{filename}", :realtime => true, :indent => 2
           end
@@ -206,7 +212,7 @@ namespace :magento do
     desc "Run magento setup scripts"
     task :run => ['tools:n98magerun']  do
       Hobo.ui.success "Running setup scripts"
-      vm_shell("bin/n98-magerun.phar sys:setup:incremental -n", :realtime => true, :indent => 2)
+      vm_shell("bin/n98-magerun.phar sys:setup:incremental -n", :realtime => true, :indent => 2, :container => magento_container_name)
       Hobo.ui.separator
     end
   end
@@ -216,7 +222,7 @@ namespace :magento do
     desc "Clear cache"
     task :clear => ['tools:n98magerun']  do
       Hobo.ui.success "Clearing magento cache"
-      vm_shell("bin/n98-magerun.phar cache:flush", :realtime => true, :indent => 2)
+      vm_shell("bin/n98-magerun.phar cache:flush", :realtime => true, :indent => 2, :container => magento_container_name)
       Hobo.ui.separator
     end
   end
@@ -227,8 +233,8 @@ namespace :magento do
     task :'configure-urls' => ['tools:n98magerun'] do
       Hobo.ui.success "Configuring magento base urls"
       domain = Hobo.project_config.hostname
-      vm_shell("bin/n98-magerun.phar config:set web/unsecure/base_url 'http://#{domain}/'", :realtime => true, :indent => 2)
-      vm_shell("bin/n98-magerun.phar config:set web/secure/base_url 'https://#{domain}/'", :realtime => true, :indent => 2)
+      vm_shell("bin/n98-magerun.phar config:set web/unsecure/base_url 'http://#{domain}/'", :realtime => true, :indent => 2, :container => magento_container_name)
+      vm_shell("bin/n98-magerun.phar config:set web/secure/base_url 'https://#{domain}/'", :realtime => true, :indent => 2, :container => magento_container_name)
       Hobo.ui.separator
     end
 
@@ -244,10 +250,10 @@ namespace :magento do
 
     desc "Create admin user"
     task :'create-admin-user' do
-      initialized = vm_shell("bin/n98-magerun.phar admin:user:list | grep admin", :exit_status => true) == 0
+      initialized = vm_shell("bin/n98-magerun.phar admin:user:list | grep admin", :exit_status => true, :container => magento_container_name) == 0
       unless initialized
         Hobo.ui.success "Creating admin user"
-        vm_shell("bin/n98-magerun.phar admin:user:create admin '' admin admin admin", :realtime => true, :indent => 2)
+        vm_shell("bin/n98-magerun.phar admin:user:create admin '' admin admin admin", :realtime => true, :indent => 2, :container => magento_container_name)
         Hobo.ui.separator
       end
     end
@@ -255,7 +261,7 @@ namespace :magento do
     desc "Enable rewrites"
     task :'enable-rewrites' do
       Hobo.ui.success "Enabling rewrites"
-      vm_shell("bin/n98-magerun.phar config:set web/seo/use_rewrites 1", :realtime => true, :indent => 2)
+      vm_shell("bin/n98-magerun.phar config:set web/seo/use_rewrites 1", :realtime => true, :indent => 2, :container => magento_container_name)
       Hobo.ui.separator
     end
   end

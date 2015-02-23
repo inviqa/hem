@@ -10,7 +10,44 @@ module Hobo
         Hobo.shared_vm_register_inspector
         opts[:real_command] = command
         opts[:inspector] = :shared_vm
-        ::Hobo::Lib::Vm::Command.new(command, opts)
+        if opts[:container]
+          pod, container  = opts[:container].split(':')
+          container_id = shared_vm_lookup_container_id(
+            Hobo.project_config.shared_vm_tag,
+            pod,
+            container
+          )
+
+          container_pwd = nil
+
+          # Super hacky fudgy tastic pwd rewrites for compatibility with vm_shell pwds in containers
+          if opts[:pwd]
+            binds = shared_vm_shell(
+              "docker inspect -f '{{range .HostConfig.Binds}}{{.}},{{end}}' #{container_id}",
+              :capture => true
+            ).split(',').reject(&:empty?)
+
+            binds.each do |bind|
+              host_path, container_path = bind.split(':')
+              container_pwd = container_path if opts[:pwd] =~ /^#{host_path}/
+              break if container_pwd
+            end
+          end
+
+          opts[:pwd] = nil if container_pwd
+
+          # More super hacky fudgy tastic logic for vm_shell compat
+          command = "#{command}#{opts[:append]}"
+          opts[:append] = ''
+
+          cmd = Proc.new do |runtime_opts|
+            require 'shellwords'
+            interactive = '-i' if runtime_opts[:pipe] || runtime_opts[:pipe_in_vm]
+            container_pwd = "cd #{container_pwd} && " if container_pwd
+            "docker exec #{interactive} #{container_id} bash -c \"#{container_pwd}#{command}\""
+          end
+        end
+        ::Hobo::Lib::Vm::Command.new(cmd || command, opts)
       end
 
       def shared_vm_shell command, opts = {}
@@ -18,29 +55,20 @@ module Hobo
       end
 
       def shared_vm_mysql opts = {}
-        # HACK; this assumes a pod called mysql with a container called mysql
-        container_id = shared_vm_lookup_container_id Hobo.project_config.shared_vm_tag, 'mysql', 'mysql'
-
         opts = {
           :auto_echo => true,
           :db => "",
           :user => maybe(Hobo.project_config.mysql.username) || "",
-          :pass => maybe(Hobo.project_config.mysql.password) || ""
+          :pass => maybe(Hobo.project_config.mysql.password) || "",
+          :container => 'mysql:mysql' # HACK; this assumes a pod called mysql with a container called mysql
         }.merge(opts)
 
+        mysql = opts[:mysql] || 'mysql'
+        user = "-u#{opts[:user].shellescape}" unless opts[:user].empty?
+        pass = "-p#{opts[:pass].shellescape}" unless opts[:pass].empty?
+        db = opts[:db].shellescape unless opts[:db].empty?
 
-        cmd = Proc.new do |runtime_opts|
-          interactive = '-i' if runtime_opts[:pipe] || runtime_opts[:pipe_in_vm]
-
-          mysql = "docker exec #{interactive} #{container_id} #{opts[:mysql] || 'mysql'}"
-          user = "-u#{opts[:user].shellescape}" unless opts[:user].empty?
-          pass = "-p#{opts[:pass].shellescape}" unless opts[:pass].empty?
-          db = opts[:db].shellescape unless opts[:db].empty?
-
-          [ mysql, user, pass, db ].compact.join(' ')
-        end
-
-        shared_vm_command cmd, opts
+        shared_vm_command [ mysql, user, pass, db ].compact.join(' '), opts
       end
 
       def shared_vm_wait_for_pod project, pod_name
