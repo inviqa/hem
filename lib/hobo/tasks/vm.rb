@@ -72,6 +72,15 @@ namespace :vm do
     end
   end
 
+  desc "Reload VM"
+  task :reload do
+    vagrantfile do
+      Hobo.ui.title "Reloading VM"
+      vagrant_exec 'reload', '--no-provision'
+      Hobo.ui.separator
+    end
+  end
+
   desc "Provision VM"
   task :provision => [ "deps:chef" ] do
      vagrantfile do
