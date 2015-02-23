@@ -58,6 +58,9 @@ module Hobo
               # TODO make this trapped
               remote_file = "/tmp/#{filename}"
               tmp.write "#!/bin/bash\n"
+              (opts[:env] || {}).each do |k,v|
+                tmp.write "export #{k.shellescape}=#{v.shellescape}\n"
+              end
               tmp.write "set -e\n"
               tmp.write "cd #{opts[:pwd]}\n" if opts[:pwd]
               tmp.write "#{command}#{opts[:append]}\n"
