@@ -6,6 +6,7 @@ namespace :seed do
 
   option '-g=', '--git-url=', 'Git repository for project'
   option '-s=', '--seed=', 'Seed name or URL to use'
+  option '-b=', '--branch=', 'Seed branch to use'
   option '-d=', '--data=', 'Seed data to save to the project hobo configuration', :as => Hash
 
   task :plant, [ :name ] do |t, args|
@@ -19,7 +20,8 @@ namespace :seed do
     config = {
       :name => name,
       :project_path => Hobo.project_path,
-      :git_url => t.opts[:'git-url'] || Hobo.ui.ask("Repository URL", default: "git@github.com:inviqa/#{name}")
+      :git_url => t.opts[:'git-url'] || Hobo.ui.ask("Repository URL", default: "git@github.com:inviqa/#{name}"),
+      :ref => t.opts[:branch] || 'master' 
     }
 
     seed_options = %w( default magento symfony custom )
