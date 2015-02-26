@@ -77,4 +77,7 @@ module Hobo
 
   class UndefinedEditorError < Error
   end
+
+  class GithubAuthenticationError < Error
+  end
 end

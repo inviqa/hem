@@ -7,9 +7,6 @@ namespace :pr do
     owner = git_url[1]
     repo_name = git_url[0].index('.git').nil? ? git_url[0] : git_url[0][0..-4]
 
-    username = Hobo.ui.ask 'Github username'
-    password = Hobo.ui.ask 'Github password', echo: false
-
     source_branch = Hobo.ui.ask 'Source branch', default: (Hobo::Helper.shell 'git rev-parse --abbrev-ref HEAD', :capture => true)
     target_branch = Hobo.ui.ask 'Target branch', default: 'develop'
 
@@ -22,7 +19,7 @@ PR_TITLE
 # Any line starting with a hash (comment) will be ignored
 
 PR_DOD
-    prbody
+prbody
 
     pr_content['PR_TITLE'] = Hobo::Helper.shell 'git log -1 --pretty=%B', :capture => true
 
@@ -59,7 +56,37 @@ PR_DOD
 
     pr_title = pr_body_filtered.lines.to_a[0]
 
-    client = Octokit::Client.new(:login => username, :password => password)
+    #
+    # All the work to get content is done, now it's time to get a connection
+    #
+
+    config = Hobo.user_config
+    config[:github] ||= {}
+
+    if config.github.token.nil?
+      Hobo.ui.info 'You do not have a stored Github token. Authenticate now to create one.'
+      username = Hobo.ui.ask 'Github username'
+      password = Hobo.ui.ask 'Github password', echo: false
+
+      begin
+        client = Octokit::Client.new(:login => username, :password => password)
+
+        config.github.token = client.create_authorization(:scopes => ['repo'], :note => 'Hobo').token.to_s
+      rescue Octokit::UnprocessableEntity => e
+        case e.errors[0][:code]
+          when 'already_exists'
+            raise Hobo::GithubAuthenticationError.new 'You already created a token for Hobo, please delete this from your Github account before continuing.'
+          else
+            raise Hobo::Error.new e.message
+        end
+      rescue Exception => e
+        raise Hobo::Error.new e.message
+      end
+
+      Hobo::Config::File.save(Hobo.user_config_file, config)
+    else
+      client = Octokit::Client.new(:access_token => config.github.token)
+    end
 
     response = client.create_pull_request "#{owner}/#{repo_name}", target_branch, source_branch, pr_title, pr_body_filtered.lines.to_a[1..-1].join
 
