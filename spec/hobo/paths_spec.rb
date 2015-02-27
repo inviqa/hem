@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo do
   describe 'project_path' do

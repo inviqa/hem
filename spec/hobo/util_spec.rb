@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo do
   describe "in_project?" do

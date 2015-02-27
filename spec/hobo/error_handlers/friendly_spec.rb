@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo::ErrorHandlers::Friendly do
   before do

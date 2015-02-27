@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo::Lib::S3::Sync do
   before do

@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo::AssetApplicatorRegistry do
   describe "asset_applicators accessor" do

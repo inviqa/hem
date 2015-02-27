@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo::Lib::Seed::Replacer do
   before do
