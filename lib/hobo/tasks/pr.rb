@@ -56,40 +56,9 @@ prbody
 
     pr_title = pr_body_filtered.lines.to_a[0]
 
-    #
-    # All the work to get content is done, now it's time to get a connection
-    #
+    api = Hobo::Lib::Github::Api.new
+    pr_url = api.create_pull_request("#{owner}/#{repo_name}", target_branch, source_branch, pr_title, pr_body_filtered.lines.to_a[1..-1].join)
 
-    config = Hobo.user_config
-    config[:github] ||= {}
-
-    if config.github.token.nil?
-      Hobo.ui.info 'You do not have a stored Github token. Authenticate now to create one.'
-      username = Hobo.ui.ask 'Github username'
-      password = Hobo.ui.ask 'Github password', echo: false
-
-      begin
-        client = Octokit::Client.new(:login => username, :password => password)
-
-        config.github.token = client.create_authorization(:scopes => ['repo'], :note => 'Hobo').token.to_s
-      rescue Octokit::UnprocessableEntity => e
-        case e.errors[0][:code]
-          when 'already_exists'
-            raise Hobo::GithubAuthenticationError.new 'You already created a token for Hobo, please delete this from your Github account before continuing.'
-          else
-            raise Hobo::Error.new e.message
-        end
-      rescue Exception => e
-        raise Hobo::Error.new e.message
-      end
-
-      Hobo::Config::File.save(Hobo.user_config_file, config)
-    else
-      client = Octokit::Client.new(:access_token => config.github.token)
-    end
-
-    response = client.create_pull_request "#{owner}/#{repo_name}", target_branch, source_branch, pr_title, pr_body_filtered.lines.to_a[1..-1].join
-
-    Hobo::ui.success 'Pull request created: '+response[:html_url]
+    Hobo::ui.success "Pull request created: #{pr_url}"
   end
 end

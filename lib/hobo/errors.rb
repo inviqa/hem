@@ -80,4 +80,7 @@ module Hobo
 
   class GithubAuthenticationError < Error
   end
+
+  class GithubApiError < Error
+  end
 end

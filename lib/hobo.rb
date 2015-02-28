@@ -58,6 +58,8 @@ require 'hobo/lib/seed/project'
 require 'hobo/lib/seed/replacer'
 require 'hobo/lib/seed/seed'
 require 'hobo/lib/self_signed_cert_generator'
+require 'hobo/lib/github/api'
+require 'hobo/lib/github/client'
 
 # Host checks
 require 'hobo/lib/host_check/git'
