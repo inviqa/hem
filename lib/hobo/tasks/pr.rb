@@ -33,31 +33,14 @@ prbody
       pr_content['PR_DOD'] = '# No DoD.md file found, add one to your project root.'
     end
 
-    editor = Hobo.user_config.editor.nil? ? ENV['EDITOR'] : Hobo.user_config.editor
-    if editor.nil?
-      raise Hobo::UndefinedEditorError.new
-    end
+    pr_body = Hobo.ui.editor(pr_content).lines.reject{ |line| line[0] == '#' }.join
 
-    tmp = Tempfile.new('hobo_pr')
-    begin
-      tmp.write pr_content
-      tmp.close
-      system([editor, tmp.path].join(' '))
-      tmp.open
-      pr_body = tmp.read
-    rescue Exception => e
-      raise Hobo::Error.new e.message
-    ensure
-      tmp.close
-      tmp.unlink
-    end
+    pr_title = pr_body.lines.to_a[0]
 
-    pr_body_filtered = pr_body.lines.reject{ |line| line[0] == '#' }.join
-
-    pr_title = pr_body_filtered.lines.to_a[0]
+    pr_body = pr_body.lines.to_a[1..-1].join
 
     api = Hobo::Lib::Github::Api.new
-    pr_url = api.create_pull_request("#{owner}/#{repo_name}", target_branch, source_branch, pr_title, pr_body_filtered.lines.to_a[1..-1].join)
+    pr_url = api.create_pull_request("#{owner}/#{repo_name}", target_branch, source_branch, pr_title, pr_body)
 
     Hobo::ui.success "Pull request created: #{pr_url}"
   end

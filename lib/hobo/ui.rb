@@ -106,6 +106,27 @@ module Hobo
       end
     end
 
+    def editor initial_text
+      editor = Hobo.user_config.editor.nil? ? ENV['EDITOR'] : Hobo.user_config.editor
+      if editor.nil?
+        raise Hobo::UndefinedEditorError.new
+      end
+
+      tmp = Tempfile.new('hobo_tmp')
+      begin
+        tmp.write initial_text
+        tmp.close
+        system([editor, tmp.path].join(' '))
+        tmp.open
+        return tmp.read
+      rescue Exception => e
+        raise Hobo::Error.new e.message
+      ensure
+        tmp.close
+        tmp.unlink
+      end
+    end
+
     def section title
       Hobo.ui.title title
       yield

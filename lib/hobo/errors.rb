@@ -76,6 +76,9 @@ module Hobo
   end
 
   class UndefinedEditorError < Error
+    def initialize
+      super('You must have definer a preferred editor, either in your hobo config or with the EDITOR environment variable')
+    end
   end
 
   class GithubAuthenticationError < Error
