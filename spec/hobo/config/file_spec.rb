@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo::Config::File do
   before do

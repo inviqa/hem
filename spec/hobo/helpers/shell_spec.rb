@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo::Helper do
   describe "bundle_shell" do

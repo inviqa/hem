@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo::Metadata do
   before do

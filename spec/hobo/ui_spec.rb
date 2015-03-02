@@ -1,4 +1,3 @@
-require 'spec_helper'
 
 describe Hobo::Ui do
   def test_ui opts = {}
