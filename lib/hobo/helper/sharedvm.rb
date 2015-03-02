@@ -73,6 +73,8 @@ module Hobo
 
       def shared_vm_wait_for_pod project, pod_name
         require 'json'
+        require 'uri'
+        require 'net/http'
 
         (0..60).to_a.each do
           uri = URI("http://#{Hobo.shared_vm_ip}:8080/api/v1beta1/pods/?namespace=#{project}&labels=name=#{pod_name}")
@@ -96,6 +98,8 @@ module Hobo
         container_info.delete 'net'
 
         results = Hash[container_info.map do |k,v|
+          # v['containerID'] can be nil on fresdhly started VM
+          # Have not identified why yet
           [k, v['containerID'].gsub(/^docker:\/\//, '')]
         end]
 
