@@ -76,7 +76,7 @@ namespace :assets do
   project_only
   task :apply do |task, args|
     env = task.opts[:env] || args[:env] || 'development'
-    path = "#{Hobo.project_path}/tools/assets/#{env}"
+    path = "tools/assets/#{env}"
 
     next unless File.exists? path
 
