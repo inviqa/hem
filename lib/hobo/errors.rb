@@ -77,7 +77,7 @@ module Hobo
 
   class UndefinedEditorError < Error
     def initialize
-      super('You must have definer a preferred editor, either in your hobo config or with the EDITOR environment variable')
+      super('You need to define a preferred editor, either in your hobo config or with the EDITOR environment variable')
     end
   end
 
