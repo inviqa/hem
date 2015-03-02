@@ -45,6 +45,9 @@ module Hobo
         :exit_status => false
       }.merge! opts
 
+      opts[:env]['GEM_PATH'] = File.expand_path("~/.gem/ruby/#{RbConfig::CONFIG['ruby_version']}")
+      opts[:env]['GEM_HOME'] = opts[:env]['GEM_PATH']
+
       Hobo::Logging.logger.debug("helper.shell: Invoking '#{args.join(" ")}' with #{opts.to_s}")
 
       ::Bundler.with_clean_env do

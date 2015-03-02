@@ -1,4 +1,5 @@
 # External deps
+require 'bundler'
 require 'slop'
 require 'rake'
 require 'tempfile'

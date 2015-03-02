@@ -1,7 +1,76 @@
 #!/usr/bin/env ruby
 
-# Hack to allow testing with Aruba (for now)
 $:.push File.expand_path(File.join("..", "..", "lib"), __FILE__)
+
+# Suppress Net/SSH/Simple warning on windows
+$SUPPRESS_32BIT_WARNING=1
+
+def confirm action
+  puts "Hobo needs to #{action}"
+  print 'Do you wish to proceed? (Y/N) [Y] '
+  answer = STDIN.tty? ? (STDIN.gets || ' ')[0] : ' '
+  answer = answer.empty? ? 'Y' : answer.upcase.strip
+  answer == 'Y'
+end
+
+def load_gemlock
+  require 'json'
+  gemlock_file = File.expand_path('../../Gemlock', __FILE__)
+  JSON.parse(File.read(gemlock_file)) if File.exist? gemlock_file
+end
+
+def load_gemlock_deps deps
+  deps.each do |name, version|
+    gem name, version
+  end
+end
+
+def isolate
+  isolated_path = File.expand_path("~/.hobo/gems/#{RbConfig::CONFIG['ruby_version']}")
+
+  exec(
+    {
+      'GEM_PATH' => isolated_path,
+      'GEM_HOME' => isolated_path,
+      'PATH' => "#{isolated_path}/bin" + "#{File::PATH_SEPARATOR}#{ENV['PATH']}"
+    },
+    __FILE__,
+    *ARGV
+  ) unless ENV['GEM_PATH'] == isolated_path
+end
+
+def install_gemlock_deps deps
+  missing = {}
+  deps.each do |name, version|
+    dep = Gem::Dependency.new(name, [version])
+    missing[name] = version if dep.matching_specs.empty?
+  end
+
+  if missing.length > 0
+    exit 1 unless confirm "install some additional components"
+  end
+
+  threads = []
+  missing.each do |name, version|
+    while active_thread_count(threads) >= 8 do
+      sleep 1
+    end
+
+    threads << Thread.new do |t|
+      system("gem install #{name} --ignore-dependencies --no-rdoc --no-ri -v '#{version}'", :out => STDOUT, :err => STDERR)
+    end
+  end
+
+  threads.each do |t|
+    t.join
+  end
+
+  exec(__FILE__, *ARGV) if threads.length > 0
+end
+
+def active_thread_count thread_list
+  thread_list.map(&:alive?).reject{ |thread| thread == false }.length
+end
 
 def init_hobo
   require 'hobo'
@@ -50,52 +119,15 @@ def init_hobo
     Hobo.cli.start
   rescue Exception => error
     exit error_handler.handle(error)
-  ensure
-    ENV['BUNDLE_GEMFILE'] = $OLD_BUNDLE_GEMFILE
   end
 end
 
-Gem.configuration.verbose = false
+isolate
 
-require 'hobo/util'
-
-unless Hobo.windows?
-  if Process.uid == 0
-    puts
-    puts "Hobo must not be run as root"
-    puts
-    exit 147
-  end
-
-  require "hobo/util"
-
-  if Hobo.windows? and not Hobo.system_ruby?
-    puts
-    puts "Hobo is not compatible with system ruby installs"
-    puts
-    puts "Please see the installation instructions for hobo on the wiki at https://github.com/inviqa/hobo-gem/wiki"
-    puts "It is also recommended that you wipe system gems so as to avoid interference. You can achieve this with the following command:"
-    puts
-    puts "  gem list --no-version | xargs sudo gem uninstall -aIx" 
-    puts
-    exit 148
-  end
+gems = load_gemlock
+if gems
+  install_gemlock_deps gems
+  load_gemlock_deps gems
 end
 
-require 'hobo/patches/rubygems'
-require 'hobo/bundler'
-require 'bundler'
-
-# Suppress Net/SSH/Simple warning on windows
-$SUPPRESS_32BIT_WARNING=1
-$HOBO_ARGV = ARGV
-$OLD_BUNDLE_GEMFILE = ENV['BUNDLE_GEMFILE']
-$HOBO_BUNDLE_MODE = Hobo::Bundler.is_hobo_bundled?
-
-if $HOBO_BUNDLE_MODE
-  init_hobo
-else
-  Hobo::Bundler.isolate do
-    init_hobo
-  end
-end
+init_hobo

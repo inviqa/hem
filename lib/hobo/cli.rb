@@ -45,8 +45,6 @@ module Hobo
         @slop.parse! args
         opts = @slop.to_hash
 
-        perform_host_checks unless opts[:'skip-host-checks']
-
         @help_opts[:all] = opts[:all]
 
         @slop.add_callback :empty do
@@ -116,26 +114,12 @@ module Hobo
       end
     end
 
-    def perform_host_checks
-      checks = [
-        'vagrant.*',
-        'ssh_present',
-        'git_present'
-      ]
-      checks.push 'latest_hobo_version' unless $HOBO_BUNDLE_MODE
-
-      @host_check.check(
-        :filter => /#{checks.join('|')}/,
-        :raise => true
-      )
-    end
-
     def define_global_opts slop
       slop.on '-a', '--all', 'Show hidden commands'
       slop.on '-h', '--help', 'Display help'
 
       slop.on '-v', '--version', 'Print version information' do
-        Hobo.ui.info "Hobo version #{Hobo::VERSION}#{" (Bundle mode)" if $HOBO_BUNDLE_MODE}"
+        Hobo.ui.info "Hobo version #{Hobo::VERSION}"
         halt
       end
     end
