@@ -13,7 +13,7 @@ module Hobo
 
         def setup seed, config
           seed.update
-          seed.export config[:project_path]
+          seed.export config[:project_path], config
           config[:seed][:version] = seed.version
           config[:hostname] = "#{config[:name]}.dev"
           config[:asset_bucket] = "inviqa-assets-#{config[:name]}"
