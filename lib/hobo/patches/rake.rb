@@ -8,8 +8,9 @@ module Rake
 
   module DSL
     def before(task_name, new_tasks = nil, &new_task)
+      task_name = task_name.to_s
       new_tasks = [new_tasks].flatten.compact
-      old_task = Rake.application.instance_variable_get('@tasks').delete(task_name.to_s)
+      old_task = Rake.application.instance_variable_get('@tasks').delete(task_name)
 
       Hobo::Metadata.to_store task_name
       task task_name => old_task.prerequisites do
@@ -22,8 +23,9 @@ module Rake
     end
 
     def after(task_name, new_tasks = nil, &new_task)
+      task_name = task_name.to_s
       new_tasks = [new_tasks].flatten.compact
-      old_task = Rake.application.instance_variable_get('@tasks').delete(task_name.to_s)
+      old_task = Rake.application.instance_variable_get('@tasks').delete(task_name)
 
       Hobo::Metadata.to_store task_name
       task task_name => old_task.prerequisites do

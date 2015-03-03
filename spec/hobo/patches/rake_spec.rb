@@ -5,7 +5,9 @@ describe Rake do
 
   before do
     Rake::Task.clear
-    Hobo::Metadata.store = {}
+    Hobo::Metadata.default :opts, []
+    Hobo::Metadata.default :desc, nil
+    Hobo::Metadata.reset_store
     Hobo::Metadata.metadata = {}
 
     Hobo.ui = double(Hobo::Ui).as_null_object
@@ -78,6 +80,34 @@ describe Rake do
 
       cli.start ['multiple-string-test']
     end
+
+    it "should maintain all task metadata" do
+      File.write('Hobofile', "
+        option '--test', 'A test'
+        desc 'A description'
+        long_desc 'A long description'
+        project_only
+        hidden
+        task 'metadata-test' do
+          Hobo.ui.info 'test'
+        end
+
+        task 'before' do
+          Hobo.ui.info 'before'
+        end
+
+        before 'metadata-test', 'before'
+        "
+      )
+
+      cli.start ['metadata-test']
+      
+      Hobo::Metadata.metadata['metadata-test'][:opts].should eql([["--test", "A test"]])
+      Hobo::Metadata.metadata['metadata-test'][:desc].should eql("A description")
+      Hobo::Metadata.metadata['metadata-test'][:long_desc].should eql("A long description")
+      Hobo::Metadata.metadata['metadata-test'][:project_only].should be(true)
+      Hobo::Metadata.metadata['metadata-test'][:hidden].should be(true)
+    end
   end
 
   describe "after hook" do
@@ -135,6 +165,34 @@ describe Rake do
       Hobo.ui.should_receive(:info).with('after2')
 
       cli.start ['multiple-string-test']
+    end
+
+    it "should maintain all task metadata" do
+      File.write('Hobofile', "
+        option '--test', 'A test'
+        desc 'A description'
+        long_desc 'A long description'
+        project_only
+        hidden
+        task :'metadata-test' do
+          Hobo.ui.info 'test'
+        end
+
+        task 'after' do
+          Hobo.ui.info 'after'
+        end
+
+        after :'metadata-test', 'after'
+        "
+      )
+
+      cli.start ['metadata-test']
+      
+      Hobo::Metadata.metadata['metadata-test'][:opts].should eql([["--test", "A test"]])
+      Hobo::Metadata.metadata['metadata-test'][:desc].should eql("A description")
+      Hobo::Metadata.metadata['metadata-test'][:long_desc].should eql("A long description")
+      Hobo::Metadata.metadata['metadata-test'][:project_only].should be(true)
+      Hobo::Metadata.metadata['metadata-test'][:hidden].should be(true)
     end
   end
 
