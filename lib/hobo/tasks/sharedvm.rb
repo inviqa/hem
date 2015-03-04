@@ -11,7 +11,7 @@ namespace 'sharedvm' do
           shell 'vagrant ssh-config > shared_vm.ssh_config'
         end
       else
-        Hobo.ui.warning "Shared VM already started, skipping"
+        Hobo.ui.warning "Shared VM already started, skipping\n"
       end
     end
   end
