@@ -21,7 +21,7 @@ namespace :deps do
       Hobo.ui.title "Installing composer dependencies"
       Dir.chdir Hobo.project_path do
         ansi = Hobo.ui.supports_color? ? '--ansi' : ''
-        args = [ "php bin/composer.phar install #{ansi} --prefer-dist", { realtime: true, indent: 2 } ]
+        args = [ "php bin/composer.phar install #{ansi} --prefer-dist", { realtime: true, indent: 2, container: 'app:app' } ]
         complete = false
 
         unless maybe(Hobo.project_config.tasks.deps.composer.disable_host_run)
