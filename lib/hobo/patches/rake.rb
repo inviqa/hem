@@ -7,11 +7,45 @@ module Rake
   end
 
   module DSL
+    def before(task_name, new_tasks = nil, &new_task)
+      task_name = task_name.to_s
+      new_tasks = [new_tasks].flatten.compact
+      old_task = Rake.application.instance_variable_get('@tasks').delete(task_name)
+
+      Hobo::Metadata.to_store task_name
+      task task_name => old_task.prerequisites do
+        new_task.call unless new_task.nil?
+        new_tasks.each do |t|
+          Rake::Task[t].invoke
+        end
+        old_task.invoke
+      end
+    end
+
+    def after(task_name, new_tasks = nil, &new_task)
+      task_name = task_name.to_s
+      new_tasks = [new_tasks].flatten.compact
+      old_task = Rake.application.instance_variable_get('@tasks').delete(task_name)
+
+      Hobo::Metadata.to_store task_name
+      task task_name => old_task.prerequisites do
+        old_task.invoke
+        new_tasks.each do |t|
+          Rake::Task[t].invoke
+        end
+        new_task.call unless new_task.nil?
+      end
+    end
+
     def replace *args, &block
       old = (args[0].is_a? Hash) ? args[0].keys[0] : args[0]
       Hobo::Logging.logger.debug("rake.dsl: Replacing #{old} with block")
       Rake::Task[old].clear
       task(*args, &block)
+    end
+
+    def invoke task, *args, &block
+      Rake::Task[task].invoke(*args, &block)
     end
 
     def hidden value = true

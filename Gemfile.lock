@@ -9,7 +9,6 @@ PATH
       net-ssh-simple (~> 1.6.3)
       pry (~> 0.9.12)
       rake (~> 10.1.1)
-      rake-hooks (~> 1.2.3)
       ruby-progressbar (~> 1.4.1)
       semantic (~> 1.3.0)
       slop (~> 3.4.7)
@@ -45,8 +44,6 @@ GEM
       method_source (~> 0.8)
       slop (~> 3.4)
     rake (10.1.1)
-    rake-hooks (1.2.3)
-      rake
     ruby-progressbar (1.4.2)
     semantic (1.3.1)
     slop (3.4.7)

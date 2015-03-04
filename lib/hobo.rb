@@ -1,7 +1,6 @@
 # External deps
 require 'slop'
 require 'rake'
-require 'rake/hooks'
 require 'tempfile'
 require 'shellwords'
 require 'deepstruct'

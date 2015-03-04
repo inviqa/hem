@@ -23,7 +23,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "slop", "~> 3.4.7"
   spec.add_dependency "highline", "~> 1.6.20"
   spec.add_dependency "rake", "~> 10.1.1"
-  spec.add_dependency "rake-hooks", "~> 1.2.3"
   spec.add_dependency "bundler", ">= 1.5.2"
   spec.add_dependency "deepstruct", "~> 0.0.5"
   spec.add_dependency "semantic", "~> 1.3.0"
