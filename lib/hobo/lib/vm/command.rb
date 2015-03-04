@@ -8,6 +8,7 @@ module Hobo
 
         def initialize command, opts = {}
           @command = command
+          @remote_file = nil
           @opts = {
               :auto_echo => false,
               :psuedo_tty => false,
@@ -35,6 +36,7 @@ module Hobo
         end
 
         def upload_command_file command, opts = {}
+          return @remote_file if @remote_file
           require 'net/ssh'
           require 'net/ssh/simple'
           Net::SSH::Simple.sync do
@@ -79,7 +81,7 @@ module Hobo
               tmp.unlink
             end
 
-            return remote_file
+            return @remote_file = remote_file
           end
         end
 
