@@ -106,14 +106,14 @@ module Hobo
     end
 
     def load_hobofiles
-      if Hobo.in_project? && File.exists?(Hobo.hobofile_path)
-        logger.debug("cli: Loading hobofile @ #{Hobo.hobofile_path}")
-        eval(File.read(Hobo.hobofile_path), TOPLEVEL_BINDING, Hobo.hobofile_path)
-      end
-
       if File.exists?(Hobo.user_hobofile_path)
         logger.debug("cli: Loading hobofile @ #{Hobo.user_hobofile_path}")
         eval(File.read(Hobo.user_hobofile_path), TOPLEVEL_BINDING, Hobo.user_hobofile_path)
+      end
+
+      if Hobo.in_project? && File.exists?(Hobo.hobofile_path)
+        logger.debug("cli: Loading hobofile @ #{Hobo.hobofile_path}")
+        eval(File.read(Hobo.hobofile_path), TOPLEVEL_BINDING, Hobo.hobofile_path)
       end
     end
 
