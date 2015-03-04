@@ -84,7 +84,11 @@ module Hobo
 
           return external.value.exitstatus if opts[:exit_status]
 
-          raise ::Hobo::ExternalCommandError.new(cmd, external.value.exitstatus, buffer) if external.value.exitstatus != 0 && !opts[:ignore_errors]
+          error_cmd = []
+          error_cmd << "Real command: #{opts[:real_command]}" if opts[:real_command]
+          error_cmd << "Actual command: #{cmd}"
+
+          raise ::Hobo::ExternalCommandError.new(error_cmd.join("\n"), external.value.exitstatus, buffer) if external.value.exitstatus != 0 && !opts[:ignore_errors]
 
           if opts[:capture]
             return buffer.read unless opts[:strip]
