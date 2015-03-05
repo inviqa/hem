@@ -5,129 +5,53 @@ $:.push File.expand_path(File.join("..", "..", "lib"), __FILE__)
 # Suppress Net/SSH/Simple warning on windows
 $SUPPRESS_32BIT_WARNING=1
 
-def confirm action
-  puts "Hobo needs to #{action}"
-  print 'Do you wish to proceed? (Y/N) [Y] '
-  answer = STDIN.tty? ? (STDIN.gets || ' ')[0] : ' '
-  answer = answer.empty? ? 'Y' : answer.upcase.strip
-  answer == 'Y'
-end
+require 'hobo/isolation'
+::Hobo::Isolation.isolate
 
-def load_gemlock
-  require 'json'
-  gemlock_file = File.expand_path('../../Gemlock', __FILE__)
-  JSON.parse(File.read(gemlock_file)) if File.exist? gemlock_file
-end
+require 'hobo'
 
-def load_gemlock_deps deps
-  deps.each do |name, version|
-    gem name, version
-  end
-end
+# Default main classes
+error_handler = Hobo::ErrorHandlers::Friendly.new
+Hobo.ui = Hobo::Ui.new
+Hobo.logger = Logger.new(STDOUT)
+Hobo.logger.level = Logger::WARN
 
-def isolate
-  isolated_path = File.expand_path("~/.hobo/gems/#{RbConfig::CONFIG['ruby_version']}")
-
-  exec(
-    {
-      'GEM_PATH' => isolated_path,
-      'GEM_HOME' => isolated_path,
-      'PATH' => "#{isolated_path}/bin" + "#{File::PATH_SEPARATOR}#{ENV['PATH']}"
-    },
-    __FILE__,
-    *ARGV
-  ) unless ENV['GEM_PATH'] == isolated_path
-end
-
-def install_gemlock_deps deps
-  missing = {}
-  deps.each do |name, version|
-    dep = Gem::Dependency.new(name, [version])
-    missing[name] = version if dep.matching_specs.empty?
+# Low level / early arg parsing
+# Anything that can alter ui / logger / cli should be here
+# Early termination args should also go here
+slop = Slop.parse! do
+  on '--debug', 'Enable debugging' do
+    require 'teerb'
+    require 'tmpdir'
+    error_handler = Hobo::ErrorHandlers::Debug.new
+    debug_log = File.open(File.join(Dir.tmpdir, 'hobo_debug.log'), 'w+')
+    Hobo.logger = Logger.new(TeeRb::IODelegate.new(STDOUT, debug_log))
+    Hobo.logger.level = Logger::DEBUG
   end
 
-  if missing.length > 0
-    exit 1 unless confirm "install some additional components"
+  on '--ansi', 'Enable / disable ansi output', :invertable => true do
+    Hobo.ui.use_color self.to_hash[:ansi]
   end
 
-  threads = []
-  missing.each do |name, version|
-    while active_thread_count(threads) >= 8 do
-      sleep 1
-    end
-
-    threads << Thread.new do |t|
-      system("gem install #{name} --ignore-dependencies --no-rdoc --no-ri -v '#{version}'", :out => STDOUT, :err => STDERR)
-    end
+  on '--log-level=', 'Set log level' do
+    level = self.to_hash[:'log-level'].upcase
+    Hobo.logger.level = Logger.const_get(level) if [ 'DEBUG', 'INFO' ].include? level
   end
 
-  threads.each do |t|
-    t.join
-  end
-
-  exec(__FILE__, *ARGV) if threads.length > 0
+  on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
+  on '--skip-host-checks', 'Skip host checks' # Deprecated but still used in some old automation (scrutinizer / jenkins)
 end
 
-def active_thread_count thread_list
-  thread_list.map(&:alive?).reject{ |thread| thread == false }.length
+Hobo.logger.formatter = proc do |severity, datetime, progname, msg|
+  "#{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{severity}: #{msg}\n"
 end
 
-def init_hobo
-  require 'hobo'
+opts = slop.to_hash
+Hobo.ui.interactive = !(opts[:'non-interactive'] == true)
 
-  # Default main classes
-  error_handler = Hobo::ErrorHandlers::Friendly.new
-  Hobo.ui = Hobo::Ui.new
-  Hobo.logger = Logger.new(STDOUT)
-  Hobo.logger.level = Logger::WARN
-
-  # Low level / early arg parsing
-  # Anything that can alter ui / logger / cli should be here
-  # Early termination args should also go here
-  slop = Slop.parse! do
-    on '--debug', 'Enable debugging' do
-      require 'teerb'
-      require 'tmpdir'
-      error_handler = Hobo::ErrorHandlers::Debug.new
-      debug_log = File.open(File.join(Dir.tmpdir, 'hobo_debug.log'), 'w+')
-      Hobo.logger = Logger.new(TeeRb::IODelegate.new(STDOUT, debug_log))
-      Hobo.logger.level = Logger::DEBUG
-    end
-
-    on '--ansi', 'Enable / disable ansi output', :invertable => true do
-      Hobo.ui.use_color self.to_hash[:ansi]
-    end
-
-    on '--log-level=', 'Set log level' do
-      level = self.to_hash[:'log-level'].upcase
-      Hobo.logger.level = Logger.const_get(level) if [ 'DEBUG', 'INFO' ].include? level
-    end
-
-    on '--non-interactive', 'Run non-interactively. Defaults will be automatically used where possible.'
-    on '--skip-host-checks', 'Skip host checks'
-  end
-
-  Hobo.logger.formatter = proc do |severity, datetime, progname, msg|
-    "#{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{severity}: #{msg}\n"
-  end
-
-  opts = slop.to_hash
-  Hobo.ui.interactive = !(opts[:'non-interactive'] == true)
-
-  begin
-    Hobo.cli = Hobo::Cli.new(slop: slop)
-    Hobo.cli.start
-  rescue Exception => error
-    exit error_handler.handle(error)
-  end
+begin
+  Hobo.cli = Hobo::Cli.new(slop: slop)
+  Hobo.cli.start
+rescue Exception => error
+  exit error_handler.handle(error)
 end
-
-isolate
-
-gems = load_gemlock
-if gems
-  install_gemlock_deps gems
-  load_gemlock_deps gems
-end
-
-init_hobo

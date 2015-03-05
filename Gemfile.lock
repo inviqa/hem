@@ -6,6 +6,7 @@ PATH
       bundler (>= 1.5.2)
       deepstruct (~> 0.0.5)
       highline (~> 1.6.20)
+      json (>= 1.7)
       net-ssh-simple (= 1.6.3)
       pry (~> 0.9.12)
       rake (~> 10.1.1)

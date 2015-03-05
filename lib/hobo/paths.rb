@@ -57,5 +57,9 @@ module Hobo
     def user_hobofile_path
       File.join(config_path, 'Hobofile')
     end
+
+    def project_gems_path
+      File.expand_path("~/.gem/ruby/#{RbConfig::CONFIG['ruby_version']}")
+    end
   end
 end
