@@ -5,7 +5,12 @@ namespace 'self'  do
   desc "REPL"
   task :repl do
     require 'pry'
-    binding.pry
+    Pry.config.prompt = if STDIN.tty?
+      proc { 'hobo > '}
+    else
+      proc { '' }
+    end
+    pry
   end
 
   desc "Tasks for debugging hobo"
