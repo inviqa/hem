@@ -14,6 +14,10 @@ module Hobo
             :retry_limit => 15
           }.merge(opts)
 
+          if Hobo.windows?
+            Aws.config[:ssl_ca_bundle] = File.expand_path('../../../../../ssl/ca-bundle-s3.crt', __FILE__)
+          end
+          
           handle_s3_error do
             # AWS::S3 is flakey about actually raising this error when nil is provided
             [:access_key_id, :secret_access_key].each do |k|
