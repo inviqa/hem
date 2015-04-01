@@ -206,6 +206,7 @@ namespace :magento do
     desc "Run magento setup scripts"
     task :run => ['tools:n98magerun']  do
       Hobo.ui.success "Running setup scripts"
+      vm_shell("bin/n98-magerun.phar cache:clean config", :realtime => true, :indent => 2)
       vm_shell("bin/n98-magerun.phar sys:setup:incremental -n", :realtime => true, :indent => 2)
       Hobo.ui.separator
     end
