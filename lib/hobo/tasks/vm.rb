@@ -66,7 +66,16 @@ namespace :vm do
       state = shell("vagrant --machine-readable status | grep ,state, | cut -d, -f4", :capture => true).strip
       unless state == 'running'
         Hobo.ui.title "Starting vagrant VM"
-        vagrant_exec 'up', '--no-provision'
+        args = ['up', '--no-provision']
+
+        provider = maybe(Hobo.user_config.vm.provider)
+        provider ||= maybe(Hobo.project_config.vm.provider)
+
+        if provider
+          args.concat ['--provider', provider]
+        end
+
+        vagrant_exec *args
         Hobo.ui.separator
       end
     end
