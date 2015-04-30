@@ -163,7 +163,14 @@ namespace :magento do
 
         Hobo.ui.info(metadata['description']) unless metadata['description'].nil?
 
-        if ['n','N','no'].include? Hobo.ui.ask('Do you want to apply this patch?')
+        patch_options = %w( yes never skip )
+        answer = Hobo.ui.ask_choice('Do you want to apply this patch?', patch_options)
+
+        if answer == 'skip'
+          next
+        end
+
+        if answer == 'never'
           File.delete file
           File.write("#{patches_path}/#{base_filename}.skip", '')
 
