@@ -25,7 +25,7 @@ prbody
 
     dod_path = Hobo::Helper.locate('DoD.md')
 
-    if dod_path
+    if dod_path && !dod_path.empty?
       dod_file = File.open dod_path[0]
       pr_content['PR_DOD'] = dod_file.read
       dod_file.close
