@@ -42,6 +42,7 @@ require 'hobo/lib/s3/remote/iohandler'
 # Task helpers
 require 'hobo/helper/shell'
 require 'hobo/helper/file_locator'
+require 'hobo/helper/github'
 require 'hobo/helper/http_download'
 require 'hobo/helper/vm_command'
 

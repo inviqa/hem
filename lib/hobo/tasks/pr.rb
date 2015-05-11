@@ -2,11 +2,6 @@ desc 'Perform pull request operations'
 namespace :pr do
   desc 'Create a new pull request'
   task :create do
-
-    git_url = Hobo.project_config.git_url.split('/').reverse
-    owner = git_url[1]
-    repo_name = git_url[0].index('.git').nil? ? git_url[0] : git_url[0][0..-4]
-
     source_branch = Hobo.ui.ask 'Source branch', default: (Hobo::Helper.shell 'git rev-parse --abbrev-ref HEAD', :capture => true)
     target_branch = Hobo.ui.ask 'Target branch', default: 'develop'
 
@@ -39,8 +34,11 @@ prbody
 
     pr_body = pr_body.lines.to_a[1..-1].join
 
+    git_parts = Hobo::Helper.parse_git_url(Hobo.project_config.git_url)
+    repo = "#{git_parts[:owner]}/#{git_parts[:repo]}"
+
     api = Hobo::Lib::Github::Api.new
-    pr_url = api.create_pull_request("#{owner}/#{repo_name}", target_branch, source_branch, pr_title, pr_body)
+    pr_url = api.create_pull_request(repo, target_branch, source_branch, pr_title, pr_body)
 
     Hobo::ui.success "Pull request created: #{pr_url}"
   end
