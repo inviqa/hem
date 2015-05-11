@@ -85,7 +85,7 @@ namespace :deps do
 
     locate "*Berksfile" do
       Hobo.ui.title "Installing chef dependencies via berkshelf"
-      executor = (shell("which berks", :capture => true).strip =~ /chefdk/) ?
+      executor = (shell("bash -c 'which berks'", :capture => true).strip =~ /chefdk/) ?
         lambda { |*args| shell *args } :
         lambda { |*args| bundle_shell *args }
 
