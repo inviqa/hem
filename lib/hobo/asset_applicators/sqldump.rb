@@ -9,7 +9,7 @@ Hobo.asset_applicators.register /.*\.sql\.gz/ do |file|
   }
 
   begin
-    result = shell(vm_mysql(:db => db) << 'SHOW TABLES; SELECT FOUND_ROWS();', :capture => true)
+    result = shell(vm_mysql(:db => db).pipe('SHOW TABLES; SELECT FOUND_ROWS();', :on => :vm), :capture => true)
     status[:db_exists] = true
     status[:db_has_tables] = !(result.split("\n").last.strip == '0')
   rescue Hobo::ExternalCommandError
