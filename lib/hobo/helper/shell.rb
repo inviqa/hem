@@ -28,9 +28,10 @@ module Hobo
             while line = buf.slice!(/(.*)\r?\n/)
               yield line
             end
+            yield "#{buf}\r" unless buf.empty?
           end
         rescue EOFError
-          # NOP
+          yield buf unless buf.empty?
         end
       end
 
