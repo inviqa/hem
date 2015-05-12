@@ -34,7 +34,7 @@ prbody
 
     pr_body = pr_body.lines.to_a[1..-1].join
 
-    git_parts = Hobo::Helper.parse_git_url(Hobo.project_config.git_url)
+    git_parts = Hobo::Helper.parse_github_url(Hobo.project_config.git_url)
     repo = "#{git_parts[:owner]}/#{git_parts[:repo]}"
 
     api = Hobo::Lib::Github::Api.new
