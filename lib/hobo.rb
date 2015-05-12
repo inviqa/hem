@@ -8,6 +8,7 @@ require 'logger'
 require 'highline'
 require 'fileutils'
 require 'openssl'
+require 'octokit'
 
 # DSL enhancements
 require 'hobo/metadata'
@@ -40,6 +41,7 @@ require 'hobo/lib/s3/remote/iohandler'
 # Task helpers
 require 'hobo/helper/shell'
 require 'hobo/helper/file_locator'
+require 'hobo/helper/github'
 require 'hobo/helper/http_download'
 require 'hobo/helper/vm_command'
 
@@ -56,6 +58,8 @@ require 'hobo/lib/seed/project'
 require 'hobo/lib/seed/replacer'
 require 'hobo/lib/seed/seed'
 require 'hobo/lib/self_signed_cert_generator'
+require 'hobo/lib/github/api'
+require 'hobo/lib/github/client'
 
 # Host checks
 require 'hobo/lib/host_check/git'

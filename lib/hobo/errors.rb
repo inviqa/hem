@@ -74,4 +74,16 @@ module Hobo
       super("Host check failed: #{summary}")
     end
   end
+
+  class UndefinedEditorError < Error
+    def initialize
+      super('You need to define a preferred editor, either in your hobo config or with the EDITOR environment variable')
+    end
+  end
+
+  class GithubAuthenticationError < Error
+  end
+
+  class GithubApiError < Error
+  end
 end

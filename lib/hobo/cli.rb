@@ -90,6 +90,7 @@ module Hobo
       require 'hobo/tasks/vm'
       require 'hobo/tasks/tools'
       require 'hobo/tasks/ops'
+      require 'hobo/tasks/pr'
     end
 
     def load_user_config
