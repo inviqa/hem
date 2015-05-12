@@ -1,7 +1,7 @@
 
-describe Hobo::Helper do
+describe Hem::Helper do
   before do
-    Hobo.project_config = DeepStruct.wrap({
+    Hem.project_config = DeepStruct.wrap({
       :hostname => "test_hostname",
       :mysql => {
         :username => "test_user",
@@ -12,9 +12,9 @@ describe Hobo::Helper do
       }
     })
 
-    Hobo.ui = Hobo::Ui.new
+    Hem.ui = Hem::Ui.new
 
-    vmi_double = double(Hobo::Lib::Vm::Inspector).as_null_object
+    vmi_double = double(Hem::Lib::Vm::Inspector).as_null_object
     vmi_double.should_receive(:ssh_config).and_return({
       :ssh_host => 'fakehost',
       :ssh_user => 'fakeuser',
@@ -22,7 +22,7 @@ describe Hobo::Helper do
       :ssh_identity => 'fakeidentity'
     })
 
-    Hobo::Lib::Vm::Command.class_eval do
+    Hem::Lib::Vm::Command.class_eval do
       class_variable_set '@@vm_inspector', vmi_double
     end
   end
@@ -61,7 +61,7 @@ describe Hobo::Helper do
     end
 
     it "should not pass user / pass if project config mysql credentials not set" do
-      Hobo.project_config = DeepStruct.wrap({})
+      Hem.project_config = DeepStruct.wrap({})
       vm_mysql(:pwd => '/').to_s.should match /-c mysql'/
     end
 
@@ -78,7 +78,7 @@ describe Hobo::Helper do
 
   describe "vm_shell" do
     it "should execute the command using the shell helper" do
-      Hobo::Helper.class_eval do
+      Hem::Helper.class_eval do
         alias :old_shell :shell
         def shell command, opts
           command.to_s.should match /ssh.* -c my_command/
@@ -87,7 +87,7 @@ describe Hobo::Helper do
 
       vm_shell "my_command", :pwd => '/'
 
-      Hobo::Helper.class_eval do
+      Hem::Helper.class_eval do
         remove_method :shell
         alias :shell :old_shell
       end

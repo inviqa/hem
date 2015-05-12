@@ -1,9 +1,9 @@
-module Hobo
+module Hem
   module Helper
     def http_download url, target_file, opts = {}
       require 'net/http'
       require 'uri'
-      opts = { :progress => Hobo.method(:progress) }.merge(opts)
+      opts = { :progress => Hem.method(:progress) }.merge(opts)
       uri = URI.parse(url)
       size = 0
       http = Net::HTTP.new(uri.host, uri.port)
@@ -37,4 +37,4 @@ module Hobo
   end
 end
 
-include Hobo::Helper
+include Hem::Helper

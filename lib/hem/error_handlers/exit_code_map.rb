@@ -1,16 +1,16 @@
-module Hobo
+module Hem
   module ErrorHandlers
     module ExitCodeMap
       DEFAULT_EXIT_CODE = 128
       EXIT_CODES = {
         'Interrupt' => 1,
-        'Hobo::ExternalCommandError' => 3,
-        'Hobo::InvalidCommandOrOpt' => 4,
-        'Hobo::MissingArgumentsError' => 5,
-        'Hobo::UserError' => 6,
-        'Hobo::ProjectOnlyError' => 7,
-        'Hobo::HostCheckError' => 8,
-        'Hobo::Error' => 9
+        'Hem::ExternalCommandError' => 3,
+        'Hem::InvalidCommandOrOpt' => 4,
+        'Hem::MissingArgumentsError' => 5,
+        'Hem::UserError' => 6,
+        'Hem::ProjectOnlyError' => 7,
+        'Hem::HostCheckError' => 8,
+        'Hem::Error' => 9
       }
     end
   end

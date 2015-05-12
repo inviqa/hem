@@ -1,4 +1,4 @@
-module Hobo
+module Hem
   module Lib
     module HostCheck
       def vagrant_version opts
@@ -14,15 +14,15 @@ module Hobo
 
   Please go to http://www.vagrantup.com/downloads.html and download the latest version for your platform.
   EOF
-          raise Hobo::HostCheckError.new("Vagrant is too old!", advice) if version < minimum_version
+          raise Hem::HostCheckError.new("Vagrant is too old!", advice) if version < minimum_version
         rescue Errno::ENOENT
           advice = <<-EOF
 Vagrant could not be detected on the path!
 
 Please go to http://www.vagrantup.com/downloads.html and download the latest version for your platform.
 EOF
-          raise Hobo::HostCheckError.new("Vagrant is not on the path", advice)
-        rescue Hobo::ExternalCommandError => error
+          raise Hem::HostCheckError.new("Vagrant is not on the path", advice)
+        rescue Hem::ExternalCommandError => error
           advice = <<-EOF
 Vagrant produced an error while checking its presence.
 
@@ -37,7 +37,7 @@ If you do not have any vagrant gems installed it may be possible that a gem such
 
 Please seek assistance from #devops if this is the case.
 EOF
-          raise Hobo::HostCheckError.new("Vagrant produced an error while checking presence", advice)
+          raise Hem::HostCheckError.new("Vagrant produced an error while checking presence", advice)
         end
       end
     end

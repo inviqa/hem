@@ -1,5 +1,5 @@
 
-describe Hobo::Lib::Seed::Replacer do
+describe Hem::Lib::Seed::Replacer do
   before do
     FakeFS.activate!
     Dir.mkdir("bin")
@@ -15,7 +15,7 @@ describe Hobo::Lib::Seed::Replacer do
       File.write(name, content)
     end
 
-    @replacer = Hobo::Lib::Seed::Replacer.new
+    @replacer = Hem::Lib::Seed::Replacer.new
   end
 
   after do

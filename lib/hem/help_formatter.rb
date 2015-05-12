@@ -1,4 +1,4 @@
-module Hobo
+module Hem
   class HelpFormatter
     attr_accessor :command_map
     ALIGN_PAD = 4
@@ -29,7 +29,7 @@ module Hobo
 
       if command != @global
         description = [ command.long_description, command.description ].compact.first
-        output.push Hobo.ui.color("#{description}\n", :description) if description
+        output.push Hem.ui.color("#{description}\n", :description) if description
       end
 
       output.push section("Usage", [usage(command, target)])
@@ -76,7 +76,7 @@ module Hobo
           line += "--#{opt.long}#{value}"
         end
 
-        [Hobo.ui.color(line, :opt), description]
+        [Hem.ui.color(line, :opt), description]
       end.compact
     end
 
@@ -84,7 +84,7 @@ module Hobo
       source.commands.map do |name, command|
         next if command.hidden && !opts[:all]
         next unless command.hidden == false || command.description || opts[:all]
-        [Hobo.ui.color(name, :command), command.description]
+        [Hem.ui.color(name, :command), command.description]
       end.compact
     end
 
@@ -105,7 +105,7 @@ module Hobo
 
     def section title, contents, align_to = false
       return nil if contents.empty?
-      output = Hobo.ui.color("#{title}:\n", :help_title)
+      output = Hem.ui.color("#{title}:\n", :help_title)
       output += contents.map do |line|
         line.is_a?(String) ? "  #{line}" : "  #{padded(line[0], align_to)}#{line[1]}"
       end.join("\n") + "\n"

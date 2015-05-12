@@ -2,11 +2,11 @@
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
-require 'hobo/version'
+require 'hem/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "hobo-inviqa"
-  spec.version       = Hobo::VERSION.gsub('-', '.pre.')
+  spec.name          = "hem"
+  spec.version       = Hem::VERSION.gsub('-', '.pre.')
   spec.authors       = ["Mike Simons"]
   spec.email         = ["msimons@inviqa.com"]
   spec.description   = %q{Inviqan toolbelt}
@@ -14,8 +14,8 @@ Gem::Specification.new do |spec|
   spec.homepage      = ""
 
   # This file will get interpretted at runtime due to Bundler.setup
-  # Without the $HOBO_ARGV check (set in bin/hobo) fatal: not a git repository errors show up
-  spec.files         = `git ls-files`.split($/) if ENV['HOBO_BUILD'] == '1'
+  # Without the $HEM_ARGV check (set in bin/hem) fatal: not a git repository errors show up
+  spec.files         = `git ls-files`.split($/) if ENV['HEM_BUILD'] == '1'
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
@@ -34,8 +34,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "octokit", "~> 3.0"
 
   # This prevents Bundler.setup from complaining that rubygems did not install dev deps
-  # If you want to run dev deps you need to ensure HOBO_ENV=dev is set for bundle install & bundle exec
-  if ENV['HOBO_ENV'] == 'dev'
+  # If you want to run dev deps you need to ensure HEM_ENV=dev is set for bundle install & bundle exec
+  if ENV['HEM_ENV'] == 'dev'
     spec.add_development_dependency "aruba", "~> 0.5.4"
     spec.add_development_dependency "rspec", "~> 2.14.1"
     spec.add_development_dependency "fakefs", "~> 0.5.0"

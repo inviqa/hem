@@ -1,8 +1,8 @@
-module Hobo
+module Hem
   module Lib
     module Seed
       class Seed
-        include Hobo::Logging
+        include Hem::Logging
 
         def initialize(seed_path, url)
           @seed_path = seed_path
@@ -12,7 +12,7 @@ module Hobo
         def tags
           tags = []
           Dir.chdir @seed_path do
-            tag_output = Hobo::Helper.shell "git tag", :capture => true
+            tag_output = Hem::Helper.shell "git tag", :capture => true
             tags = tag_output.split("\n")
           end
           tags
@@ -27,23 +27,23 @@ module Hobo
           path = File.expand_path(path)
           FileUtils.mkdir_p path
 
-          Hobo.ui.success "Exporting #{opts[:name]} to #{path}"
+          Hem.ui.success "Exporting #{opts[:name]} to #{path}"
 
-          tmp_path = Dir.mktmpdir("hobo-seed-export")
+          tmp_path = Dir.mktmpdir("hem-seed-export")
 
           Dir.chdir @seed_path do
-            Hobo::Helper.shell "git clone --branch #{opts[:ref].shellescape} . #{tmp_path}"
+            Hem::Helper.shell "git clone --branch #{opts[:ref].shellescape} . #{tmp_path}"
           end
 
           Dir.chdir tmp_path do
-            Hobo::Helper.shell "git archive #{opts[:ref].shellescape} | tar -x -C #{path.shellescape}"
+            Hem::Helper.shell "git archive #{opts[:ref].shellescape} | tar -x -C #{path.shellescape}"
 
-            submodules = Hobo::Helper.shell "git submodule status", :capture => true, :strip => false
+            submodules = Hem::Helper.shell "git submodule status", :capture => true, :strip => false
 
             next if submodules.empty?
 
-            Hobo.ui.success "Cloning submodules"
-            Hobo::Helper.shell "git submodule update --init", :realtime => true, :indent => 2
+            Hem.ui.success "Cloning submodules"
+            Hem::Helper.shell "git submodule update --init", :realtime => true, :indent => 2
 
             # Export submodules
             # git submodule foreach does not play nice on windows so we fake it here
@@ -51,8 +51,8 @@ module Hobo
               matches = line.match /^[\s-][a-z0-9]+ (.+)/
               next unless matches
               submodule_path = matches[1]
-              Hobo.ui.success "Exporting '#{submodule_path}' #{opts[:name]} submodule"
-              Hobo::Helper.shell "cd #{tmp_path}/#{submodule_path.shellescape} && git archive HEAD | tar -x -C #{path}/#{submodule_path.shellescape}"
+              Hem.ui.success "Exporting '#{submodule_path}' #{opts[:name]} submodule"
+              Hem::Helper.shell "cd #{tmp_path}/#{submodule_path.shellescape} && git archive HEAD | tar -x -C #{path}/#{submodule_path.shellescape}"
             end
           end
 
@@ -60,17 +60,17 @@ module Hobo
         end
 
         def update
-          Hobo.ui.success "Fetching / Updating seed"
+          Hem.ui.success "Fetching / Updating seed"
           FileUtils.mkdir_p @seed_path
           if File.exists? File.join(@seed_path, 'HEAD')
             Dir.chdir @seed_path do
               logger.info "Updating seed in #{@seed_path}"
               # Need to be specific here as GH for windows adds an invalid "upstream" remote to all repos
-              Hobo::Helper.shell 'git', 'fetch', 'origin'
+              Hem::Helper.shell 'git', 'fetch', 'origin'
             end
           else
             logger.info "Cloning seed from #{@url} to #{@seed_path}"
-            Hobo::Helper.shell 'git', 'clone', @url, @seed_path, '--mirror'
+            Hem::Helper.shell 'git', 'clone', @url, @seed_path, '--mirror'
           end
         end
 
@@ -85,7 +85,7 @@ module Hobo
 
         def version
           Dir.chdir @seed_path do
-            Hobo::Helper.shell 'git', 'rev-parse', '--short', 'HEAD', :capture => true
+            Hem::Helper.shell 'git', 'rev-parse', '--short', 'HEAD', :capture => true
           end
         end
 
@@ -101,7 +101,7 @@ module Hobo
             elsif !options[:use_short_seed_name] || (name.match(/^(\.|\/|~)/) && path)
               path
             else
-              "git@github.com:inviqa/hobo-seed-#{name}"
+              "git@github.com:inviqa/hem-seed-#{name}"
             end
           end
         end

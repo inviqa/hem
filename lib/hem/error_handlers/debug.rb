@@ -1,10 +1,10 @@
-module Hobo
+module Hem
   module ErrorHandlers
     class Debug
-      include Hobo::ErrorHandlers::ExitCodeMap
+      include Hem::ErrorHandlers::ExitCodeMap
 
       def handle error
-        Hobo.ui.error "\n(#{error.class}) #{error.message}\n\n#{(error.backtrace || []).join("\n")}"
+        Hem.ui.error "\n(#{error.class}) #{error.message}\n\n#{(error.backtrace || []).join("\n")}"
         return EXIT_CODES[error.class.to_s] || DEFAULT_EXIT_CODE
       end
     end

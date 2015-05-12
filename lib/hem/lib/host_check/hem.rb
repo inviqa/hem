@@ -1,38 +1,38 @@
-module Hobo
+module Hem
   module Lib
     module HostCheck
-      def latest_hobo_version opts
+      def latest_hem_version opts
         require 'semantic'
 
-        installed = ::Semantic::Version.new Hobo::VERSION
+        installed = ::Semantic::Version.new Hem::VERSION
 
-        return if installed >= get_latest_hobo_version
+        return if installed >= get_latest_hem_version
 
         if opts[:raise]
-          answer = Hobo.ui.ask("A new version of hobo is available. Would you like to install it?", :default => 'y')
+          answer = Hem.ui.ask("A new version of hem is available. Would you like to install it?", :default => 'y')
 
           if answer =~ /^[yY](es)?/
-            Hobo.ui.success "Installing new version... please wait"
-            shell "gem install hobo-inviqa", :realtime => true
-            Hobo.ui.success "Installed"
-            Hobo.relaunch!
+            Hem.ui.success "Installing new version... please wait"
+            shell "gem install hem-inviqa", :realtime => true
+            Hem.ui.success "Installed"
+            Hem.relaunch!
           end
         else
-          raise Hobo::HostCheckError.new("A new version of hobo is available", "Install it with `gem install hobo-inviqa`")
+          raise Hem::HostCheckError.new("A new version of hem is available", "Install it with `gem install hem-inviqa`")
         end
       end
 
       private
 
-      def get_latest_hobo_version
+      def get_latest_hem_version
         require 'semantic'
         require 'net/http'
         one_day = 3600 * 24
-        FileUtils.mkdir_p(Hobo.config_path)
-        file = File.join(Hobo.config_path, 'latest')
+        FileUtils.mkdir_p(Hem.config_path)
+        file = File.join(Hem.config_path, 'latest')
         if !File.exists? file or File.mtime(file) < Time.now - one_day
-          Hobo.ui.success "Checking for new hobo version..."
-          uri = URI.parse('http://s3-eu-west-1.amazonaws.com/inviqa-hobo/version.txt')
+          Hem.ui.success "Checking for new hem version..."
+          uri = URI.parse('http://s3-eu-west-1.amazonaws.com/inviqa-hem/version.txt')
           begin
             http = Net::HTTP.new(uri.host, uri.port)
             http.open_timeout = 2
@@ -47,13 +47,13 @@ module Hobo
               )
             end
           rescue Exception => e
-            Hobo.ui.error "The hobo version check failed"
+            Hem.ui.error "The hem version check failed"
             # NOP - Many reasons for failure (network, disk full etc)
             # This is not a critical enough check to warrant bailing entirely if it fails
           end
         end
         latest = File.read(file).strip if File.exists?(file)
-        ::Semantic::Version.new(latest || Hobo::VERSION)
+        ::Semantic::Version.new(latest || Hem::VERSION)
       end
     end
   end

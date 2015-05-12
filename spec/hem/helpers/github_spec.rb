@@ -1,5 +1,5 @@
 
-describe Hobo::Helper do
+describe Hem::Helper do
   describe 'parse_github_url' do
 
     it 'should return the parts of a git protocol url' do

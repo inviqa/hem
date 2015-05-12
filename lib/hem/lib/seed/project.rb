@@ -1,13 +1,13 @@
-module Hobo
+module Hem
   module Lib
     module Seed
       class Project
         def initialize(opts = {})
           @opts = {
             :replacer => Replacer.new,
-            :config_class => Hobo::Config::File,
-            :project_config_file => Hobo.project_config_file,
-            :ssl_cert_generator => Hobo::Lib::SelfSignedCertGenerator
+            :config_class => Hem::Config::File,
+            :project_config_file => Hem.project_config_file,
+            :ssl_cert_generator => Hem::Lib::SelfSignedCertGenerator
           }.merge! opts
         end
 
@@ -41,7 +41,7 @@ module Hobo
         private
 
         def load_seed_init config
-          Hobo.project_config = DeepStruct.wrap(config)
+          Hem.project_config = DeepStruct.wrap(config)
           seed_init_file = File.join(config[:project_path], 'seedinit.rb')
           if File.exists?(seed_init_file)
             require seed_init_file
@@ -51,17 +51,17 @@ module Hobo
 
         def initialize_git path, git_url
           Dir.chdir path do
-            Hobo::Helper.shell 'git', 'init'
-            Hobo::Helper.shell 'git', 'add', '--all'
-            Hobo::Helper.shell 'git', 'commit', '-m', "'Initial hobo project'"
-            Hobo::Helper.shell 'git', 'checkout', '-b', 'develop'
+            Hem::Helper.shell 'git', 'init'
+            Hem::Helper.shell 'git', 'add', '--all'
+            Hem::Helper.shell 'git', 'commit', '-m', "'Initial hem project'"
+            Hem::Helper.shell 'git', 'checkout', '-b', 'develop'
 
             # Github for windows gets clever adding origin / upstream remotes in system level gitconfig
             # :facepalm:
             begin
-              Hobo::Helper.shell 'git', 'remote', 'add', 'origin', git_url
-            rescue Hobo::ExternalCommandError
-              Hobo::Helper.shell 'git', 'remote', 'set-url', 'origin', git_url
+              Hem::Helper.shell 'git', 'remote', 'add', 'origin', git_url
+            rescue Hem::ExternalCommandError
+              Hem::Helper.shell 'git', 'remote', 'set-url', 'origin', git_url
             end
           end
         end

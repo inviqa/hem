@@ -14,7 +14,7 @@ module DeepStruct
       elsif args.length == 0 && self.has_key?(method)
         self[method]
       else
-        Hobo::Null.new
+        Hem::Null.new
       end
     end
   end

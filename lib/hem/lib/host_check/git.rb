@@ -1,9 +1,9 @@
-module Hobo
+module Hem
   module Lib
     module HostCheck
       def git_present opts
         advice = "The Git command could not be detected on your system.\n\n"
-        if Hobo.windows?
+        if Hem.windows?
           advice += "Please install it from http://git-scm.com/downloads ensuring you select the 'Use git and unix tools everywhere' option."
         else
           advice += "Please install it using your package manager."
@@ -12,7 +12,7 @@ module Hobo
         begin
           shell "git --version"
         rescue Errno::ENOENT
-          raise Hobo::HostCheckError.new("Git is missing", advice)
+          raise Hem::HostCheckError.new("Git is missing", advice)
         end
       end
 
@@ -25,8 +25,8 @@ Please do so with the following command:
 EOF
         begin
           shell "git config user.name"
-        rescue Hobo::ExternalCommandError
-          raise Hobo::HostCheckError.new("Git config is incomplete (Full name)", advice)
+        rescue Hem::ExternalCommandError
+          raise Hem::HostCheckError.new("Git config is incomplete (Full name)", advice)
         end
       end
 
@@ -40,13 +40,13 @@ EOF
 
         begin
           shell "git config user.email"
-        rescue Hobo::ExternalCommandError
-          raise Hobo::HostCheckError.new("Git config is incomplete (Email)", advice)
+        rescue Hem::ExternalCommandError
+          raise Hem::HostCheckError.new("Git config is incomplete (Email)", advice)
         end
       end
 
       def git_autocrlf_disabled opts
-        return unless Hobo.windows?
+        return unless Hem.windows?
 
         advice = <<-EOF
 You're using git with the core.autocrlf option enabled.
@@ -65,9 +65,9 @@ EOF
         begin
           value = shell "git config core.autocrlf", :capture => true
           if value != "false"
-            raise Hobo::HostCheckError.new("Git config has autocrlf enabled", advice)
+            raise Hem::HostCheckError.new("Git config has autocrlf enabled", advice)
           end
-        rescue Hobo::ExternalCommandError
+        rescue Hem::ExternalCommandError
           # NOP
         end
       end

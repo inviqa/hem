@@ -1,10 +1,10 @@
-module Hobo
+module Hem
   module Lib
     module HostCheck
       def ssh_present opts
         advice = "The SSH command could not be located on your system.\n\n"
 
-        if Hobo.windows?
+        if Hem.windows?
           advice += "To make SSH available you must re-install git using the installer from http://git-scm.com/downloads ensuring you select the 'Use git and unix tools everywhere' option."
         else
           advice += "Please install openssh using your package manager."
@@ -13,7 +13,7 @@ module Hobo
         begin
           shell "ssh -V"
         rescue Errno::ENOENT
-          raise Hobo::HostCheckError.new("SSH is missing", advice)
+          raise Hem::HostCheckError.new("SSH is missing", advice)
         end
       end
 
@@ -31,7 +31,7 @@ EOF
         begin
           shell "php --version"
         rescue Errno::ENOENT
-          raise Hobo::HostCheckError.new("PHP is missing", advice)
+          raise Hem::HostCheckError.new("PHP is missing", advice)
         end
       end
     end

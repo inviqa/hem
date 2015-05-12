@@ -1,5 +1,5 @@
 
-describe Hobo::Ui do
+describe Hem::Ui do
   def test_ui opts = {}
     opts = {
       :answer => "",
@@ -11,16 +11,16 @@ describe Hobo::Ui do
     input = StringIO.new
     input << opts[:answer]
     input.rewind unless opts[:eof]
-    Hobo.ui = ui = Hobo::Ui.new(input, opts[:output], opts[:error])
+    Hem.ui = ui = Hem::Ui.new(input, opts[:output], opts[:error])
     ui.interactive = true
     return ui
   end
 
   before do
     HighLine.use_color = false
-    Hobo.logger = Logger.new(nil)
-    Hobo.logger.level = Logger::WARN
-    double(Hobo.logger)
+    Hem.logger = Logger.new(nil)
+    Hem.logger.level = Logger::WARN
+    double(Hem.logger)
   end
 
   describe "initialization" do
@@ -37,7 +37,7 @@ describe Hobo::Ui do
     it "should raise error if no default provided in non-interactive mode" do
       ui = test_ui(:answer => "Answer\n")
       ui.interactive = false
-      expect { ui.ask("Question") }.to raise_exception(Hobo::NonInteractiveError)
+      expect { ui.ask("Question") }.to raise_exception(Hem::NonInteractiveError)
     end
 
     it "should format prompt to include default if provided" do
@@ -73,7 +73,7 @@ describe Hobo::Ui do
     it "should raise error if no default provided in non-interactive mode" do
       ui = test_ui(:answer => "Answer\n")
       ui.interactive = false
-      expect { ui.ask_choice("Question", ['one', 'two']) }.to raise_exception(Hobo::NonInteractiveError)
+      expect { ui.ask_choice("Question", ['one', 'two']) }.to raise_exception(Hem::NonInteractiveError)
     end
 
     it "should format prompt to include default if provided"
@@ -130,7 +130,7 @@ describe Hobo::Ui do
     end
 
     it "should log to logger" do
-      Hobo.logger.should_receive(:debug).with("test")
+      Hem.logger.should_receive(:debug).with("test")
       test_ui.debug("test")
     end
   end
@@ -143,7 +143,7 @@ describe Hobo::Ui do
     end
 
     it "should log to logger" do
-      Hobo.logger.should_receive(:debug).with("test")
+      Hem.logger.should_receive(:debug).with("test")
       test_ui.info("test")
     end
   end
@@ -156,7 +156,7 @@ describe Hobo::Ui do
     end
 
     it "should log to logger" do
-      Hobo.logger.should_receive(:debug).with("test")
+      Hem.logger.should_receive(:debug).with("test")
       test_ui.warning("test")
     end
   end
@@ -169,7 +169,7 @@ describe Hobo::Ui do
     end
 
     it "should log to logger" do
-      Hobo.logger.should_receive(:debug).with("test")
+      Hem.logger.should_receive(:debug).with("test")
       test_ui.error("test")
     end
   end
@@ -182,7 +182,7 @@ describe Hobo::Ui do
     end
 
     it "should log to logger" do
-      Hobo.logger.should_receive(:debug).with("test")
+      Hem.logger.should_receive(:debug).with("test")
       test_ui.success("test")
     end
   end

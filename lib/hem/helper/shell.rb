@@ -1,11 +1,11 @@
-module Hobo
+module Hem
   module Helper
 
     def bundle_shell *args, &block
       has_bundle = begin
         shell "bundle", "exec", "ruby -v"
         true
-      rescue ::Hobo::ExternalCommandError
+      rescue ::Hem::ExternalCommandError
         false
       end
 
@@ -45,13 +45,13 @@ module Hobo
         :exit_status => false
       }.merge! opts
 
-      Hobo::Logging.logger.debug("helper.shell: Invoking '#{args.join(" ")}' with #{opts.to_s}")
+      Hem::Logging.logger.debug("helper.shell: Invoking '#{args.join(" ")}' with #{opts.to_s}")
 
       ::Bundler.with_clean_env do
-        Hobo.chefdk_compat
+        Hem.chefdk_compat
         indent = " " * opts[:indent]
         ::Open3.popen3 opts[:env], *args do |stdin, out, err, external|
-          buffer = ::Tempfile.new 'hobo_run_buf'
+          buffer = ::Tempfile.new 'hem_run_buf'
           buffer.sync = true
           threads = [external]
           last_buf = ""
@@ -60,14 +60,14 @@ module Hobo
           { :out => out, :err => err }.each do |key, stream|
             threads.push(::Thread.new do
               chunk_line_iterator stream do |line|
-                line = ::Hobo.ui.color(line, :error) if key == :err
+                line = ::Hem.ui.color(line, :error) if key == :err
                 line_formatted = if opts[:strip]
                   line.strip
                 else
                   line
                 end
                 buffer.write("#{line_formatted}\n")
-                Hobo::Logging.logger.debug("helper.shell: #{line_formatted}")
+                Hem::Logging.logger.debug("helper.shell: #{line_formatted}")
                 line = yield line if block
                 print indent + line if opts[:realtime] && !line.nil?
               end
@@ -83,7 +83,7 @@ module Hobo
 
           return external.value.exitstatus if opts[:exit_status]
 
-          raise ::Hobo::ExternalCommandError.new(args.join(" "), external.value.exitstatus, buffer) if external.value.exitstatus != 0 && !opts[:ignore_errors]
+          raise ::Hem::ExternalCommandError.new(args.join(" "), external.value.exitstatus, buffer) if external.value.exitstatus != 0 && !opts[:ignore_errors]
 
           if opts[:capture]
             return buffer.read unless opts[:strip]
@@ -97,4 +97,4 @@ module Hobo
   end
 end
 
-include Hobo::Helper
+include Hem::Helper

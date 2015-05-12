@@ -1,8 +1,8 @@
-module Hobo
+module Hem
   module Lib
     module S3
       class Sync
-        include Hobo::Logging
+        include Hem::Logging
 
         def initialize opts = {}
           require 'aws-sdk'
@@ -14,10 +14,10 @@ module Hobo
             :retry_limit => 15
           }.merge(opts)
 
-          if Hobo.windows?
+          if Hem.windows?
             Aws.config[:ssl_ca_bundle] = File.expand_path('../../../../../ssl/ca-bundle-s3.crt', __FILE__)
           end
-          
+
           handle_s3_error do
             # AWS::S3 is flakey about actually raising this error when nil is provided
             [:access_key_id, :secret_access_key].each do |k|
@@ -35,7 +35,7 @@ module Hobo
             opts = {
               :delete => true,
               :dry => false,
-              :progress => Hobo.method(:progress)
+              :progress => Hem.method(:progress)
             }.merge(opts)
 
             source_io = io_handler(source)
@@ -89,23 +89,23 @@ module Hobo
         end
 
         def handle_s3_error
-          exception = Hobo::Error.new("Could not sync assets")
+          exception = Hem::Error.new("Could not sync assets")
           begin
             yield
           rescue Errno::ENETUNREACH
-            Hobo.ui.error "  Could not contact Amazon servers."
-            Hobo.ui.error "  This can sometimes be caused by missing AWS credentials"
+            Hem.ui.error "  Could not contact Amazon servers."
+            Hem.ui.error "  This can sometimes be caused by missing AWS credentials"
             raise exception
           rescue Aws::S3::Errors::NoSuchBucket
-            Hobo.ui.error "  Asset bucket #{Hobo.project_config.asset_bucket} does not exist!"
+            Hem.ui.error "  Asset bucket #{Hem.project_config.asset_bucket} does not exist!"
             # We allow this one to be skipped as there are obviously no assets to sync
           rescue Aws::S3::Errors::AccessDenied
-            Hobo.ui.error "  Your AWS key does not have access to the #{Hobo.project_config.asset_bucket} S3 bucket!"
-            Hobo.ui.error "  Please request access to this bucket from your TTL or via an internal support request"
+            Hem.ui.error "  Your AWS key does not have access to the #{Hem.project_config.asset_bucket} S3 bucket!"
+            Hem.ui.error "  Please request access to this bucket from your TTL or via an internal support request"
             raise exception
           rescue Aws::Errors::MissingCredentialsError
-            Hobo.ui.warning "  AWS credentials not set!"
-            Hobo.ui.warning "  Please request credentials from internalsupport@inviqa.com or in #devops and configure them with `hobo config`"
+            Hem.ui.warning "  AWS credentials not set!"
+            Hem.ui.warning "  Please request credentials from internalsupport@inviqa.com or in #devops and configure them with `hem config`"
             raise exception
           end
         end

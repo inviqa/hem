@@ -1,5 +1,5 @@
 
-describe Hobo::Lib::S3::Sync do
+describe Hem::Lib::S3::Sync do
   before do
     AWS.stub!
   end

@@ -1,20 +1,20 @@
-module Hobo
+module Hem
   class << self
     attr_accessor :logger
   end
 
   module Logging
     def logger
-      Hobo::Logging.logger
+      Hem::Logging.logger
     end
 
     def self.logger
-      unless Hobo.logger
-        Hobo.logger = Logger.new(STDOUT)
-        Hobo.logger.level = Logger::WARN
+      unless Hem.logger
+        Hem.logger = Logger.new(STDOUT)
+        Hem.logger.level = Logger::WARN
       end
 
-      return Hobo.logger
+      return Hem.logger
     end
   end
 end

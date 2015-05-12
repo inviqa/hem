@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-# Use hobo.gemspec
+# Use hem.gemspec
 gemspec

@@ -1,4 +1,4 @@
-module Hobo
+module Hem
     class Metadata
     class << self
       attr_accessor :metadata, :store, :defaults

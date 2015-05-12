@@ -1,4 +1,4 @@
-module Hobo
+module Hem
   module Helper
     def parse_github_url(url)
       matches = /github\.com[\/:]+(?<owner>.*)\/(?<repo>((?!\.git).)*)/.match(url)
@@ -7,4 +7,4 @@ module Hobo
   end
 end
 
-include Hobo::Helper
+include Hem::Helper

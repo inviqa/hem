@@ -1,14 +1,14 @@
 
-describe Hobo do
+describe Hem do
   describe "in_project?" do
     it "should return true if project path detected" do
-      Hobo.project_path = "test"
-      Hobo.in_project?.should be true
+      Hem.project_path = "test"
+      Hem.in_project?.should be true
     end
 
     it "should return false if no project path detected" do
-      Hobo.project_path = false
-      Hobo.in_project?.should be false
+      Hem.project_path = false
+      Hem.in_project?.should be false
     end
   end
 
@@ -16,11 +16,11 @@ describe Hobo do
     def progress_mock file, increment, total, type
       out = double(StringIO.new).as_null_object
       out.stub(:tty?).and_return(true)
-      Hobo.progress(file, increment, total, type, :throttle_rate => nil, :output => out)
+      Hem.progress(file, increment, total, type, :throttle_rate => nil, :output => out)
     end
 
     before do
-      Hobo.project_bar_cache = {}
+      Hem.project_bar_cache = {}
     end
 
     it "should create new progress bar if one does not exist" do
@@ -38,7 +38,7 @@ describe Hobo do
       bar = progress_mock("test:update", 0, 10, :update)
       bar.to_s.should match /^test:update.*0%/
 
-      Hobo.progress("test:update", 1, 10, :update)
+      Hem.progress("test:update", 1, 10, :update)
       bar.to_s.should match /^test.update.*10%/
     end
 
@@ -46,18 +46,18 @@ describe Hobo do
       bar = progress_mock("test:increment", 0, 10, :update)
       bar.to_s.should match /^test:increment.*0%/
 
-      Hobo.progress("test:increment", 1, 10, :update)
+      Hem.progress("test:increment", 1, 10, :update)
       bar.to_s.should match /^test:increment.*10%/
 
-      Hobo.progress("test:increment", 1, 10, :update)
+      Hem.progress("test:increment", 1, 10, :update)
       bar.to_s.should match /^test:increment.*20%/
     end
 
     it "should finalize progress bar if type :finish" do
       bar = progress_mock("test:finish", 0, 10, :update)
       bar.to_s.should match /^test:finish.*0%/
-      Hobo.progress("test:finish", 10, 10, :update)
-      Hobo.progress("test:finish", 10, 10, :finish)
+      Hem.progress("test:finish", 10, 10, :update)
+      Hem.progress("test:finish", 10, 10, :finish)
       bar.to_s.should match /^test:finish.*100%.*Time/
     end
 

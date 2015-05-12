@@ -7,32 +7,32 @@ namespace :deps do
     locate "*Gemfile" do
       required = shell("bundle", "check", :exit_status => true) != 0
       if required
-        Hobo.ui.title "Installing Gem dependencies"
+        Hem.ui.title "Installing Gem dependencies"
         shell "bundle", "install", realtime: true, indent: 2
-        Hobo.ui.separator
+        Hem.ui.separator
       end
     end
   end
 
   desc "Install composer dependencies"
   task :composer do
-    if File.exists? File.join(Hobo.project_path, "composer.json")
+    if File.exists? File.join(Hem.project_path, "composer.json")
       Rake::Task["tools:composer"].invoke
-      Hobo.ui.title "Installing composer dependencies"
-      Dir.chdir Hobo.project_path do
-        ansi = Hobo.ui.supports_color? ? '--ansi' : ''
+      Hem.ui.title "Installing composer dependencies"
+      Dir.chdir Hem.project_path do
+        ansi = Hem.ui.supports_color? ? '--ansi' : ''
         args = [ "php bin/composer.phar install #{ansi} --prefer-dist", { realtime: true, indent: 2 } ]
         complete = false
 
-        unless maybe(Hobo.project_config.tasks.deps.composer.disable_host_run)
-          check = Hobo::Lib::HostCheck.check(:filter => /php_present/)
+        unless maybe(Hem.project_config.tasks.deps.composer.disable_host_run)
+          check = Hem::Lib::HostCheck.check(:filter => /php_present/)
 
           if check[:php_present] == :ok
             begin
               shell *args
               complete = true
-            rescue Hobo::ExternalCommandError
-              Hobo.ui.warning "Installing composer dependencies locally failed!"
+            rescue Hem::ExternalCommandError
+              Hem.ui.warning "Installing composer dependencies locally failed!"
             end
           end
         end
@@ -41,10 +41,10 @@ namespace :deps do
           vm_shell *args
         end
 
-        Hobo.ui.success "Composer dependencies installed"
+        Hem.ui.success "Composer dependencies installed"
       end
 
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 
@@ -54,7 +54,7 @@ namespace :deps do
     locate "*Vagrantfile" do
       to_install = []
       File.read("Vagrantfile").split("\n").each do |line|
-        if line.match /#\s*Hobo.vagrant_plugin (.*)/
+        if line.match /#\s*Hem.vagrant_plugin (.*)/
           to_install << $1
         else
           next if line.match /^\s*#/
@@ -66,9 +66,9 @@ namespace :deps do
       to_install.each do |plugin|
         plugin.gsub!(/['"]*/, '')
         next if plugins.include? "#{plugin} "
-        Hobo.ui.title "Installing vagrant plugin: #{plugin}"
+        Hem.ui.title "Installing vagrant plugin: #{plugin}"
         shell "vagrant", "plugin", "install", plugin, :realtime => true, :indent => 2
-        Hobo.ui.separator
+        Hem.ui.separator
       end
     end
   end
@@ -76,15 +76,15 @@ namespace :deps do
   desc "Install chef dependencies"
   task :chef => [ "deps:gems" ] do
     locate "*Cheffile" do
-      Hobo.ui.title "Installing chef dependencies via librarian"
+      Hem.ui.title "Installing chef dependencies via librarian"
       bundle_shell "librarian-chef", "install", "--verbose", :realtime => true, :indent => 2 do |line|
         line =~ /Installing.*</ ? line.strip + "\n" : nil
       end
-      Hobo.ui.separator
+      Hem.ui.separator
     end
 
     locate "*Berksfile" do
-      Hobo.ui.title "Installing chef dependencies via berkshelf"
+      Hem.ui.title "Installing chef dependencies via berkshelf"
       executor = (shell("bash -c 'which berks'", :capture => true).strip =~ /chefdk/) ?
         lambda { |*args| shell *args } :
         lambda { |*args| bundle_shell *args }
@@ -97,7 +97,7 @@ namespace :deps do
       else
         executor.call "berks", "install", "--path", "cookbooks"
       end
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 end

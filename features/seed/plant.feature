@@ -1,7 +1,7 @@
 Feature: Plant
 
   Scenario: Plant without name should fail gracefully
-    When I run `hobo seed plant`
+    When I run `hem seed plant`
     Then the output should contain "Not enough arguments for seed:plant"
 
   Scenario: Plant with name should prompt for repository and seed
@@ -9,7 +9,7 @@ Feature: Plant
       """
       test
       """
-    And I run `hobo seed plant seed_plant_0` interactively
+    And I run `hem seed plant seed_plant_0` interactively
     And I type "git://test_repo"
     And I type "./testing"
     And I run `sleep 0.5`
@@ -22,7 +22,7 @@ Feature: Plant
       """
       test
       """
-    When I run `hobo seed plant seed_plant_0 --git-url=git://test_repo` interactively
+    When I run `hem seed plant seed_plant_0 --git-url=git://test_repo` interactively
     And I type "./testing"
     And I run `sleep 0.5`
     And I run `git --git-dir=seed_plant_0/.git remote show origin -n`
@@ -34,7 +34,7 @@ Feature: Plant
       """
       test
       """
-    When I run `hobo seed plant seed_plant_0 --git-url=git://test_repo --seed=./testing`
+    When I run `hem seed plant seed_plant_0 --git-url=git://test_repo --seed=./testing`
     And I run `sleep 0.5`
     And I run `git --git-dir=seed_plant_0/.git remote show origin -n`
     Then the output should contain "git://test_repo"
@@ -46,12 +46,12 @@ Feature: Plant
       NAME:{{name}}
       SEED:{{seed.name}}
       """
-    When I run `hobo seed plant seed_plant_0 --git-url=git://test_repo --seed=./testing`
+    When I run `hem seed plant seed_plant_0 --git-url=git://test_repo --seed=./testing`
     Then the file "seed_plant_0/test" should contain "NAME:seed_plant_0"
     And the file "seed_plant_0/test" should contain "SEED:testing"
 
   Scenario: Plant should fail gracefully with invalid seed
-    When I run `hobo seed plant seed_plant_0 --git-url=git://test_repo --seed=./not-exist`
+    When I run `hem seed plant seed_plant_0 --git-url=git://test_repo --seed=./not-exist`
     Then the output should contain "The following external command appears to have failed"
 
   Scenario: Plant should fail gracefully if target directory exists
@@ -60,5 +60,5 @@ Feature: Plant
       test
       """
     And an empty file named "seed_plant_0"
-    When I run `hobo seed plant seed_plant_0 --git-url=git://test_repo --seed=./not-exist`
+    When I run `hem seed plant seed_plant_0 --git-url=git://test_repo --seed=./not-exist`
     Then the output should contain "seed_plant_0 already exists"

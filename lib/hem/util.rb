@@ -1,14 +1,14 @@
-module Hobo
+module Hem
   class << self
 
     attr_accessor :project_bar_cache
 
     def relaunch! env = {}
-      Kernel.exec(env, 'hobo', '--skip-host-checks', *$HOBO_ARGV)
+      Kernel.exec(env, 'hem', '--skip-host-checks', *$HEM_ARGV)
     end
 
     def in_project?
-      !!Hobo.project_path
+      !!Hem.project_path
     end
 
     def progress file, increment, total, type, opts = {}
@@ -44,8 +44,8 @@ module Hobo
 
     def aws_credentials
       {
-        :access_key_id => maybe(Hobo.user_config.aws.access_key_id) || ENV['AWS_ACCESS_KEY_ID'],
-        :secret_access_key => maybe(Hobo.user_config.aws.secret_access_key) || ENV['AWS_SECRET_ACCESS_KEY']
+        :access_key_id => maybe(Hem.user_config.aws.access_key_id) || ENV['AWS_ACCESS_KEY_ID'],
+        :secret_access_key => maybe(Hem.user_config.aws.secret_access_key) || ENV['AWS_SECRET_ACCESS_KEY']
       }
     end
 
@@ -60,8 +60,8 @@ module Hobo
     end
 
     def chefdk_compat
-      return if maybe(Hobo.user_config.hobo.disable_chefdk_compat) || ENV['HOBO_DISABLE_CHEFDK_COMPAT']
-      return if Hobo.windows?
+      return if maybe(Hem.user_config.hem.disable_chefdk_compat) || ENV['HEM_DISABLE_CHEFDK_COMPAT']
+      return if Hem.windows?
       which_ruby = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
       if which_ruby =~ /rbenv/
         split_path = ENV['PATH'].split ':'

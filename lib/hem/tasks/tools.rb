@@ -4,14 +4,14 @@ namespace :tools do
 
   desc "Fetch composer"
   task :composer do
-    bin_file = File.join(Hobo.project_bin_path, "composer.phar")
+    bin_file = File.join(Hem.project_bin_path, "composer.phar")
     unless File.exists?(bin_file)
-      Hobo.ui.success "Getting composer"
+      Hem.ui.success "Getting composer"
       FileUtils.mkdir_p File.dirname(bin_file)
       vm_shell "cd bin && php -r \"readfile('https://getcomposer.org/installer');\" | php", :realtime => true, :indent => 2
     else
-      Hobo.ui.success "Composer already available in bin/composer.phar"
+      Hem.ui.success "Composer already available in bin/composer.phar"
     end
-    Hobo.ui.separator
+    Hem.ui.separator
   end
 end

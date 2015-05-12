@@ -1,5 +1,5 @@
 
-describe Hobo::HelpFormatter do
+describe Hem::HelpFormatter do
   help = nil
   slop = nil
 
@@ -35,10 +35,10 @@ describe Hobo::HelpFormatter do
       end
     end
 
-    help = Hobo::HelpFormatter.new slop
+    help = Hem::HelpFormatter.new slop
     help.command_map = map
-    Hobo.ui = Hobo::Ui.new
-    Hobo.ui.use_color false
+    Hem.ui = Hem::Ui.new
+    Hem.ui.use_color false
   end
 
   describe "help" do

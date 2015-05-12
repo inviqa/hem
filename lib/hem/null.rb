@@ -1,4 +1,4 @@
-module Hobo
+module Hem
   class Null
     def method_missing(method, *args, &block)
       self

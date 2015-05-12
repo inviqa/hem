@@ -1,9 +1,9 @@
-module Hobo
+module Hem
   module Lib
     module S3
       module Local
         class IoHandler
-          include Hobo::Logging
+          include Hem::Logging
 
           def initialize path
             @path = path

@@ -1,15 +1,15 @@
 
-describe Hobo::Lib::Github::Api do
+describe Hem::Lib::Github::Api do
 
   default_config = {}
   token = 'abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd'
 
   before do
     default_config = {
-      :ui => double(Hobo::Ui).as_null_object,
+      :ui => double(Hem::Ui).as_null_object,
       :user_config => {},
-      :client => double(Hobo::Lib::Github::Client).as_null_object,
-      :config_class => double(Hobo::Config::File).as_null_object
+      :client => double(Hem::Lib::Github::Client).as_null_object,
+      :config_class => double(Hem::Config::File).as_null_object
     }
   end
 
@@ -20,7 +20,7 @@ describe Hobo::Lib::Github::Api do
       expect(default_config[:ui]).to receive(:ask).with('Github username')
       expect(default_config[:ui]).to receive(:ask).with('Github password', echo: false)
 
-      api = Hobo::Lib::Github::Api.new(default_config)
+      api = Hem::Lib::Github::Api.new(default_config)
       api.connect
     end
 
@@ -28,19 +28,19 @@ describe Hobo::Lib::Github::Api do
       allow(default_config[:ui]).to receive(:ask).and_return('username', 'password')
       expect(default_config[:client]).to receive(:get_token_for_credentials).with('username', 'password')
 
-      api = Hobo::Lib::Github::Api.new(default_config)
+      api = Hem::Lib::Github::Api.new(default_config)
       api.connect
     end
 
     it 'should save a new token to user config' do
       allow(default_config[:client]).to receive(:get_token_for_credentials).and_return(token)
-      expect(default_config[:config_class]).to receive(:save).with(Hobo.user_config_file, {
+      expect(default_config[:config_class]).to receive(:save).with(Hem.user_config_file, {
         :github => {
           :token => token
         }
       })
 
-      api = Hobo::Lib::Github::Api.new(default_config)
+      api = Hem::Lib::Github::Api.new(default_config)
       api.connect
     end
 
@@ -53,7 +53,7 @@ describe Hobo::Lib::Github::Api do
 
       expect(default_config[:client]).to receive(:authenticate_with_token).with(token)
 
-      api = Hobo::Lib::Github::Api.new(default_config)
+      api = Hem::Lib::Github::Api.new(default_config)
       api.connect
     end
 
@@ -70,7 +70,7 @@ describe Hobo::Lib::Github::Api do
 
       expect(default_config[:client]).to receive(:create_pull_request).with('repo', 'source', 'target', 'title', 'body')
 
-      api = Hobo::Lib::Github::Api.new(default_config)
+      api = Hem::Lib::Github::Api.new(default_config)
       api.create_pull_request('repo', 'source', 'target', 'title', 'body')
     end
 
@@ -83,7 +83,7 @@ describe Hobo::Lib::Github::Api do
 
       allow(default_config[:client]).to receive(:create_pull_request).and_return('url')
 
-      api = Hobo::Lib::Github::Api.new(default_config)
+      api = Hem::Lib::Github::Api.new(default_config)
       expect(api.create_pull_request('repo', 'source', 'target', 'title', 'body')).to eq('url')
     end
 

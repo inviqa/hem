@@ -1,4 +1,4 @@
-module Hobo
+module Hem
   module Lib
     module Github
       class Api
@@ -7,10 +7,10 @@ module Hobo
 
         def initialize(opts = {})
           @opts = {
-            :config_class => Hobo::Config::File,
-            :user_config => Hobo.user_config,
-            :ui => Hobo.ui,
-            :client => Hobo::Lib::Github::Client.new
+            :config_class => Hem::Config::File,
+            :user_config => Hem.user_config,
+            :ui => Hem.ui,
+            :client => Hem::Lib::Github::Client.new
           }.merge! opts
         end
 
@@ -25,7 +25,7 @@ module Hobo
 
             config[:github][:token] = @opts[:client].get_token_for_credentials(username, password)
 
-            @opts[:config_class].save(Hobo.user_config_file, config)
+            @opts[:config_class].save(Hem.user_config_file, config)
           else
             @opts[:client].authenticate_with_token(config[:github][:token])
             # client = Octokit::Client.new(:access_token => config.github.token)

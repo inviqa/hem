@@ -4,26 +4,26 @@ namespace :assets do
   def render_delta delta, type
     if delta[:add] and delta[:add].length > 0
       x = type == 'download' ? 'download from S3' : 'upload to S3'
-      Hobo.ui.section "  Files to #{x}:" do
+      Hem.ui.section "  Files to #{x}:" do
         delta[:add].each do |f|
-          Hobo.ui.success "    #{f}"
+          Hem.ui.success "    #{f}"
         end
       end
     end
 
     if delta[:remove] and delta[:remove].length > 0
       x = type == 'download' ? 'locally' : 'from S3'
-      puts Hobo.ui.color "  Files to delete #{x}:", :error
+      puts Hem.ui.color "  Files to delete #{x}:", :error
       delta[:remove].each do |f|
-        puts Hobo.ui.color "    #{f}", :error
+        puts Hem.ui.color "    #{f}", :error
       end
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 
   def do_sync src, dst, env, type
-    unless Hobo.project_config.asset_bucket.nil?
-      sync = Hobo::Lib::S3::Sync.new(Hobo.aws_credentials)
+    unless Hem.project_config.asset_bucket.nil?
+      sync = Hem::Lib::S3::Sync.new(Hem.aws_credentials)
       changes = sync.sync(src, dst, :dry => true)
 
       if (changes[:add] + changes[:remove]).length > 0
@@ -31,29 +31,29 @@ namespace :assets do
           'y'
         else
           render_delta changes, type
-          Hobo.ui.ask "Proceed? (Y/N)", :default => 'Y'
+          Hem.ui.ask "Proceed? (Y/N)", :default => 'Y'
         end
 
-        if answer.downcase == 'y' 
+        if answer.downcase == 'y'
           sync.sync(src, dst)
         else
-          raise Hobo::Error.new "Asset sync aborted"
+          raise Hem::Error.new "Asset sync aborted"
         end
       else
-        Hobo.ui.warning "  No changes required"
+        Hem.ui.warning "  No changes required"
       end
     else
-      Hobo.ui.warning "  No asset bucket configured. Skipping..."
+      Hem.ui.warning "  No asset bucket configured. Skipping..."
     end
   end
 
   desc "Download project assets"
   option "-e=", "--env=", "Environment"
   task :download do |task, args|
-    Hobo.ui.section "Synchronizing assets (download)" do
+    Hem.ui.section "Synchronizing assets (download)" do
       env = task.opts[:env] || args[:env] || 'development'
-      src = "s3://#{Hobo.project_config.asset_bucket}/#{env}/"
-      dst = "#{Hobo.project_path}/tools/assets/#{env}"
+      src = "s3://#{Hem.project_config.asset_bucket}/#{env}/"
+      dst = "#{Hem.project_path}/tools/assets/#{env}"
       do_sync src, dst, env, "download"
     end
   end
@@ -61,12 +61,12 @@ namespace :assets do
   desc "Upload project assets"
   option "-e=", "--env=", "Environment"
   task :upload do |task, args|
-    Hobo.ui.section "Synchronizing assets (upload)" do
+    Hem.ui.section "Synchronizing assets (upload)" do
       env = task.opts[:env] || args[:env] || 'development'
-      dst = "s3://#{Hobo.project_config.asset_bucket}/#{env}/"
-      src = "#{Hobo.project_path}/tools/assets/#{env}"
-      Hobo.ui.warning "Please note that asset uploads can be destructive and will affect the whole team!"
-      Hobo.ui.warning "Only upload if you're sure your assets are free from errors and will not impact other team members"
+      dst = "s3://#{Hem.project_config.asset_bucket}/#{env}/"
+      src = "#{Hem.project_path}/tools/assets/#{env}"
+      Hem.ui.warning "Please note that asset uploads can be destructive and will affect the whole team!"
+      Hem.ui.warning "Only upload if you're sure your assets are free from errors and will not impact other team members"
       do_sync src, dst, env, "upload"
     end
   end
@@ -83,7 +83,7 @@ namespace :assets do
     Dir.new(path).each do |file|
       file = File.join(path, file)
       next unless File.file? file
-      Hobo.asset_applicators.each do |matcher, proc|
+      Hem.asset_applicators.each do |matcher, proc|
         proc.call(file) if matcher.match(file)
       end
     end

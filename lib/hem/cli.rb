@@ -1,4 +1,4 @@
-module Hobo
+module Hem
 
   class << self
     attr_accessor :cli
@@ -10,7 +10,7 @@ module Hobo
 
   # Main application class
   class Cli
-    include Hobo::Logging
+    include Hem::Logging
 
     attr_accessor :slop, :help_formatter
 
@@ -20,13 +20,13 @@ module Hobo
     #     - :host_check - Host check invocation class
     #
     # :help and :host_check are only used by tests.
-    # :slop is used to ensure low-level args parsed in bin/hobo are propagated to the application
+    # :slop is used to ensure low-level args parsed in bin/hem are propagated to the application
     def initialize opts = {}
       @opts = opts
       @slop = opts[:slop] || Slop.new
-      @help_formatter = opts[:help] || Hobo::HelpFormatter.new(@slop)
+      @help_formatter = opts[:help] || Hem::HelpFormatter.new(@slop)
       @help_opts = {}
-      @host_check = opts[:host_check] || Hobo::Lib::HostCheck
+      @host_check = opts[:host_check] || Hem::Lib::HostCheck
     end
 
     # entry point for application
@@ -34,11 +34,11 @@ module Hobo
     def start args = ARGV
       load_user_config
       load_builtin_tasks
-      load_hobofiles
+      load_hemfiles
       load_project_config
-      Hobo.chefdk_compat
+      Hem.chefdk_compat
 
-      tasks = structure_tasks Hobo::Metadata.metadata.keys
+      tasks = structure_tasks Hem::Metadata.metadata.keys
       define_global_opts @slop
 
       begin
@@ -60,7 +60,7 @@ module Hobo
         @help_formatter.command_map = define_tasks(tasks, @slop)
 
         remaining = @slop.parse! args
-        raise Hobo::InvalidCommandOrOpt.new remaining.join(" "), self if remaining.size > 0
+        raise Hem::InvalidCommandOrOpt.new remaining.join(" "), self if remaining.size > 0
 
         show_help if @slop.help?
       rescue Halt
@@ -74,47 +74,47 @@ module Hobo
     # @param [Hash] Options to apss to help formatter.
     # Options are mostly used for filtering
     def show_help(opts = {})
-      Hobo.ui.info @help_formatter.help(@help_opts.merge(opts))
+      Hem.ui.info @help_formatter.help(@help_opts.merge(opts))
       halt
     end
 
     private
 
     def load_builtin_tasks
-      require 'hobo/tasks/assets'
-      require 'hobo/tasks/config'
-      require 'hobo/tasks/self'
-      require 'hobo/tasks/deps'
-      require 'hobo/tasks/system'
-      require 'hobo/tasks/system/completions'
-      require 'hobo/tasks/seed'
-      require 'hobo/tasks/vm'
-      require 'hobo/tasks/tools'
-      require 'hobo/tasks/ops'
-      require 'hobo/tasks/pr'
+      require 'hem/tasks/assets'
+      require 'hem/tasks/config'
+      require 'hem/tasks/self'
+      require 'hem/tasks/deps'
+      require 'hem/tasks/system'
+      require 'hem/tasks/system/completions'
+      require 'hem/tasks/seed'
+      require 'hem/tasks/vm'
+      require 'hem/tasks/tools'
+      require 'hem/tasks/ops'
+      require 'hem/tasks/pr'
     end
 
     def load_user_config
-      Hobo.user_config = Hobo::Config::File.load Hobo.user_config_file
+      Hem.user_config = Hem::Config::File.load Hem.user_config_file
     end
 
     def load_project_config
-      if Hobo.in_project?
-        Hobo.project_config = Hobo::Config::File.load Hobo.project_config_file
+      if Hem.in_project?
+        Hem.project_config = Hem::Config::File.load Hem.project_config_file
       else
-        Hobo.project_config = DeepStruct.wrap({})
+        Hem.project_config = DeepStruct.wrap({})
       end
     end
 
-    def load_hobofiles
-      if Hobo.in_project? && File.exists?(Hobo.hobofile_path)
-        logger.debug("cli: Loading hobofile @ #{Hobo.hobofile_path}")
-        eval(File.read(Hobo.hobofile_path), TOPLEVEL_BINDING, Hobo.hobofile_path)
+    def load_hemfiles
+      if Hem.in_project? && File.exists?(Hem.hemfile_path)
+        logger.debug("cli: Loading hemfile @ #{Hem.hemfile_path}")
+        eval(File.read(Hem.hemfile_path), TOPLEVEL_BINDING, Hem.hemfile_path)
       end
 
-      if File.exists?(Hobo.user_hobofile_path)
-        logger.debug("cli: Loading hobofile @ #{Hobo.user_hobofile_path}")
-        eval(File.read(Hobo.user_hobofile_path), TOPLEVEL_BINDING, Hobo.user_hobofile_path)
+      if File.exists?(Hem.user_hemfile_path)
+        logger.debug("cli: Loading hemfile @ #{Hem.user_hemfile_path}")
+        eval(File.read(Hem.user_hemfile_path), TOPLEVEL_BINDING, Hem.user_hemfile_path)
       end
     end
 
@@ -124,7 +124,7 @@ module Hobo
         'ssh_present',
         'git_present'
       ]
-      checks.push 'latest_hobo_version' unless $HOBO_BUNDLE_MODE
+      checks.push 'latest_hem_version' unless $HEM_BUNDLE_MODE
 
       @host_check.check(
         :filter => /#{checks.join('|')}/,
@@ -137,7 +137,7 @@ module Hobo
       slop.on '-h', '--help', 'Display help'
 
       slop.on '-v', '--version', 'Print version information' do
-        Hobo.ui.info "Hobo version #{Hobo::VERSION}#{" (Bundle mode)" if $HOBO_BUNDLE_MODE}"
+        Hem.ui.info "Hem version #{Hem::VERSION}#{" (Bundle mode)" if $HEM_BUNDLE_MODE}"
         halt
       end
     end
@@ -169,8 +169,8 @@ module Hobo
 
     # Map rake namespace to a Slop command
     def define_namespace name, scope, stack, subtasks, map
-      metadata = Hobo::Metadata.metadata[name]
-      hobo = self
+      metadata = Hem::Metadata.metadata[name]
+      hem = self
       new_scope = nil
 
       scope.instance_eval do
@@ -185,7 +185,7 @@ module Hobo
           on '-h', '--help', 'Display help' do end
 
           run do |opts, args|
-            hobo.show_help(target: name)
+            hem.show_help(target: name)
           end
         end
       end
@@ -196,8 +196,8 @@ module Hobo
 
     # Map rake task to a Slop command
     def define_command name, scope, stack
-      metadata = Hobo::Metadata.metadata[name]
-      hobo = self
+      metadata = Hem::Metadata.metadata[name]
+      hem = self
       new_scope = nil
 
       scope.instance_eval do
@@ -215,14 +215,14 @@ module Hobo
           end if metadata[:opts]
 
           on '-h', '--help', 'Display help' do
-            hobo.show_help(target: name)
+            hem.show_help(target: name)
           end
 
           run do |opts, args|
-            Dir.chdir Hobo.project_path if Hobo.in_project?
-            raise ::Hobo::ProjectOnlyError.new if opts.project_only && !Hobo.in_project?
-            task.opts = opts.to_hash.merge({:_unparsed => hobo.slop.unparsed})
-            raise ::Hobo::MissingArgumentsError.new(name, args, hobo) if args && task.arg_names.length > args.length
+            Dir.chdir Hem.project_path if Hem.in_project?
+            raise ::Hem::ProjectOnlyError.new if opts.project_only && !Hem.in_project?
+            task.opts = opts.to_hash.merge({:_unparsed => hem.slop.unparsed})
+            raise ::Hem::MissingArgumentsError.new(name, args, hem) if args && task.arg_names.length > args.length
             task.invoke *args
             args.pop(task.arg_names.size)
             task.opts = nil

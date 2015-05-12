@@ -7,36 +7,36 @@ namespace :seed do
   option '-g=', '--git-url=', 'Git repository for project'
   option '-s=', '--seed=', 'Seed name or URL to use'
   option '-b=', '--branch=', 'Seed branch to use'
-  option '-d=', '--data=', 'Seed data to save to the project hobo configuration', :as => Hash
+  option '-d=', '--data=', 'Seed data to save to the project hem configuration', :as => Hash
 
   task :plant, [ :name ] do |t, args|
     name = args[:name]
 
-    Hobo.project_path = File.join(Dir.pwd, name)
+    Hem.project_path = File.join(Dir.pwd, name)
 
-    raise Hobo::UserError.new "Name must match sprint zero guidelines" unless name.match /[a-z0-9\-]+/
-    raise Hobo::UserError.new "#{Hobo.project_path} already exists!" if File.exists? Hobo.project_path
+    raise Hem::UserError.new "Name must match sprint zero guidelines" unless name.match /[a-z0-9\-]+/
+    raise Hem::UserError.new "#{Hem.project_path} already exists!" if File.exists? Hem.project_path
 
     config = {
       :name => name,
-      :project_path => Hobo.project_path,
-      :git_url => t.opts[:'git-url'] || Hobo.ui.ask("Repository URL", default: "git@github.com:inviqa/#{name}"),
-      :ref => t.opts[:branch] || 'master' 
+      :project_path => Hem.project_path,
+      :git_url => t.opts[:'git-url'] || Hem.ui.ask("Repository URL", default: "git@github.com:inviqa/#{name}"),
+      :ref => t.opts[:branch] || 'master'
     }
 
     seed_options = %w( default magento symfony custom )
 
-    seed_name = t.opts[:seed] || Hobo.ui.ask_choice('Project seed', seed_options, default: 'default')
+    seed_name = t.opts[:seed] || Hem.ui.ask_choice('Project seed', seed_options, default: 'default')
     use_short_seed_name = true
 
     if seed_name == 'custom'
-      seed_name = Hobo.ui.ask('Please enter a git url or a path to a local git checkout containing the seed')
+      seed_name = Hem.ui.ask('Please enter a git url or a path to a local git checkout containing the seed')
       use_short_seed_name = false
     end
 
     config[:seed] = {
       :name => File.basename(seed_name, '.git'),
-      :url => Hobo::Lib::Seed::Seed.name_to_url(seed_name, :use_short_seed_name => use_short_seed_name)
+      :url => Hem::Lib::Seed::Seed.name_to_url(seed_name, :use_short_seed_name => use_short_seed_name)
     }
 
     unless t.opts[:data].nil?
@@ -44,18 +44,18 @@ namespace :seed do
       config.merge!(data)
     end
 
-    seed = Hobo::Lib::Seed::Seed.new(
-      File.join(Hobo.seed_cache_path, config[:seed][:name]),
+    seed = Hem::Lib::Seed::Seed.new(
+      File.join(Hem.seed_cache_path, config[:seed][:name]),
       config[:seed][:url]
     )
 
     config[:vm_ip] = seed.vm_ip
 
-    Hobo::Lib::Seed::Project.new().setup(seed, config)
+    Hem::Lib::Seed::Project.new().setup(seed, config)
 
-    Hobo.ui.separator
-    Hobo.ui.success "Your new project is available in #{Hobo.project_path}."
-    Hobo.ui.success "You will need to review the initial commit and if all is well, push the repository to github using `git push origin --all`."
-    Hobo.ui.separator
+    Hem.ui.separator
+    Hem.ui.success "Your new project is available in #{Hem.project_path}."
+    Hem.ui.success "You will need to review the initial commit and if all is well, push the repository to github using `git push origin --all`."
+    Hem.ui.separator
   end
 end

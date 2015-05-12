@@ -15,7 +15,7 @@ BUG FIXES:
 
 FEATURES:
 
-  * tasks/magento: **New Hobo task: `hobo magento patches apply`** - Applies official and critical magento patches
+  * tasks/magento: **New hobo task: `hobo magento patches apply`** - Applies official and critical magento patches
   * tasks/seed: custom key-value data can be supplied to project configuration for `hobo seed plant` via `--data` or `-d`
   * core/ui: new Hobo.ui.ask_choice method to give a numbered list of options to choose
 
@@ -119,4 +119,3 @@ BUG FIXES:
 
   * helpers/shell: fix carridge return handling
   * core/config: fix deepstruct unwrap issue
-

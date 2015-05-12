@@ -1,9 +1,9 @@
-module Hobo
+module Hem
   module Lib
     module S3
       module Remote
         class IoHandler
-          include Hobo::Logging
+          include Hem::Logging
 
           def initialize s3, bucket, prefix
             @s3 = s3

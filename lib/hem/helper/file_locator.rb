@@ -1,16 +1,16 @@
-module Hobo
+module Hem
   module Helper
     def locate(pattern, opts = {}, &block)
       match = nil
 
-      Dir.chdir Hobo.project_path do
+      Dir.chdir Hem.project_path do
         match = locate_git(pattern, &block)
       end
 
       return match unless block_given?
       return true if match
 
-      Hobo.ui.warning opts[:missing] if opts[:missing]
+      Hem.ui.warning opts[:missing] if opts[:missing]
       return false
     end
 
@@ -18,7 +18,7 @@ module Hobo
 
     def locate_git pattern, &block
       args = [ 'git', 'ls-files', pattern ]
-      output = Hobo::Helper.shell *args, :capture => true
+      output = Hem::Helper.shell *args, :capture => true
       paths = output.split("\n")
       found = false
       paths.each do |path|
@@ -29,7 +29,7 @@ module Hobo
 
       paths.each do |path|
         Dir.chdir File.dirname(path) do
-          Hobo::Logging.logger.debug "helper.locator: Found #{path} for #{pattern}"
+          Hem::Logging.logger.debug "helper.locator: Found #{path} for #{pattern}"
           yield File.basename(path), path
         end
 
@@ -41,4 +41,4 @@ module Hobo
   end
 end
 
-include Hobo::Helper
+include Hem::Helper

@@ -1,18 +1,18 @@
-module Hobo
+module Hem
   class Error < StandardError
     attr_reader :exit_code
   end
 
   class RubyVersionError < Error
     def initialize
-      super("Ruby 1.9+ is required to run hobo")
+      super("Ruby 1.9+ is required to run hem")
     end
   end
 
   class MissingDependencies < Error
     def initialize deps
       deps.map! { |dep| " - #{dep}"}
-      super("Hobo requires the following commands to be available on your path:\n\n" + deps.join("\n"))
+      super("Hem requires the following commands to be available on your path:\n\n" + deps.join("\n"))
     end
   end
 
@@ -55,14 +55,14 @@ module Hobo
   class NonInteractiveError < Error
     def initialize question
       @question = question
-      super("A task requested input from the user but hobo is in non-interactive mode")
+      super("A task requested input from the user but hem is in non-interactive mode")
     end
   end
 
   class MissingDependency < Error
     def initialize dep
       @dependency = dep
-      super("A tool that hobo depends on could not be detected (#{dep})")
+      super("A tool that hem depends on could not be detected (#{dep})")
     end
   end
 
@@ -77,7 +77,7 @@ module Hobo
 
   class UndefinedEditorError < Error
     def initialize
-      super('You need to define a preferred editor, either in your hobo config or with the EDITOR environment variable')
+      super('You need to define a preferred editor, either in your hem config or with the EDITOR environment variable')
     end
   end
 

@@ -1,10 +1,10 @@
-module Hobo
+module Hem
   class << self
     attr_accessor :ui
   end
 
   class Ui
-    include Hobo::Logging
+    include Hem::Logging
 
     attr_accessor :interactive
 
@@ -36,7 +36,7 @@ module Hobo
     end
 
     def supports_color?
-      return @output_io.tty? unless Hobo.windows?
+      return @output_io.tty? unless Hem.windows?
       return (ENV['ANSICON'] || ENV['TERM'] == 'xterm') && @output_io.tty? # ANSICON or MinTTY && output is TTY
     end
 
@@ -53,7 +53,7 @@ module Hobo
       }.merge(opts)
 
       unless @interactive
-        raise Hobo::NonInteractiveError.new(question) if opts[:default].nil?
+        raise Hem::NonInteractiveError.new(question) if opts[:default].nil?
         return opts[:default].to_s
       end
 
@@ -68,14 +68,14 @@ module Hobo
         answer = answer.to_s
         answer.strip.empty? ? opts[:default].to_s : answer.strip
       rescue EOFError
-        Hobo.ui.info ""
+        Hem.ui.info ""
         ""
       end
     end
 
     def ask_choice question, choices, opts = {}
       unless @interactive
-        raise Hobo::NonInteractiveError.new(question) if opts[:default].nil?
+        raise Hem::NonInteractiveError.new(question) if opts[:default].nil?
         return opts[:default].to_s
       end
 
@@ -91,7 +91,7 @@ module Hobo
 
       begin
         answer = @out.ask("?  ") do |q|
-          q.validate = lambda do |a| 
+          q.validate = lambda do |a|
             s = a.strip
             s.empty? || (choice_map.keys + choices).include?(s)
           end
@@ -101,18 +101,18 @@ module Hobo
         answer = choice_map[answer] if /^\d+$/.match(answer.strip)
         answer.strip.empty? ? opts[:default].to_s : answer.strip
       rescue EOFError
-        Hobo.ui.info ""
+        Hem.ui.info ""
         ""
       end
     end
 
     def editor initial_text
-      editor = Hobo.user_config.editor.nil? ? ENV['EDITOR'] : Hobo.user_config.editor
+      editor = Hem.user_config.editor.nil? ? ENV['EDITOR'] : Hem.user_config.editor
       if editor.nil?
-        raise Hobo::UndefinedEditorError.new
+        raise Hem::UndefinedEditorError.new
       end
 
-      tmp = Tempfile.new('hobo_tmp')
+      tmp = Tempfile.new('hem_tmp')
       begin
         tmp.write initial_text
         tmp.close
@@ -120,7 +120,7 @@ module Hobo
         tmp.open
         return tmp.read
       rescue Exception => e
-        raise Hobo::Error.new e.message
+        raise Hem::Error.new e.message
       ensure
         tmp.close
         tmp.unlink
@@ -128,9 +128,9 @@ module Hobo
     end
 
     def section title
-      Hobo.ui.title title
+      Hem.ui.title title
       yield
-      Hobo.ui.separator
+      Hem.ui.separator
     end
 
     def separator

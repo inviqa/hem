@@ -1,14 +1,14 @@
 
-describe Hobo::Logging do
+describe Hem::Logging do
   before do
-    Hobo.logger = nil
+    Hem.logger = nil
   end
 
   describe "module logger" do
     it "should return global logger instance" do
-      Hobo.logger = "TEST"
+      Hem.logger = "TEST"
       class LoggerTest
-        include Hobo::Logging
+        include Hem::Logging
       end
 
       LoggerTest.new.logger.should match "TEST"
@@ -17,11 +17,11 @@ describe Hobo::Logging do
 
   describe "global logger" do
     it "should initialize to STDOUT logger" do
-      Hobo::Logging.logger.instance_variable_get('@logdev').dev.should be STDOUT
+      Hem::Logging.logger.instance_variable_get('@logdev').dev.should be STDOUT
     end
 
     it "should initialize to WARN log level" do
-      Hobo::Logging.logger.level.should eq Logger::WARN
+      Hem::Logging.logger.level.should eq Logger::WARN
     end
   end
 end

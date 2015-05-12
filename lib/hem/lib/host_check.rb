@@ -1,8 +1,8 @@
-module Hobo
+module Hem
   module Lib
     module HostCheck
       class << self
-        include Hobo::Lib::HostCheck
+        include Hem::Lib::HostCheck
         def check opts = {}
           opts = {
             :filter => nil,
@@ -10,7 +10,7 @@ module Hobo
           }.merge(opts)
 
           results = {}
-          methods = Hobo::Lib::HostCheck.public_instance_methods(false)
+          methods = Hem::Lib::HostCheck.public_instance_methods(false)
           methods.each do |method|
             next if opts[:filter] && !method.match(opts[:filter])
 
@@ -20,7 +20,7 @@ module Hobo
               begin
                 self.send method, opts
                 results[method] = :ok
-              rescue Hobo::Error => error
+              rescue Hem::Error => error
                 results[method] = error
               end
             end

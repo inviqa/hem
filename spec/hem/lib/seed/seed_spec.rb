@@ -1,5 +1,5 @@
 
-describe Hobo::Lib::Seed::Seed do
+describe Hem::Lib::Seed::Seed do
   pwd = nil
   tmp_dir = nil
 
@@ -7,7 +7,7 @@ describe Hobo::Lib::Seed::Seed do
     tmp_dir = Dir.mktmpdir
     pwd = Dir.pwd
     Dir.chdir tmp_dir
-    Hobo.ui = double(Hobo::Ui).as_null_object
+    Hem.ui = double(Hem::Ui).as_null_object
   end
 
   after do
@@ -37,7 +37,7 @@ describe Hobo::Lib::Seed::Seed do
       remote_seed_path = File.join(tmp_dir, "seed_1")
       create_test_repo remote_seed_path, "does not exist locally"
 
-      seed = Hobo::Lib::Seed::Seed.new 'seeds/seed_1', remote_seed_path
+      seed = Hem::Lib::Seed::Seed.new 'seeds/seed_1', remote_seed_path
       seed.update
 
       # Repo is bare so we need to use git show to get contents
@@ -56,7 +56,7 @@ describe Hobo::Lib::Seed::Seed do
       # Update seed origin repo to give test something to update
       `cd seed_2 && echo "updated" > test && git add test && git commit -m "test"`
 
-      seed = Hobo::Lib::Seed::Seed.new 'seeds/seed_2', remote_seed_path
+      seed = Hem::Lib::Seed::Seed.new 'seeds/seed_2', remote_seed_path
       seed.update
 
       # Repo is bare so we need to use git show to get contents
@@ -71,7 +71,7 @@ describe Hobo::Lib::Seed::Seed do
       create_test_repo remote_seed_path, "exported"
 
       # Update seed and export
-      seed = Hobo::Lib::Seed::Seed.new 'seeds/seed_3', remote_seed_path
+      seed = Hem::Lib::Seed::Seed.new 'seeds/seed_3', remote_seed_path
       seed.update
       seed.export "exported"
 
@@ -90,7 +90,7 @@ describe Hobo::Lib::Seed::Seed do
       create_test_repo remote_seed_path, "version_test"
 
       # Update seed and export
-      seed = Hobo::Lib::Seed::Seed.new 'seeds/seed_3', remote_seed_path
+      seed = Hem::Lib::Seed::Seed.new 'seeds/seed_3', remote_seed_path
       seed.update
 
       seed.tags.should eq []
@@ -104,7 +104,7 @@ describe Hobo::Lib::Seed::Seed do
       tag_repo remote_seed_path, "1.2.4"
 
       # Update seed and export
-      seed = Hobo::Lib::Seed::Seed.new 'seeds/seed_3', remote_seed_path
+      seed = Hem::Lib::Seed::Seed.new 'seeds/seed_3', remote_seed_path
       seed.update
 
       seed.tags.should eq ['1.2.3', '1.2.4']
@@ -118,7 +118,7 @@ describe Hobo::Lib::Seed::Seed do
       create_test_repo remote_seed_path, "version_test"
 
       # Update seed and export
-      seed = Hobo::Lib::Seed::Seed.new 'seeds/seed_4', remote_seed_path
+      seed = Hem::Lib::Seed::Seed.new 'seeds/seed_4', remote_seed_path
       seed.update
 
       seed.version.should eq `cd seeds/seed_4 && git rev-parse --short HEAD`.strip

@@ -1,4 +1,4 @@
-module Hobo
+module Hem
   class << self
     attr_accessor :asset_applicators
 
@@ -6,14 +6,14 @@ module Hobo
     # This allows you to register new asset applicator methods on a per-project basis.
     # For example:
     #
-    #     Hobo.asset_applicators.register /.*\.zip/ do |file|
+    #     Hem.asset_applicators.register /.*\.zip/ do |file|
     #       Dir.chdir File.dirname(file) do
     #         shell "unzip", file
     #       end
     #     end
     #
-    # @see Hobo::AssetApplicatorRegistry
-    # @return [Hobo::AssetApplicatorRegistry] Applicator registry cotnainer
+    # @see Hem::AssetApplicatorRegistry
+    # @return [Hem::AssetApplicatorRegistry] Applicator registry cotnainer
     def asset_applicators
       @asset_applicators ||= AssetApplicatorRegistry.new
     end

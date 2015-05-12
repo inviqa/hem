@@ -9,9 +9,9 @@ namespace :vm do
 
   def vagrant_exec *args
     opts = { :realtime => true, :indent => 2 }
-    color = Hobo.ui.supports_color? ? '--color' : '--no-color'
+    color = Hem.ui.supports_color? ? '--color' : '--no-color'
 
-    if Hobo.windows?
+    if Hem.windows?
       opts[:env] = { 'VAGRANT_HOME' => windows_short(dir) } if ENV['HOME'].match(/\s+/) && !ENV['VAGRANT_HOME']
     end
 
@@ -42,9 +42,9 @@ namespace :vm do
   desc "Stop VM"
   task :stop do
     vagrantfile do
-      Hobo.ui.title "Stopping VM"
+      Hem.ui.title "Stopping VM"
       vagrant_exec 'halt'
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 
@@ -54,9 +54,9 @@ namespace :vm do
   desc "Destroy VM"
   task :destroy do
     vagrantfile do
-      Hobo.ui.title "Destroying VM"
+      Hem.ui.title "Destroying VM"
       vagrant_exec 'destroy', '--force'
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 
@@ -65,18 +65,18 @@ namespace :vm do
     vagrantfile do
       state = shell("vagrant --machine-readable status | grep ,state, | cut -d, -f4", :capture => true).strip
       unless state == 'running'
-        Hobo.ui.title "Starting vagrant VM"
+        Hem.ui.title "Starting vagrant VM"
         args = ['up', '--no-provision']
 
-        provider = maybe(Hobo.user_config.vm.provider)
-        provider ||= maybe(Hobo.project_config.vm.provider)
+        provider = maybe(Hem.user_config.vm.provider)
+        provider ||= maybe(Hem.project_config.vm.provider)
 
         if provider
           args.concat ['--provider', provider]
         end
 
         vagrant_exec *args
-        Hobo.ui.separator
+        Hem.ui.separator
       end
     end
   end
@@ -84,18 +84,18 @@ namespace :vm do
   desc "Reload VM"
   task :reload do
     vagrantfile do
-      Hobo.ui.title "Reloading VM"
+      Hem.ui.title "Reloading VM"
       vagrant_exec 'reload', '--no-provision'
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 
   desc "Provision VM"
   task :provision => [ "deps:chef" ] do
      vagrantfile do
-      Hobo.ui.title "Provisioning VM"
+      Hem.ui.title "Provisioning VM"
       vagrant_exec 'provision'
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 
@@ -104,11 +104,11 @@ namespace :vm do
     execute = task.opts[:_unparsed]
     opts = { :psuedo_tty => STDIN.tty? }
 
-    Hobo.ui.success "Determining VM connection details..." if STDOUT.tty?
+    Hem.ui.success "Determining VM connection details..." if STDOUT.tty?
     command = execute.empty? ? vm_command(nil, opts) : vm_command(execute, opts)
-    Hobo.logger.debug "vm:ssh: #{command}"
+    Hem.logger.debug "vm:ssh: #{command}"
 
-    Hobo.ui.success "Connecting..." if STDOUT.tty?
+    Hem.ui.success "Connecting..." if STDOUT.tty?
     exec command
   end
 
@@ -118,11 +118,11 @@ namespace :vm do
     opts = { :psuedo_tty => STDIN.tty? }
     opts[:db] = task.opts[:db] if task.opts[:db]
 
-    Hobo.ui.success "Determining VM connection details..." if STDOUT.tty?
+    Hem.ui.success "Determining VM connection details..." if STDOUT.tty?
     command = vm_mysql(opts)
-    Hobo.logger.debug "vm:mysql: #{command}"
+    Hem.logger.debug "vm:mysql: #{command}"
 
-    Hobo.ui.success "Connecting..." if STDOUT.tty?
+    Hem.ui.success "Connecting..." if STDOUT.tty?
     exec command
   end
 
@@ -130,11 +130,11 @@ namespace :vm do
   task :redis do
     opts = { :psuedo_tty => STDIN.tty? }
 
-    Hobo.ui.success "Determining VM connection details..." if STDOUT.tty?
+    Hem.ui.success "Determining VM connection details..." if STDOUT.tty?
     command = vm_command("redis-cli", opts)
-    Hobo.logger.debug "vm:redis: #{command}"
+    Hem.logger.debug "vm:redis: #{command}"
 
-    Hobo.ui.success "Connecting..." if STDOUT.tty?
+    Hem.ui.success "Connecting..." if STDOUT.tty?
     exec command
   end
 end

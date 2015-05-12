@@ -1,3 +1,3 @@
-module Hobo
-  VERSION = '0.0.16-dev'
+module Hem
+  VERSION = '1.0.0-dev'
 end

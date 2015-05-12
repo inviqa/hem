@@ -1,4 +1,4 @@
-module Hobo
+module Hem
   module Lib
     module Vm
       class Command

@@ -1,7 +1,7 @@
-module Hobo
+module Hem
   module Bundler
     require 'rubygems/user_interaction'
-    
+
     class GemUi < Gem::SilentUI
       def download_reporter(*args)
         VerboseDownloadReporter.new(STDOUT, *args)
@@ -27,10 +27,10 @@ module Hobo
 
       begin
         bundler_install.run
-        Kernel.exec('hobo', *$HOBO_ARGV)
+        Kernel.exec('hem', *$HEM_ARGV)
       rescue Exception => exception
         puts
-        puts "Failed to install dependencies. Hobo can not proceed."
+        puts "Failed to install dependencies. Hem can not proceed."
         puts "Please see the error below:"
         puts
         raise
@@ -58,17 +58,17 @@ module Hobo
           puts "Missing runtime dependencies: #{exception}"
           puts "Installing..."
 
-          Hobo::Bundler.install_missing_dependencies
+          Hem::Bundler.install_missing_dependencies
         end
         yield
       end
     end
 
-    def self.is_hobo_bundled?
+    def self.is_hem_bundled?
       begin
         ::Bundler.root
         ::Bundler.definition.dependencies.select do |dep|
-          dep.name == 'hobo-inviqa'
+          dep.name == 'hem-inviqa'
         end.length > 0
       rescue ::Bundler::GemfileNotFound
         false

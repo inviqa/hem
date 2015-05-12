@@ -1,5 +1,5 @@
 
-describe Hobo::Helper do
+describe Hem::Helper do
   describe "locate" do
     it "should yield filename and path for matches"
     it "should match files in git"

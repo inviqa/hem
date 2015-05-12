@@ -16,7 +16,7 @@ namespace :magento do
       unless @magento_path
         files = locate('*app/Mage.php')
         unless files.length > 0
-          raise Hobo::UserError.new "Could not find app/Mage.php in the git repository, this command should only be run for Magento projects"
+          raise Hem::UserError.new "Could not find app/Mage.php in the git repository, this command should only be run for Magento projects"
         end
 
         /(?:(.*)\/)app\/Mage\.php/.match(files[0])
@@ -32,7 +32,7 @@ namespace :magento do
         next if match.nil?
 
         if ![' ', '?'].include?($1[0]) || $2.start_with?(magento_path)
-          raise Hobo::UserError.new "Please remove all files from the git index, and stash all changes in '#{magento_path}' before continuing"
+          raise Hem::UserError.new "Please remove all files from the git index, and stash all changes in '#{magento_path}' before continuing"
         end
       end
     end
@@ -41,7 +41,7 @@ namespace :magento do
       config_dirty = false
       magento_version_file = "#{magento_path}/app/Mage.php"
 
-      if Hobo.project_config[:magento_edition].nil?
+      if Hem.project_config[:magento_edition].nil?
         magento_edition = nil
         if magento_version_file
           args = [ "php -r \"require '#{magento_version_file}'; echo Mage::getEdition();\""]
@@ -52,14 +52,14 @@ namespace :magento do
         edition_options = ['community', 'enterprise', 'professional', 'go']
 
         unless edition_options.include? magento_edition
-          raise Hobo::Error.new "Invalid Magento edition '#{magento_edition}' was found when calling Mage::getEdition(), skipping patches"
+          raise Hem::Error.new "Invalid Magento edition '#{magento_edition}' was found when calling Mage::getEdition(), skipping patches"
         end
 
-        Hobo.project_config[:magento_edition] = magento_edition
+        Hem.project_config[:magento_edition] = magento_edition
         config_dirty = true
       end
 
-      if Hobo.project_config[:magento_version].nil?
+      if Hem.project_config[:magento_version].nil?
         magento_version = nil
         if magento_version_file
           args = [ "php -r \"require '#{magento_version_file}'; echo Mage::getVersion();\""]
@@ -70,15 +70,15 @@ namespace :magento do
         version_regex = /^\d+(\.\d+){3}$/
 
         unless version_regex.match(magento_version)
-          raise Hobo::Error.new "Invalid Magento version '#{magento_version}' was found when calling Mage::getVersion(), skipping patches"
+          raise Hem::Error.new "Invalid Magento version '#{magento_version}' was found when calling Mage::getVersion(), skipping patches"
         end
 
-        Hobo.project_config[:magento_version] = magento_version
+        Hem.project_config[:magento_version] = magento_version
         config_dirty = true
       end
 
       if config_dirty
-        Hobo::Config::File.save(Hobo.project_config_file, Hobo.project_config)
+        Hem::Config::File.save(Hem.project_config_file, Hem.project_config)
       end
     end
 
@@ -99,7 +99,7 @@ namespace :magento do
       end
 
       if status != 0
-        raise Hobo::UserError.new "Please make sure '#{tools.join(',')}' is installed on your host or VM before continuing"
+        raise Hem::UserError.new "Please make sure '#{tools.join(',')}' is installed on your host or VM before continuing"
       end
 
       use_vm
@@ -110,36 +110,36 @@ namespace :magento do
       detect_clean
       detect_version
 
-      config = Hobo.project_config
+      config = Hem.project_config
 
-      sync = Hobo::Lib::S3::Sync.new(Hobo.aws_credentials)
+      sync = Hem::Lib::S3::Sync.new(Hem.aws_credentials)
 
-      patches_path = "#{Hobo.project_path}/tools/patches"
+      patches_path = "#{Hem.project_path}/tools/patches"
       incoming_path = "#{patches_path}/incoming"
 
-      Hobo.ui.success("Downloading Magento #{config[:magento_edition].capitalize} #{config[:magento_version]} patches")
+      Hem.ui.success("Downloading Magento #{config[:magento_edition].capitalize} #{config[:magento_version]} patches")
       changes = sync.sync(
         "s3://inviqa-assets-magento/#{config[:magento_edition]}/patches/#{config[:magento_version]}/",
         "#{incoming_path}/",
         :delete => false
       )
-      Hobo.ui.separator
+      Hem.ui.separator
 
       use_vm = false
       use_vm = detect_tools if Dir.glob("#{incoming_path}/*.sh").length > 0
 
       patch_files = Dir.glob("#{incoming_path}/*.{sh,patch,diff}")
 
-      Hobo.ui.success("#{patch_files.length} new patches found")
+      Hem.ui.success("#{patch_files.length} new patches found")
 
-      Hobo.ui.separator
+      Hem.ui.separator
 
       patch_files.each do |file|
         filename = File.basename(file)
         base_filename = File.basename(filename, File.extname(filename))
 
         if File.exist?("#{patches_path}/#{filename}")
-          Hobo.ui.debug("Patch #{filename} has already been applied, so skipping it")
+          Hem.ui.debug("Patch #{filename} has already been applied, so skipping it")
 
           File.delete file
           next
@@ -150,7 +150,7 @@ namespace :magento do
           next
         end
 
-        Hobo.ui.success("Applying patch #{filename}")
+        Hem.ui.success("Applying patch #{filename}")
 
         yaml_file = File.join(File.dirname(file), base_filename + ".yaml")
 
@@ -158,13 +158,13 @@ namespace :magento do
           'commit_message' => "Apply Magento patch #{filename}"
         }
         if File.exist?(yaml_file)
-          metadata = Hobo::Config::File.load(yaml_file)
+          metadata = Hem::Config::File.load(yaml_file)
         end
 
-        Hobo.ui.info(metadata['description']) unless metadata['description'].nil?
+        Hem.ui.info(metadata['description']) unless metadata['description'].nil?
 
         patch_options = %w( yes never skip )
-        answer = Hobo.ui.ask_choice('Do you want to apply this patch?', patch_options)
+        answer = Hem.ui.ask_choice('Do you want to apply this patch?', patch_options)
 
         if answer == 'skip'
           next
@@ -201,10 +201,10 @@ namespace :magento do
         end
         shell "git commit -m #{metadata['commit_message'].shellescape}"
 
-        Hobo.ui.separator
+        Hem.ui.separator
       end
 
-      Hobo.ui.success("Finished applying #{patch_files.length} patches")
+      Hem.ui.success("Finished applying #{patch_files.length} patches")
     end
   end
 
@@ -212,10 +212,10 @@ namespace :magento do
   namespace :'setup-scripts' do
     desc "Run magento setup scripts"
     task :run => ['tools:n98magerun']  do
-      Hobo.ui.success "Running setup scripts"
+      Hem.ui.success "Running setup scripts"
       vm_shell("bin/n98-magerun.phar cache:clean config", :realtime => true, :indent => 2)
       vm_shell("bin/n98-magerun.phar sys:setup:incremental -n", :realtime => true, :indent => 2)
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 
@@ -223,9 +223,9 @@ namespace :magento do
   namespace :cache do
     desc "Clear cache"
     task :clear => ['tools:n98magerun']  do
-      Hobo.ui.success "Clearing magento cache"
+      Hem.ui.success "Clearing magento cache"
       vm_shell("bin/n98-magerun.phar cache:flush", :realtime => true, :indent => 2)
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 
@@ -233,16 +233,16 @@ namespace :magento do
   namespace :config do
     desc "Configure magento base URLs"
     task :'configure-urls' => ['tools:n98magerun'] do
-      Hobo.ui.success "Configuring magento base urls"
-      domain = Hobo.project_config.hostname
+      Hem.ui.success "Configuring magento base urls"
+      domain = Hem.project_config.hostname
       vm_shell("bin/n98-magerun.phar config:set web/unsecure/base_url 'http://#{domain}/'", :realtime => true, :indent => 2)
       vm_shell("bin/n98-magerun.phar config:set web/secure/base_url 'https://#{domain}/'", :realtime => true, :indent => 2)
-      Hobo.ui.separator
+      Hem.ui.separator
     end
 
     desc "Enable magento errors"
     task :'enable-errors' do
-      error_config = File.join(Hobo.project_path, 'public/errors/local.xml')
+      error_config = File.join(Hem.project_path, 'public/errors/local.xml')
 
       FileUtils.cp(
           error_config + ".sample",
@@ -254,17 +254,17 @@ namespace :magento do
     task :'create-admin-user' do
       initialized = vm_shell("bin/n98-magerun.phar admin:user:list | grep admin", :exit_status => true) == 0
       unless initialized
-        Hobo.ui.success "Creating admin user"
+        Hem.ui.success "Creating admin user"
         vm_shell("bin/n98-magerun.phar admin:user:create admin '' admin admin admin", :realtime => true, :indent => 2)
-        Hobo.ui.separator
+        Hem.ui.separator
       end
     end
 
     desc "Enable rewrites"
     task :'enable-rewrites' do
-      Hobo.ui.success "Enabling rewrites"
+      Hem.ui.success "Enabling rewrites"
       vm_shell("bin/n98-magerun.phar config:set web/seo/use_rewrites 1", :realtime => true, :indent => 2)
-      Hobo.ui.separator
+      Hem.ui.separator
     end
   end
 

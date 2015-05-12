@@ -1,4 +1,4 @@
-desc "Internal hobo debugging tools"
+desc "Internal hem debugging tools"
 hidden true
 namespace 'self'  do
 
@@ -6,19 +6,19 @@ namespace 'self'  do
   task :repl do
     require 'pry'
     Pry.config.prompt = if STDIN.tty?
-      proc { 'hobo > '}
+      proc { 'hem > '}
     else
       proc { '' }
     end
     pry
   end
 
-  desc "Tasks for debugging hobo"
+  desc "Tasks for debugging hem"
   namespace 'debug' do
     desc "Display project paths"
     project_only
     task "paths" do
-      Hobo.ui.info "<%=color('Project path:', :green)%> " + Hobo.project_path
+      Hem.ui.info "<%=color('Project path:', :green)%> " + Hem.project_path
       {
         :gemfile => "*Gemfile",
         :vagrantfile => "*Vagrantfile",
@@ -30,7 +30,7 @@ namespace 'self'  do
         locate v do |file, full_file|
           path = full_file
         end
-        Hobo.ui.info "<%=color('#{k.to_s}:', :green) %> #{path.nil? ? "none" : path}"
+        Hem.ui.info "<%=color('#{k.to_s}:', :green) %> #{path.nil? ? "none" : path}"
       end
     end
 

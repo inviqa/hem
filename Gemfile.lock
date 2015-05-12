@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    hobo-inviqa (0.0.16.pre.dev)
+    hem (1.0.0.pre.dev)
       aws-sdk (~> 2.0.24)
       bundler (>= 1.5.2)
       deepstruct (~> 0.0.5)
@@ -67,4 +67,4 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  hobo-inviqa!
+  hem!
