@@ -71,3 +71,6 @@ require 'hem/lib/host_check'
 
 # App
 require 'hem/cli'
+
+# Hobo BC
+Hobo = Hem

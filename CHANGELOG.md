@@ -1,5 +1,8 @@
 ## 0.0.16 (unreleased)
 
+FEATURES:
+  * core: Project renamed to "Hem" to avoid confusion with other hobo projects
+
 IMPROVEMENTS:
 
   * tasks/magento: Set magento secure url to use https
@@ -39,6 +42,7 @@ BUG FIXES:
 ## 0.0.12 (yanked)
 
 FEATURES:
+
   * tasks/ops: new ops task to generate self signed certs
   * tasks/seed: integrate self signed certs in to seed plant
   * tasks/deps: implemented new psuedo syntax for vagrant plugins to avoid require_plugin warnings
