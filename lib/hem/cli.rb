@@ -92,6 +92,7 @@ module Hem
       require 'hem/tasks/tools'
       require 'hem/tasks/ops'
       require 'hem/tasks/pr'
+      require 'hem/tasks/exec'
     end
 
     def load_user_config
@@ -124,7 +125,6 @@ module Hem
         'ssh_present',
         'git_present'
       ]
-      checks.push 'latest_hem_version' unless $HEM_BUNDLE_MODE
 
       @host_check.check(
         :filter => /#{checks.join('|')}/,
@@ -137,7 +137,7 @@ module Hem
       slop.on '-h', '--help', 'Display help'
 
       slop.on '-v', '--version', 'Print version information' do
-        Hem.ui.info "Hem version #{Hem::VERSION}#{" (Bundle mode)" if $HEM_BUNDLE_MODE}"
+        Hem.ui.info "Hem version #{Hem::VERSION}"
         halt
       end
     end

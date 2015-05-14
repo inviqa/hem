@@ -3,7 +3,6 @@ PATH
   specs:
     hem (1.0.0.pre.dev)
       aws-sdk (~> 2.0.24)
-      bundler (>= 1.5.2)
       deepstruct (~> 0.0.5)
       highline (~> 1.6.20)
       net-ssh-simple (~> 1.6.3)

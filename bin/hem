@@ -50,52 +50,15 @@ def init_hem
     Hem.cli.start
   rescue Exception => error
     exit error_handler.handle(error)
-  ensure
-    ENV['BUNDLE_GEMFILE'] = $OLD_BUNDLE_GEMFILE
   end
 end
 
 Gem.configuration.verbose = false
 
-require 'hem/util'
-
-unless Hem.windows?
-  if Process.uid == 0
-    puts
-    puts "Hem must not be run as root"
-    puts
-    exit 147
-  end
-
-  require "hem/util"
-
-  if Hem.windows? and not Hem.system_ruby?
-    puts
-    puts "Hem is not compatible with system ruby installs"
-    puts
-    puts "Please see the installation instructions for hem on the wiki at https://github.com/inviqa/hem-gem/wiki"
-    puts "It is also recommended that you wipe system gems so as to avoid interference. You can achieve this with the following command:"
-    puts
-    puts "  gem list --no-version | xargs sudo gem uninstall -aIx"
-    puts
-    exit 148
-  end
-end
-
 require 'hem/patches/rubygems'
-require 'hem/bundler'
-require 'bundler'
 
 # Suppress Net/SSH/Simple warning on windows
 $SUPPRESS_32BIT_WARNING=1
 $HEM_ARGV = ARGV
-$OLD_BUNDLE_GEMFILE = ENV['BUNDLE_GEMFILE']
-$HEM_BUNDLE_MODE = Hem::Bundler.is_hem_bundled?
 
-if $HEM_BUNDLE_MODE
-  init_hem
-else
-  Hem::Bundler.isolate do
-    init_hem
-  end
-end
+init_hem

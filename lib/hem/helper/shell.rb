@@ -47,6 +47,7 @@ module Hem
 
       Hem::Logging.logger.debug("helper.shell: Invoking '#{args.join(" ")}' with #{opts.to_s}")
 
+      require 'bundler'
       ::Bundler.with_clean_env do
         Hem.chefdk_compat
         indent = " " * opts[:indent]
