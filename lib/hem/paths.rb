@@ -14,6 +14,7 @@ module Hem
 
     def project_dsl_type
       project_path
+      @project_type
     end
 
     def project_dsl_file
