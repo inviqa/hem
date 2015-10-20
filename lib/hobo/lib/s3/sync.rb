@@ -105,7 +105,7 @@ module Hobo
             raise exception
           rescue Aws::Errors::MissingCredentialsError
             Hobo.ui.warning "  AWS credentials not set!"
-            Hobo.ui.warning "  Please request credentials from internalsupport@inivqa.com or in #devops and configure them with `hobo config`"
+            Hobo.ui.warning "  Please request credentials from internalsupport@inviqa.com or in #devops and configure them with `hobo config`"
             raise exception
           end
         end
