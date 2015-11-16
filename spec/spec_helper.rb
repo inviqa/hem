@@ -4,7 +4,7 @@ SimpleCov.start do
   add_filter "spec/"
 end
 
-require 'hobo'
+require 'hem'
 require 'fakefs/safe'
 
 RSpec.configure do |c|

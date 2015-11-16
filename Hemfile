@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+desc "lala"
+task "top-level" do
+  Hem.ui.info "top level"
+end
+
+namespace :test do
+  desc "Does non-interactive things"
+  task 'non-interactive' do
+    Hem.ui.info Hem.ui.ask "A question", default: "Used defaults"
+  end
+
+  desc 'Performs interactive requests without echo'
+  task 'no-echo' do
+    Hem.ui.info Hem.ui.ask 'A question', echo: false
+  end
+
+  task "subcommand" do
+    Hem.ui.info "Subcommand test"
+  end
+
+  desc "description"
+  long_desc "long description"
+  option "-o", "--option", "Option description"
+  hidden true
+  task "metadata", [ :arg ] do
+    Hem.ui.info "metadata"
+  end
+
+  option "--testing=", "description"
+  task 'option-test' do |task|
+    Hem.ui.info task.opts[:testing]
+  end
+
+  task 'argument-test', [ :test ] do |task, args|
+    Hem.ui.info args[:test]
+  end
+
+  task 'unparsed' do |task|
+    Hem.ui.info task.opts[:_unparsed]
+  end
+end
