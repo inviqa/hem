@@ -161,6 +161,10 @@ module Hem
       say @out, message, :success
     end
 
+    def output message
+      say @out, message, nil
+    end
+
     def title message
       say @out, message, :title
     end
