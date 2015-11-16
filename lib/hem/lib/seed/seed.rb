@@ -77,7 +77,7 @@ module Hem
         def vm_ip
           [
             10,
-            [*0..255].sample,
+            10,
             [*0..255].sample,
             [*2..255].sample
           ].join('.')
