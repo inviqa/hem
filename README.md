@@ -12,12 +12,6 @@ Many more features are planned including assisting with host machine configurati
 
 Full instructions for installing and using hem are available in the [User guide](https://github.com/inviqa/hem/wiki/User-guide). For information on the task DSL, see the  [DSL guide](https://github.com/inviqa/hem/wiki/Hemfile-DSL).
 
-If you have a working development configuration (and are using OSX / linux), you may skip reading those instructions and go straight to installing the gem:
-
-```
-gem install hem-inviqa
-```
-
 Please ensure that you run the following command after installing and that it does not raise any issues:
 
 ```
