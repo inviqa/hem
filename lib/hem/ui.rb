@@ -23,6 +23,7 @@ module Hem
     }
 
     def initialize input = $stdin, output = $stdout, error = $stderr
+      require 'highline'
       HighLine.color_scheme = HighLine::ColorScheme.new COLORS
       @output_io = output
       @out = ::HighLine.new input, output

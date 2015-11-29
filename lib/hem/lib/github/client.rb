@@ -6,6 +6,7 @@ module Hem
        @client = nil
 
         def initialize(opts = {})
+          require 'octokit'
           @opts = {
             :client_class => Octokit::Client
           }.merge! opts

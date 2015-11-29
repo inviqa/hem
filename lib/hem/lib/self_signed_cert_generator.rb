@@ -2,6 +2,7 @@ module Hem
   module Lib
     class SelfSignedCertGenerator
       def self.generate domain
+        require 'openssl'
         key = OpenSSL::PKey::RSA.new(2048)
         public_key = key.public_key
 

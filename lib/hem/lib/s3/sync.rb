@@ -122,6 +122,7 @@ module Hem
         end
 
         def io_handler uri
+          require 'uri'
           parsed = URI.parse(uri)
           parsed.scheme == 's3' ?
             Remote::IoHandler.new(s3, parsed.host, parsed.path) :

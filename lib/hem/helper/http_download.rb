@@ -2,6 +2,7 @@ module Hem
   module Helper
     def http_download url, target_file, opts = {}
       require 'net/http'
+      require 'openssl'
       require 'uri'
       opts = { :progress => Hem.method(:progress) }.merge(opts)
       uri = URI.parse(url)

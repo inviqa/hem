@@ -1,14 +1,11 @@
 # External deps
 require 'slop'
 require 'rake'
-require 'tempfile'
-require 'shellwords'
 require 'deepstruct'
 require 'logger'
-require 'highline'
+
+require 'shellwords'
 require 'fileutils'
-require 'openssl'
-require 'octokit'
 
 # DSL enhancements
 require 'hem/metadata'
