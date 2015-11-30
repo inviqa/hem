@@ -12,17 +12,8 @@ module Hem
       File.join(config_path, 'seeds')
     end
 
-    def project_dsl_type
-      project_path
-      @project_type
-    end
-
-    def project_dsl_file
-      "#{@project_type}file"
-    end
-
-    def project_path
-      return @project_path unless @project_path.nil?
+    def detect_project_type
+      return unless @project_type.nil?
 
       searches = [
         { type: "Hem", indicators: [ "Hemfile", "tools/hem"] },
@@ -40,7 +31,21 @@ module Hem
         end
       end
 
-      return @project_path
+      @project_type ||= 'Hem'
+    end
+
+    def project_dsl_type
+      detect_project_type
+      @project_type
+    end
+
+    def project_dsl_file
+      "#{project_dsl_type}file"
+    end
+
+    def project_path
+      detect_project_type
+      @project_path
     end
 
     def project_path_compat search
