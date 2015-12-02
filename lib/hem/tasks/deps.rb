@@ -38,7 +38,7 @@ namespace :deps do
         end
 
         if !complete
-          vm_shell *args
+          run_command *args
         end
 
         Hem.ui.success "Composer dependencies installed"

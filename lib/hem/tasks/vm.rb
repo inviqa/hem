@@ -119,7 +119,7 @@ namespace :vm do
     opts[:db] = task.opts[:db] if task.opts[:db]
 
     Hem.ui.success "Determining VM connection details..." if STDOUT.tty?
-    command = vm_mysql(opts)
+    command = create_mysql_command(opts)
     Hem.logger.debug "vm:mysql: #{command}"
 
     Hem.ui.success "Connecting..." if STDOUT.tty?
@@ -131,7 +131,7 @@ namespace :vm do
     opts = { :psuedo_tty => STDIN.tty? }
 
     Hem.ui.success "Determining VM connection details..." if STDOUT.tty?
-    command = vm_command("redis-cli", opts)
+    command = create_command("redis-cli", opts)
     Hem.logger.debug "vm:redis: #{command}"
 
     Hem.ui.success "Connecting..." if STDOUT.tty?
