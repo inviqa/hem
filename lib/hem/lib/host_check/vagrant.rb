@@ -4,6 +4,8 @@ module Hem
       def vagrant_version opts
         require 'semantic'
         begin
+          return unless get_run_environment == 'vm'
+
           version = shell "vagrant --version", :capture => true
           version.gsub!(/^Vagrant[^0-9]+/, '')
           version = ::Semantic::Version.new version.strip
