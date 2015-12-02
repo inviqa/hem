@@ -36,11 +36,14 @@ require 'hem/lib/s3/remote/file'
 require 'hem/lib/s3/remote/iohandler'
 
 # Task helpers
+require 'hem/helper/command'
 require 'hem/helper/shell'
 require 'hem/helper/file_locator'
 require 'hem/helper/github'
 require 'hem/helper/http_download'
 require 'hem/helper/vm_command'
+
+require 'hem/lib/local/command'
 
 require 'hem/lib/vm/inspector'
 require 'hem/lib/vm/command'

@@ -27,70 +27,57 @@ describe Hem::Helper do
     end
   end
 
-  describe "vm_command" do
+  describe "create_command" do
     it "should create a new vm command wrapper with specified command" do
-      vm_command("my_command", :pwd => '/').to_s.should match /-c my_command/
+      create_command("my_command", :pwd => '/').to_s.should match /-c my_command/
     end
 
     it "should default to not using a psuedo tty" do
-      vm_command("my_command", :pwd => '/').to_s.should_not match /\s-t\s/
+      create_command("my_command", :pwd => '/').to_s.should_not match /\s-t\s/
     end
 
     it "should default to ssh_config user" do
-      vm_command("my_command", :pwd => '/').to_s.should match /fakeuser@/
+      create_command("my_command", :pwd => '/').to_s.should match /fakeuser@/
     end
 
     it "should default to ssh_config host name" do
-      vm_command("my_command", :pwd => '/').to_s.should match /@fakehost/
+      create_command("my_command", :pwd => '/').to_s.should match /@fakehost/
     end
 
     it "should not wrap piped commands with echo by default" do
-      c = vm_command("my_command", :pwd => '/')
+      c = create_command("my_command", :pwd => '/')
       c << "test"
       c.to_s.should_not match /^echo test/
     end
   end
 
-  describe "vm_mysql" do
+  describe "create_mysql_command" do
     it "should use mysql command by default" do
-      vm_mysql(:pwd => '/').to_s.should match /-c mysql/
+      create_mysql_command(:pwd => '/').to_s.should match /-c mysql/
     end
 
     it "should use project config mysql username & password if set" do
-      vm_mysql(:pwd => '/').to_s.should match /-c mysql.*-utest_user.*-ptest_pass/
+      create_mysql_command(:pwd => '/').to_s.should match /-c mysql.*-utest_user.*-ptest_pass/
     end
 
     it "should not pass user / pass if project config mysql credentials not set" do
       Hem.project_config = DeepStruct.wrap({})
-      vm_mysql(:pwd => '/').to_s.should match /-c mysql'/
+      create_mysql_command(:pwd => '/').to_s.should match /-c mysql'/
     end
 
     it "should allow specifying the database in options" do
-      vm_mysql(:pwd => '/', :db => "test_db").to_s.should match /-c mysql.*test_db'/
+      create_mysql_command(:pwd => '/', :db => "test_db").to_s.should match /-c mysql.*test_db'/
     end
 
     it "should enable auto echo of piped commands" do
-      c = vm_mysql(:pwd => '/')
+      c = create_mysql_command(:pwd => '/')
       c << "SELECT 1"
-      c.to_s.should match /^echo SELECT\\ 1/
+      puts c.to_s
+      c.to_s.should match /echo\\ SELECT\\\\\\\\\\ 1\\ \\\|/
     end
   end
 
-  describe "vm_shell" do
-    it "should execute the command using the shell helper" do
-      Hem::Helper.class_eval do
-        alias :old_shell :shell
-        def shell command, opts
-          command.to_s.should match /ssh.* -c my_command/
-        end
-      end
-
-      vm_shell "my_command", :pwd => '/'
-
-      Hem::Helper.class_eval do
-        remove_method :shell
-        alias :shell :old_shell
-      end
-    end
+  describe "run_command" do
+    it "should execute the command using the shell helper when refactored"
   end
 end
