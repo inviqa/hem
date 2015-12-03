@@ -1,5 +1,5 @@
 # Built in applicators
-Hem.asset_applicators.register /.*\.sql\.gz/ do |file|
+Hem.asset_applicators.register 'sqldump', /.*\.sql\.gz/ do |file, opts|
   matches = file.match(/^([^\.]+).*\.sql\.gz/)
   db = File.basename(matches[1])
 
@@ -16,13 +16,13 @@ Hem.asset_applicators.register /.*\.sql\.gz/ do |file|
     # This will fail later with a more useful error message
   end
 
-  if status[:db_exists] && status[:db_has_tables]
-    Hem.ui.warning "Already applied (#{file})"
+  if status[:db_exists] && status[:db_has_tables] && !opts[:force]
+      Hem.ui.warning "Already applied (#{file})"
     next
   end
 
-  if status[:db_exists] && !status[:db_has_tables]
-    # Db exists but is empty
+  if status[:db_exists] && (!status[:db_has_tables] || opts[:force])
+    # Db exists but is empty, or is being reapplied
     shell(create_mysql_command(:mysql => 'mysqladmin', :append => " --force drop #{db.shellescape}"))
   end
 

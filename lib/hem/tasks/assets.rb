@@ -72,21 +72,35 @@ namespace :assets do
   end
 
   desc "Apply project assets"
+  option "-a=", "--applicator=", "Asset applicator to apply, default all"
   option "-e=", "--env=", "Environment"
+  option "-f", "--force", "Force application of already applied assets"
   project_only
   task :apply do |task, args|
     env = task.opts[:env] || args[:env] || 'development'
     path = "tools/assets/#{env}"
+    opts = {
+      force: task.opts[:force] || args[:force] || false
+    }
+
+    applicator_name = task.opts[:applicator] || args[:applicator]
+    case applicator_name
+    when nil, 'all'
+      asset_applicators = Hem.asset_applicators
+    else
+      asset_applicators = Hem.asset_applicators.select do |applicator|
+        applicator.name == applicator_name
+      end
+    end
 
     next unless File.exists? path
 
     Dir.new(path).each do |file|
       file = File.join(path, file)
       next unless File.file? file
-      Hem.asset_applicators.each do |matcher, proc|
-        proc.call(file) if matcher.match(file)
+      asset_applicators.each do |applicator|
+        applicator.call(file, opts) if applicator.matches?(file)
       end
     end
-
   end
 end

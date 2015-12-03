@@ -22,12 +22,31 @@ module Hem
   private
 
   # Thin wrapper over a hash to provide a means to "register" asset applicators
-  class AssetApplicatorRegistry < Hash
+  class AssetApplicatorRegistry < Array
     # Register a new asset applicator
+    # @param [String] The name of the applicator
     # @param [Regexp] Pattern to match against asset filename.
     # @yield The block to be executed when an asset matches the pattern.
-    def register pattern, &block
-      self[pattern] = block
+    def register name, pattern, &block
+      self << AssetApplicator.new(name, pattern, block)
+    end
+  end
+
+  class AssetApplicator
+    attr_reader :name
+
+    def initialize(name, pattern, block)
+      @name = name
+      @pattern = pattern
+      @block = block
+    end
+
+    def matches?(file)
+      @pattern.match(file)
+    end
+
+    def call(file, opts = {})
+      @block.call file, opts
     end
   end
 end
