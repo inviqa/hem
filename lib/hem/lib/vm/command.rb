@@ -21,11 +21,11 @@ module Hem
 
         def pipe cmd, pipe_opts = {}
           pipe_opts = pipe_opts.merge({ :on => :vm })
-          cmd = "echo #{cmd.shellescape.gsub(/(\\+)/, '\\\\\1')}" if @opts[:auto_echo]
+          cmd = "echo #{cmd.shellescape}" if @opts[:auto_echo]
 
           case pipe_opts[:on]
             when :vm
-              @pipe_in_vm = cmd
+              @pipe_in_vm = cmd.gsub(/(\\+)/, '\\\\\1')
             when :host
               @pipe = cmd
             else
