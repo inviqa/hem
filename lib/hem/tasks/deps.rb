@@ -5,10 +5,18 @@ namespace :deps do
   desc "Install Gem dependencies"
   task :gems do
     locate "*Gemfile" do
-      required = shell("bundle", "check", :exit_status => true) != 0
+      required = shell("bundle check", :exit_status => true) != 0
       if required
         Hem.ui.title "Installing Gem dependencies"
-        shell "bundle", "install", realtime: true, indent: 2
+
+        bundler_args = "#{Hem.user_config.bundler_args} #{Hem.project_config.bundler_args}".strip
+
+        command = [
+          'bundle install',
+           bundler_args.empty? ? nil : bundler_args
+        ].compact.join(' ')
+
+        shell command, realtime: true, indent: 2
         Hem.ui.separator
       end
     end
