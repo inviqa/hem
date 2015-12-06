@@ -6,34 +6,40 @@ module Hem
           @opts = {
             :replacer => Replacer.new,
             :config_class => Hem::Config::File,
-            :project_config_file => Hem.project_config_file,
             :ssl_cert_generator => Hem::Lib::SelfSignedCertGenerator
           }.merge! opts
         end
 
         def setup seed, config
-          seed.update
-          seed.export config[:project_path], config
-          config[:seed][:version] = seed.version
-          config[:hostname] = "#{config[:name]}.dev"
-          config[:asset_bucket] = "inviqa-assets-#{config[:name]}"
-          config[:vm] = {
-            :project_mount_path => "/vagrant"
-          }
-          config[:ssl] = @opts[:ssl_cert_generator].generate config[:hostname]
-          config[:chef_ssl] = {}
-          config[:ssl].each do |k, v|
-            config[:chef_ssl][k] = v.gsub("\n", "\\n")
-          end
-
-          @opts[:replacer].replace(config[:project_path], config)
-          load_seed_init(config)
-
           project_path = config[:project_path]
-          config.delete :project_path
-          config.delete :ssl
-          config.delete :chef_ssl
-          @opts[:config_class].save @opts[:project_config_file], config
+
+          seed.update
+          seed.export project_path, config
+
+          Dir.chdir(project_path) do
+            Hem.detect_project_type project_path
+            @opts[:project_config_file] = Hem.project_config_file
+
+            config[:seed][:version] = seed.version
+            config[:hostname] = "#{config[:name]}.dev"
+            config[:asset_bucket] = "inviqa-assets-#{config[:name]}"
+            config[:vm] = {
+              :project_mount_path => "/vagrant"
+            }
+            config[:ssl] = @opts[:ssl_cert_generator].generate config[:hostname]
+            config[:chef_ssl] = {}
+            config[:ssl].each do |k, v|
+              config[:chef_ssl][k] = v.gsub("\n", "\\n")
+            end
+
+            @opts[:replacer].replace(config[:project_path], config)
+            load_seed_init(config)
+
+            config.delete :project_path
+            config.delete :ssl
+            config.delete :chef_ssl
+            @opts[:config_class].save @opts[:project_config_file], config
+          end
 
           initialize_git project_path, config[:git_url]
         end

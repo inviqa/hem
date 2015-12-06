@@ -12,8 +12,9 @@ module Hem
       File.join(config_path, 'seeds')
     end
 
-    def detect_project_type
-      return unless @project_type.nil?
+    def detect_project_type limit_path = nil
+      @project_type = 'Hem'
+      @project_path = nil
 
       searches = [
         { type: "Hem", indicators: [ "Hemfile", "tools/hem"] },
@@ -23,19 +24,17 @@ module Hem
 
       searches.each do |search|
         next if @project_path
-        path = project_path_compat search
+        path = project_path_compat search, limit_path
         if path
           @project_type = search[:type]
           @project_path = path
           break
         end
       end
-
-      @project_type ||= 'Hem'
     end
 
     def project_dsl_type
-      detect_project_type
+      detect_project_type if @project_type.nil?
       @project_type
     end
 
@@ -44,17 +43,19 @@ module Hem
     end
 
     def project_path
-      detect_project_type
+      detect_project_type if @project_type.nil?
       @project_path
     end
 
-    def project_path_compat search
+    def project_path_compat search, limit_path = nil
       dir = Dir.pwd.split('/').reverse
       min_length = Gem.win_platform? ? 1 : 0
       Hem::Logging.logger.debug("paths.project: Searching backwards from #{Dir.pwd}")
 
       while dir.length > min_length
         test_dir = dir.reverse.join('/')
+        return nil unless limit_path.nil? || test_dir.start_with?(limit_path)
+
         Hem::Logging.logger.debug("paths.project: Testing #{test_dir}")
 
         results = search[:indicators].map do |s|
