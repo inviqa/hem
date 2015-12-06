@@ -64,7 +64,6 @@ require 'hem/lib/github/client'
 # Host checks
 require 'hem/lib/host_check/git'
 require 'hem/lib/host_check/vagrant'
-require 'hem/lib/host_check/ruby'
 require 'hem/lib/host_check/deps'
 require 'hem/lib/host_check'
 
