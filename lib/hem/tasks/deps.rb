@@ -50,24 +50,35 @@ namespace :deps do
 
   desc "Install vagrant plugins"
   task :vagrant_plugins => [ "deps:gems" ] do
+    require 'semantic'
     plugins = shell "vagrant plugin list", :capture => true
     locate "*Vagrantfile" do
-      to_install = []
+      to_install = {}
       File.read("Vagrantfile").split("\n").each do |line|
-        if line.match /#\s*Hem.vagrant_plugin (.*)/ or line.match /#\s*Hobo.vagrant_plugin (.*)/
-          to_install << $1
+        if line.match(/#\s*(?:Hem|Hobo)\.(vagrant_plugin.*)/)
+          to_install.merge! Hash[[eval("Hem.#{$1}")]]
         else
           next if line.match /^\s*#/
           next unless line.match /Vagrant\.require_plugin (.*)/
-          to_install << $1
+          to_install[$1.gsub(/['"]*/, '')] = nil
         end
       end
 
-      to_install.each do |plugin|
-        plugin.gsub!(/['"]*/, '')
-        next if plugins.include? "#{plugin} "
-        Hem.ui.title "Installing vagrant plugin: #{plugin}"
-        shell "vagrant", "plugin", "install", plugin, :realtime => true, :indent => 2
+      plugins = Hash[
+        plugins.scan(/^([^\s]+)\s+\(([^,\)]+)(?:,[^\)]+)?\)$/).map do |plugin, version|
+          [plugin, Semantic::Version.new(version)]
+        end
+      ]
+
+      to_install.each do |plugin, constraint|
+        next if plugins.has_key?(plugin) && (constraint.nil? || plugins[plugin].satisfies(constraint))
+        Hem.ui.title "Installing vagrant plugin: #{plugin}#{constraint && " #{constraint}"}"
+        args = ["vagrant", "plugin", "install", plugin]
+        if constraint
+          args << '--plugin-version'
+          args << constraint
+        end
+        shell *args, :realtime => true, :indent => 2
         Hem.ui.separator
       end
     end

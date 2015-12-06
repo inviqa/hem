@@ -72,5 +72,9 @@ module Hem
         ENV['PATH'] = (chef_paths + paths).join ':'
       end
     end
+
+    def vagrant_plugin plugin, constraint = nil
+      return [plugin, constraint]
+    end
   end
 end
