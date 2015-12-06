@@ -22,14 +22,10 @@ module Hem
         { type: "Hem", indicators: ["tools/vagrant/Vagrantfile"] }
       ]
 
-      searches.each do |search|
-        next if @project_path
-        path = project_path_compat search, limit_path
-        if path
-          @project_type = search[:type]
-          @project_path = path
-          break
-        end
+      match = project_path_compat searches, limit_path
+      if match
+        @project_type = match[:type]
+        @project_path = match[:path]
       end
     end
 
@@ -47,7 +43,7 @@ module Hem
       @project_path
     end
 
-    def project_path_compat search, limit_path = nil
+    def project_path_compat searches, limit_path = nil
       dir = Dir.pwd.split('/').reverse
       min_length = Gem.win_platform? ? 1 : 0
       Hem::Logging.logger.debug("paths.project: Searching backwards from #{Dir.pwd}")
@@ -58,13 +54,15 @@ module Hem
 
         Hem::Logging.logger.debug("paths.project: Testing #{test_dir}")
 
-        results = search[:indicators].map do |s|
-          File.exists?(File.join(test_dir, s))
+        searches.each do |search|
+          results = search[:indicators].map do |s|
+            File.exists?(File.join(test_dir, s))
+          end
+
+          match = results - [false]
+
+          return {type: search[:type], path: test_dir} if match.length > 0
         end
-
-        match = results - [false]
-
-        return test_dir if match.length > 0
 
         dir.shift
       end
