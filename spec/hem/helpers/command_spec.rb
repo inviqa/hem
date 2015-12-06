@@ -72,7 +72,6 @@ describe Hem::Helper do
     it "should enable auto echo of piped commands" do
       c = create_mysql_command(:pwd => '/')
       c << "SELECT 1"
-      puts c.to_s
       c.to_s.should match /echo\\ SELECT\\\\\\\\\\ 1\\ \\\|/
     end
   end
