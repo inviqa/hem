@@ -25,7 +25,7 @@ module Hem
 
           case pipe_opts[:on]
             when :vm
-              @pipe_in_vm = cmd.gsub(/(\\+)/, '\\\\\1')
+              @pipe_in_vm = cmd
             when :host
               @pipe = cmd
             else
@@ -43,44 +43,9 @@ module Hem
           pipe cmd, :on => :vm
         end
 
-        # TODO Refactor in to ssh helper with similar opts to shell helper
-        # TODO Migrate all vm_shell functionality this direction
         def run
           return if @command.nil?
-          require 'net/ssh/simple'
-          opts = @@vm_inspector.ssh_config.merge(@opts)
-
-          Net::SSH::Simple.sync do
-            ssh_opts = {
-                :user => opts[:ssh_user],
-                :port => opts[:ssh_port],
-                :forward_agent => true,
-                :global_known_hosts_file => "/dev/null",
-                :paranoid => false,
-                :user_known_hosts_file => "/dev/null"
-            }
-
-            ssh_opts[:keys] = [opts[:ssh_identity]] if opts[:ssh_identity]
-
-            tmp = Tempfile.new "vm_command_exec"
-
-            begin
-              filename = File.basename(tmp.path)
-              remote_file = "/tmp/#{filename}"
-              tmp.write "#{@command}#{opts[:append]}"
-              tmp.close
-
-              scp_put opts[:ssh_host], tmp.path, remote_file, ssh_opts
-              result = ssh opts[:ssh_host], "cd #{opts[:pwd]}; exec /bin/bash #{remote_file}", ssh_opts
-              ssh opts[:ssh_host], "rm #{remote_file}", ssh_opts
-
-              # Throw exception if exit code not 0
-
-              return opts[:capture] ? result.stdout : result.success
-            ensure
-              tmp.unlink
-            end
-          end
+          shell to_s, @opts
         end
 
         # TODO Speed up Vagrant SSH connections
@@ -107,7 +72,7 @@ module Hem
           pwd_set_command = " -- \"cd #{@opts[:pwd].shellescape}; exec /bin/bash"
 
           vm_command = [
-              @pipe_in_vm,
+              @pipe_in_vm.nil? ? nil : @pipe_in_vm.gsub(/(\\+)/, '\\\\\1'),
               @command
           ].compact.join(" | ")
 

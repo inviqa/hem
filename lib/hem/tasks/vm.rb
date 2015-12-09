@@ -105,7 +105,7 @@ namespace :vm do
     opts = { :psuedo_tty => STDIN.tty? }
 
     Hem.ui.success "Determining VM connection details..." if STDOUT.tty?
-    command = execute.empty? ? vm_command(nil, opts) : vm_command(execute, opts)
+    command = execute.empty? ? create_command(nil, opts) : create_command(execute, opts)
     Hem.logger.debug "vm:ssh: #{command}"
 
     Hem.ui.success "Connecting..." if STDOUT.tty?
