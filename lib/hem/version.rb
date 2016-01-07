@@ -1,3 +1,3 @@
 module Hem
-  VERSION = '1.0.1-beta5'
+  VERSION = '1.0.1-beta6'
 end
