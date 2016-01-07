@@ -51,21 +51,7 @@ module Hem
 
           raise Exception.new "Could not retrieve VM ssh configuration" unless config
 
-          patterns = {
-              :ssh_user => /^\s*User (.*)$/,
-              :ssh_identity => /^\s*IdentityFile (.*)$/,
-              :ssh_host => /^\s*HostName (.*)$/,
-              :ssh_port => /^\s*Port (\d+)/
-          }
-
-          output = {}
-
-          patterns.each do |k, pattern|
-            match = config.match(pattern)
-            output[k] = match[1] if match
-          end
-
-          return @ssh_config = output
+          return config
         end
       end
     end

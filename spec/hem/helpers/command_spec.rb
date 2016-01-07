@@ -12,15 +12,24 @@ describe Hem::Helper do
       }
     })
 
+    Hem.user_config = DeepStruct.wrap({})
+
     Hem.ui = Hem::Ui.new
 
     vmi_double = double(Hem::Lib::Vm::Inspector).as_null_object
-    vmi_double.should_receive(:ssh_config).and_return({
-      :ssh_host => 'fakehost',
-      :ssh_user => 'fakeuser',
-      :ssh_port => '999',
-      :ssh_identity => 'fakeidentity'
-    })
+    vmi_double.should_receive(:ssh_config).and_return <<-eos
+Host default
+  HostName 127.0.0.1
+  User vagrant
+  Port 2222
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  IdentityFile "/path/to/project/tools/vagrant/.vagrant/machines/default/virtualbox/private_key"
+  IdentitiesOnly yes
+  LogLevel FATAL
+  ForwardAgent yes
+    eos
 
     Hem::Lib::Vm::Command.class_eval do
       class_variable_set '@@vm_inspector', vmi_double
@@ -36,12 +45,12 @@ describe Hem::Helper do
       create_command("my_command", :pwd => '/').to_s.should_not match /\s-t\s/
     end
 
-    it "should default to ssh_config user" do
-      create_command("my_command", :pwd => '/').to_s.should match /fakeuser@/
+    it "should use injected config" do
+      create_command("my_command", :pwd => '/').to_s.should match /-F [^-][^ ]*/
     end
 
-    it "should default to ssh_config host name" do
-      create_command("my_command", :pwd => '/').to_s.should match /@fakehost/
+    it "should use default host" do
+      create_command("my_command", :pwd => '/').to_s.should match /\ default/
     end
 
     it "should not wrap piped commands with echo by default" do
