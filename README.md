@@ -10,6 +10,10 @@ Many more features are planned including assisting with host machine configurati
 
 # Installing & using
 
+* [OSX](https://github.com/inviqa/hem/wiki/Installing-on-OSX)
+* [Linux](https://github.com/inviqa/hem/wiki/Installing-on-Linux)
+* [Windows](https://github.com/inviqa/hem/wiki/Installing-on-Windows)
+
 Full instructions for installing and using hem are available in the [User guide](https://github.com/inviqa/hem/wiki/User-guide). For information on the task DSL, see the  [DSL guide](https://github.com/inviqa/hem/wiki/Hemfile-DSL).
 
 Please ensure that you run the following command after installing and that it does not raise any issues:
