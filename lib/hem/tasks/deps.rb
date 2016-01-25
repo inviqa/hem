@@ -59,7 +59,7 @@ namespace :deps do
   desc "Install vagrant plugins"
   task :vagrant_plugins => [ "deps:gems" ] do
     require 'semantic'
-    plugins = shell "vagrant plugin list", :capture => true
+    raw_plugins = shell "vagrant plugin list", :capture => true
     locate "*Vagrantfile" do
       to_install = {}
       File.read("Vagrantfile").split("\n").each do |line|
@@ -73,7 +73,7 @@ namespace :deps do
       end
 
       plugins = Hash[
-        plugins.scan(/^([^\s]+)\s+\(([^,\)]+)(?:,[^\)]+)?\)$/).map do |plugin, version|
+        raw_plugins.scan(/^([^\s]+)\s+\(([^,\)]+)(?:,[^\)]+)?\)$/).map do |plugin, version|
           [plugin, Semantic::Version.new(version)]
         end
       ]
