@@ -74,7 +74,8 @@ module Hem
     end
 
     def vagrant_plugin plugin, constraint = nil
-      return [plugin, constraint]
+      return [plugin, nil] if constraint.nil?
+      return [plugin, Gem::Dependency.new(plugin, constraint)]
     end
   end
 end

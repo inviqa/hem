@@ -74,17 +74,17 @@ namespace :deps do
 
       plugins = Hash[
         raw_plugins.scan(/^([^\s]+)\s+\(([^,\)]+)(?:,[^\)]+)?\)$/).map do |plugin, version|
-          [plugin, Semantic::Version.new(version)]
+          [plugin, version]
         end
       ]
 
       to_install.each do |plugin, constraint|
-        next if plugins.has_key?(plugin) && (constraint.nil? || plugins[plugin].satisfies(constraint))
-        Hem.ui.title "Installing vagrant plugin: #{plugin}#{constraint && " #{constraint}"}"
+        next if plugins.has_key?(plugin) && (constraint.nil? || constraint.match?(plugin, plugins[plugin]))
+        Hem.ui.title "Installing vagrant plugin: #{plugin}#{constraint.nil? ? '' : " #{constraint.requirement.to_s}"}"
         args = ["vagrant", "plugin", "install", plugin]
         if constraint
           args << '--plugin-version'
-          args << constraint
+          args << constraint.requirement.to_s
         end
         shell *args, :realtime => true, :indent => 2
         Hem.ui.separator
