@@ -6,7 +6,7 @@ require 'hem/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "hem"
-  spec.version       = Hem::VERSION.gsub('-', '.')
+  spec.version       = Hem::VERSION
   spec.authors       = ["Mike Simons"]
   spec.email         = ["msimons@inviqa.com"]
   spec.description   = %q{Inviqan toolbelt}
