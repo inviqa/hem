@@ -2,6 +2,19 @@ module Hem
   class Error < StandardError
     attr_reader :exit_code
   end
+  
+  class HemVersionError < Error
+    def initialize requirements
+      super("
+This Hem project has specified that it requires the Hem
+version to satisfy the following version requirements:
+  #{requirements.join("\n")}
+You are running Hem #{VERSION}, which does not satisfy
+these requirements. Please upgrade Hem to the latest
+version, or relax the Hemfile's version constraints if
+you're already using the latest Hem version.")
+    end
+  end
 
   class RubyVersionError < Error
     def initialize
