@@ -36,6 +36,7 @@ require 'hem/lib/s3/remote/file'
 require 'hem/lib/s3/remote/iohandler'
 
 # Task helpers
+require 'hem/helper/argument_parser'
 require 'hem/helper/command'
 require 'hem/helper/shell'
 require 'hem/helper/file_locator'

@@ -48,6 +48,25 @@ module Rake
       Rake::Task[task].invoke(*args, &block)
     end
 
+    def argument name, options = {}
+      opts = {
+        optional: false,
+        as: String,
+      }.merge(options)
+      Hem::Metadata.store[:arg_list] ||= {}
+
+      if Hem::Metadata.store[:arg_list].length > 0
+        last_arg = Hem::Metadata.store[:arg_list].values.last
+        if last_arg[:optional] && !opts[:optional]
+          raise 'Cannot have mandatory arguments after optional arguments'
+        elsif last_arg[:as] == Array
+          raise 'Cannot add any arguments after an array argument'
+        end
+      end
+
+      Hem::Metadata.store[:arg_list][name] = opts
+    end
+
     def hidden value = true
       Hem::Metadata.store[:hidden] = value
     end
@@ -59,9 +78,18 @@ module Rake
     def task *args, &block
       name = args[0].is_a?(Hash) ? args[0].keys.first.to_s : args[0]
       scoped_name = Rake.application.current_scope.path_with_task_name(name).to_s
+      Hem::Metadata.store[:arg_list] ||= {}
 
-      [:opts, :desc, :long_desc, :hidden, :project_only].each do |meta|
+      args[1..-1].each do |name|
+        argument name, optional: true
+      end if args.length > 1
+
+      [:opts, :desc, :long_desc, :hidden, :project_only, :arg_list].each do |meta|
         Hem::Metadata.add scoped_name, meta
+      end
+
+      if Hem::Metadata.store[:arg_list]
+        args = [args[0], *Hem::Metadata.store[:arg_list].keys]
       end
 
       Hem::Metadata.reset_store

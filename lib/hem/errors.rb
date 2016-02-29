@@ -30,20 +30,18 @@ you're already using the latest Hem version.")
   end
 
   class InvalidCommandOrOpt < Error
-    attr_accessor :command, :cli
-    def initialize command, cli = nil
+    attr_accessor :command
+    def initialize command
       @command = command
-      @cli = cli
       super("Invalid command or option specified: '#{command}'")
     end
   end
 
   class MissingArgumentsError < Error
-    attr_accessor :command, :cli
-    def initialize command, args, cli = nil
+    attr_accessor :command
+    def initialize command, args
       @command = command
       @args = args
-      @cli = cli
       super("Not enough arguments for #{command}")
     end
   end

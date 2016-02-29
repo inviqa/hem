@@ -9,7 +9,9 @@ namespace :seed do
   option '-b=', '--branch=', 'Seed branch to use'
   option '-d=', '--data=', 'Seed data to save to the project hem configuration', :as => Hash
 
-  task :plant, [ :name ] do |t, args|
+  argument 'name'
+
+  task :plant do |t, args|
     name = args[:name]
 
     Hem.project_path = File.join(Dir.pwd, name)

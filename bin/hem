@@ -49,7 +49,7 @@ def init_hem
     Hem.cli = Hem::Cli.new(slop: slop)
     Hem.cli.start
   rescue Exception => error
-    exit error_handler.handle(error)
+    exit error_handler.handle(Hem.cli, error)
   end
 end
 

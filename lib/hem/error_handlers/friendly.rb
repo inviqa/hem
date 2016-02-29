@@ -3,7 +3,7 @@ module Hem
     class Friendly
       include Hem::ErrorHandlers::ExitCodeMap
 
-      def handle error
+      def handle cli, error
         require 'tmpdir'
         log_file = File.join(Dir.tmpdir, 'hem_error.log')
 
@@ -27,10 +27,10 @@ module Hem
             ERROR
           when "Hem::InvalidCommandOrOpt"
             Hem.ui.error "\n#{error.message}"
-            Hem.ui.info error.cli.help_formatter.help if error.cli
+            Hem.ui.info cli.help_formatter.help
           when "Hem::MissingArgumentsError"
             Hem.ui.error "\n#{error.message}"
-            Hem.ui.info error.cli.help_formatter.help(target: error.command) if error.cli
+            Hem.ui.info cli.help_formatter.help(target: error.command)
           when "Hem::UserError"
             Hem.ui.error "\n#{error.message}\n"
           when "Hem::ProjectOnlyError"

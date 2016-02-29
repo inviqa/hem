@@ -36,8 +36,9 @@ namespace 'self'  do
 
     desc "Locate"
     project_only
-    task "locate", [ :arg ] do |task, args|
-      locate args[:arg] do |file, full_file|
+    argument 'pattern'
+    task "locate" do |task, args|
+      locate args[:pattern] do |file, full_file|
         puts full_file
       end
     end

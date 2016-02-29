@@ -58,9 +58,9 @@ module Hem
         args.push "--help" if @slop.help?
 
         @help_formatter.command_map = define_tasks(tasks, @slop)
-
         remaining = @slop.parse! args
-        raise Hem::InvalidCommandOrOpt.new remaining.join(" "), self if remaining.size > 0
+
+        raise Hem::InvalidCommandOrOpt.new remaining.join(" ") if remaining.size > 0
 
         show_help if @slop.help?
       rescue Halt
@@ -207,7 +207,7 @@ module Hem
 
           description metadata[:desc]
           long_description metadata[:long_desc]
-          arg_list task.arg_names
+          arg_list metadata[:arg_list]
           hidden metadata[:hidden]
           project_only metadata[:project_only]
 
@@ -223,9 +223,8 @@ module Hem
             Dir.chdir Hem.project_path if Hem.in_project?
             raise ::Hem::ProjectOnlyError.new if opts.project_only && !Hem.in_project?
             task.opts = opts.to_hash.merge({:_unparsed => hem.slop.unparsed})
-            raise ::Hem::MissingArgumentsError.new(name, args, hem) if args && task.arg_names.length > args.length
-            task.invoke *args
-            args.pop(task.arg_names.size)
+
+            task.invoke *Helper::convert_args(name, args, metadata[:arg_list])
             task.opts = nil
           end
         end

@@ -91,16 +91,25 @@ module Hem
     def usage source, command = nil
       banner = source.banner
       if banner.nil?
-        arg_list = (source.arg_list || []).map do |arg|
-          "<#{arg}>"
+        arg_list = (source.arg_list || {}).map do |arg, options|
+          arg_text = "<#{arg}>"
+          if options[:as] == Array
+            arg_text = "#{arg_text}..."
+          end
+          if options[:optional]
+            arg_text = "[#{arg_text}]"
+          end
+          arg_text
         end
 
         banner = "#{File.basename($0, '.*')}"
         banner << " [command]" if source.commands.any? && command.nil?
         banner << " #{command.split(':').join(' ')}" if command
-        banner << " #{arg_list.join(' ')}" if arg_list.size > 0
         banner << " [options]"
+        banner << " #{arg_list.join(' ')}" if arg_list.size > 0
       end
+
+      banner
     end
 
     def section title, contents, align_to = false

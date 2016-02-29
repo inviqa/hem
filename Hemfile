@@ -24,7 +24,8 @@ namespace :test do
   long_desc "long description"
   option "-o", "--option", "Option description"
   hidden true
-  task "metadata", [ :arg ] do
+  argument 'arg'
+  task "metadata" do
     Hem.ui.info "metadata"
   end
 
@@ -33,7 +34,8 @@ namespace :test do
     Hem.ui.info task.opts[:testing]
   end
 
-  task 'argument-test', [ :test ] do |task, args|
+  argument 'test'
+  task 'argument-test' do |task, args|
     Hem.ui.info args[:test]
   end
 
