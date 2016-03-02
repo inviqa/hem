@@ -1,10 +1,24 @@
 module Hem
   module Helper
-    def locate(pattern, opts = {}, &block)
+    def locate(name, patterns = nil, opts = {}, &block)
+      opts = {
+        type: 'git',
+        patterns: patterns || [name, "**/#{name}"],
+      }.merge(opts)
+
       match = nil
 
+      unless Hem.project_config[:locate].nil? || Hem.project_config[:locate][name].nil?
+        opts = opts.merge(Hem.project_config[:locate][name].to_hash_sym)
+      end
+
       Dir.chdir Hem.project_path do
-        match = locate_git(pattern, &block)
+        case opts[:type]
+        when 'git'
+          match = locate_git(opts[:patterns], &block)
+        when 'files'
+          match = locate_files(opts[:patterns], &block)
+        end
       end
 
       return match unless block_given?
@@ -16,20 +30,30 @@ module Hem
 
     private
 
-    def locate_git pattern, &block
-      args = [ 'git', 'ls-files', pattern ]
+    def locate_files patterns, &block
+      paths = patterns.inject([]) do |result, pattern|
+        result + Dir.glob(pattern)
+      end
+      locate_loop paths, &block
+    end
+
+    def locate_git patterns, &block
+      args = [ 'git', 'ls-files', *patterns ]
       output = Hem::Helper.shell *args, :capture => true
       paths = output.split("\n")
-      found = false
       paths.each do |path|
         path.strip!
       end
+      locate_loop paths, &block
+    end
 
+    def locate_loop paths, &block
       return paths unless block_given?
 
+      found = false
       paths.each do |path|
         Dir.chdir File.dirname(path) do
-          Hem::Logging.logger.debug "helper.locator: Found #{path} for #{pattern}"
+          Hem::Logging.logger.debug "helper.locator: Found #{path}"
           yield File.basename(path), path
         end
 

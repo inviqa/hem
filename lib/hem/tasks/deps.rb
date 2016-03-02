@@ -4,7 +4,7 @@ namespace :deps do
 
   desc "Install Gem dependencies"
   task :gems do
-    locate "*Gemfile" do
+    locate "Gemfile" do
       required = shell("bundle check", :exit_status => true) != 0
       if required
         Hem.ui.title "Installing Gem dependencies"
@@ -57,10 +57,10 @@ namespace :deps do
   end
 
   desc "Install vagrant plugins"
-  task :vagrant_plugins => [ "deps:gems" ] do
+  task :vagrant_plugins do
     require 'semantic'
     raw_plugins = shell "vagrant plugin list", :capture => true
-    locate "*Vagrantfile" do
+    locate "Vagrantfile" do
       to_install = {}
       File.read("Vagrantfile").split("\n").each do |line|
         if line.match(/#\s*(?:Hem|Hobo)\.(vagrant_plugin.*)/)
@@ -94,7 +94,7 @@ namespace :deps do
 
   desc "Install chef dependencies"
   task :chef => [ "deps:gems" ] do
-    locate "*Cheffile" do
+    locate "Cheffile" do
       Hem.ui.title "Installing chef dependencies via librarian"
       bundle_shell "librarian-chef", "install", "--verbose", :realtime => true, :indent => 2 do |line|
         line =~ /Installing.*</ ? line.strip + "\n" : nil
@@ -102,7 +102,7 @@ namespace :deps do
       Hem.ui.separator
     end
 
-    locate "*Berksfile" do
+    locate "Berksfile" do
       Hem.ui.title "Installing chef dependencies via berkshelf"
       executor = (shell("bash -c 'which berks'", :capture => true).strip =~ /chefdk/) ?
         lambda { |*args| shell *args } :

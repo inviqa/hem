@@ -2,7 +2,7 @@ desc "VM related commands"
 project_only
 namespace :vm do
   def vagrantfile &block
-    locate "*Vagrantfile" do
+    locate "Vagrantfile" do
       yield
     end
   end

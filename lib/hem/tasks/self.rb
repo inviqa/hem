@@ -20,10 +20,10 @@ namespace 'self'  do
     task "paths" do
       Hem.ui.info "<%=color('Project path:', :green)%> " + Hem.project_path
       {
-        :gemfile => "*Gemfile",
-        :vagrantfile => "*Vagrantfile",
-        :cheffile => "*Cheffile",
-        :berksfile => "*Berksfile",
+        :gemfile => "Gemfile",
+        :vagrantfile => "Vagrantfile",
+        :cheffile => "Cheffile",
+        :berksfile => "Berksfile",
         :'composer.json' => "composer.json"
       }.each do |k,v|
         path = nil
@@ -36,9 +36,9 @@ namespace 'self'  do
 
     desc "Locate"
     project_only
-    argument 'pattern'
+    argument 'pattern', as: Array
     task "locate" do |task, args|
-      locate args[:pattern] do |file, full_file|
+      locate '*', args[:pattern] do |file, full_file|
         puts full_file
       end
     end

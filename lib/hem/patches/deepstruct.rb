@@ -17,5 +17,9 @@ module DeepStruct
         Hem::Null.new
       end
     end
+
+    def to_hash_sym
+      unwrap.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+    end
   end
 end
