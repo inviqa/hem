@@ -1,10 +1,7 @@
 #!/usr/bin/env ruby
 
-# Hack to allow testing with Aruba (for now)
-$:.push File.expand_path(File.join("..", "..", "lib"), __FILE__)
-
 def init_hem
-  require 'hem'
+  require_relative '../lib/hem'
 
   # Default main classes
   error_handler = Hem::ErrorHandlers::Friendly.new
@@ -55,7 +52,7 @@ end
 
 Gem.configuration.verbose = false
 
-require 'hem/patches/rubygems'
+require_relative '../lib/hem/patches/rubygems'
 
 # Suppress Net/SSH/Simple warning on windows
 $SUPPRESS_32BIT_WARNING=1

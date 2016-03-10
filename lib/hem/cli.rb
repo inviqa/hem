@@ -81,19 +81,7 @@ module Hem
     private
 
     def load_builtin_tasks
-      require 'hem/tasks/assets'
-      require 'hem/tasks/config'
-      require 'hem/tasks/deps'
-      require 'hem/tasks/exec'
-      require 'hem/tasks/ops'
-      require 'hem/tasks/pr'
-      require 'hem/tasks/seed'
-      require 'hem/tasks/self'
-      require 'hem/tasks/shell_init'
-      require 'hem/tasks/system'
-      require 'hem/tasks/system/completions'
-      require 'hem/tasks/tools'
-      require 'hem/tasks/vm'
+      require_relative 'tasks'
     end
 
     def load_user_config
