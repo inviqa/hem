@@ -122,6 +122,10 @@ module Rake
 
       _old_namespace(name, &block)
     end
+
+    def plugins &block
+      Hem.plugins.define &block
+    end
   end
 end
 

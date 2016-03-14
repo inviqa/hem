@@ -1,13 +1,14 @@
 #!/usr/bin/env ruby
 
 def init_hem
-  require_relative '../lib/hem'
+  require_relative '../lib/hem/setup'
 
   # Default main classes
   error_handler = Hem::ErrorHandlers::Friendly.new
   Hem.ui = Hem::Ui.new
   Hem.logger = Logger.new(STDOUT)
   Hem.logger.level = Logger::WARN
+  Hem.plugins = Hem::Plugins.new(Hem.project_path, Hem.project_dsl_file)
 
   # Low level / early arg parsing
   # Anything that can alter ui / logger / cli should be here

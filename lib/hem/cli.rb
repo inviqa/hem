@@ -36,6 +36,7 @@ module Hem
       load_builtin_tasks
       load_hemfiles
       load_project_config
+      load_plugins
       Hem.chefdk_compat
 
       tasks = structure_tasks Hem::Metadata.metadata.keys
@@ -106,6 +107,11 @@ module Hem
         logger.debug("cli: Loading hemfile @ #{Hem.user_hemfile_path}")
         eval(File.read(Hem.user_hemfile_path), TOPLEVEL_BINDING, Hem.user_hemfile_path)
       end
+    end
+
+    def load_plugins
+      Hem.plugins.install unless Hem.plugins.check
+      Hem.plugins.require
     end
 
     def perform_host_checks
