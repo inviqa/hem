@@ -46,7 +46,9 @@ module Hem
 
       Bundler.ui = ui
       begin
+        ENV["BUNDLE_GEMFILE"] = File.join(Bundler.root, @gemfile)
         Bundler::Installer.install(Bundler.root, definition, opts)
+        ENV.delete("BUNDLE_GEMFILE")
         Bundler::Installer.post_install_messages.each do |name, message|
           Hem.ui.info "Post-install message from #{name}:\n#{message}"
         end
@@ -67,10 +69,11 @@ module Hem
     def require
       runtime = Bundler::Runtime.new(nil, definition)
       def runtime.clean_load_path(*); end
+      def runtime.lock(*); end;
       def runtime.setup_environment(*); end
-      def definition.lock(*); end if @lockfile === false
+
       runtime.setup
-      ENV.delete("BUNDLE_GEMFILE")
+      definition.lock(@lockfile, :preserve_bundled_with => true) unless @lockfile === false
 
       runtime.require
 
@@ -87,7 +90,6 @@ module Hem
       return @definition unless @definition.nil?
 
       unlock = {} if unlock.nil?
-      ENV["BUNDLE_GEMFILE"] = File.join(Bundler.root, @gemfile)
       @definition = @builder.to_definition(@lockfile, unlock)
       @definition.validate_ruby!
 
