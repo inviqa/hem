@@ -54,6 +54,8 @@ module Hem
         end
       rescue Bundler::GemNotFound => e
         raise e, e.message.sub('Gemfile', 'Hemfile'), e.backtrace
+      rescue Bundler::GitError => e
+        raise e, e.message.sub('bundle install', 'hem plugin install'), e.backtrace
       end
 
       self
