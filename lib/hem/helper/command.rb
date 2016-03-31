@@ -11,9 +11,10 @@ module Hem
       end
     end
 
-    def run_command command, opts = {}
+    def run command, opts = {}
       create_command(command, opts).run
     end
+    alias_method :run_command, :run
 
     def create_mysql_command opts = {}
       opts = {

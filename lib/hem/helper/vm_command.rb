@@ -1,9 +1,9 @@
 module Hem
   module Helper
     def vm_shell command, opts = {}
-      Hem.ui.warning "Using vm_shell is deprecated and will be removed in a future release. Please use run_command instead"
+      Hem.ui.warning "Using vm_shell is deprecated and will be removed in a future release. Please use run instead"
       opts['run_environment'] = 'vm'
-      run_command command, opts
+      run command, opts
     end
 
     def vm_mysql opts = {}

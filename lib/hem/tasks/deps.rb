@@ -46,7 +46,7 @@ namespace :deps do
         end
 
         if !complete
-          run_command *args
+          run *args
         end
 
         Hem.ui.success "Composer dependencies installed"
