@@ -101,11 +101,11 @@ module Hem
             # We allow this one to be skipped as there are obviously no assets to sync
           rescue Aws::S3::Errors::AccessDenied
             Hem.ui.error "  Your AWS key does not have access to the #{Hem.project_config.asset_bucket} S3 bucket!"
-            Hem.ui.error "  Please request access to this bucket from your TTL or via an internal support request"
+            Hem.ui.error "  Please request access to this bucket from your Amazon AWS account administrators"
             raise exception
           rescue Aws::Errors::MissingCredentialsError
             Hem.ui.warning "  AWS credentials not set!"
-            Hem.ui.warning "  Please request credentials from internalsupport@inviqa.com or in #devops and configure them with `hem config`"
+            Hem.ui.warning "  Please request credentials from your Amazon AWS account administrators and configure them with `hem config`"
             raise exception
           end
         end
