@@ -115,26 +115,18 @@ namespace :vm do
   desc "Open a MySQL cli connection"
   option '-D=', '--db=', 'Database'
   task :mysql do |task|
-    opts = { :psuedo_tty => STDIN.tty? }
-    opts[:db] = task.opts[:db] if task.opts[:db]
+    Hem.ui.warning "hem vm mysql is deprecated, and will be removed in a future release."
+    Hem.ui.warning "Please use hem mysql console instead"
 
-    Hem.ui.success "Determining VM connection details..." if STDOUT.tty?
-    command = create_mysql_command(opts)
-    Hem.logger.debug "vm:mysql: #{command}"
-
-    Hem.ui.success "Connecting..." if STDOUT.tty?
-    exec command
+    Rake::Task['mysql:console'].opts = task.opts
+    invoke 'mysql:console'
   end
 
   desc "Open a Redis cli connection"
   task :redis do
-    opts = { :psuedo_tty => STDIN.tty? }
+    Hem.ui.warning "hem vm redis is deprecated, and will be removed in a future release."
+    Hem.ui.warning "Please use hem redis cli instead"
 
-    Hem.ui.success "Determining VM connection details..." if STDOUT.tty?
-    command = create_command("redis-cli", opts)
-    Hem.logger.debug "vm:redis: #{command}"
-
-    Hem.ui.success "Connecting..." if STDOUT.tty?
-    exec command
+    invoke 'redis:console'
   end
 end
