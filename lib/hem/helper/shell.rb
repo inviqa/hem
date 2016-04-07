@@ -49,7 +49,6 @@ module Hem
 
       require 'bundler'
       ::Bundler.with_clean_env do
-        Hem.chefdk_compat
         indent = " " * opts[:indent]
         ::Open3.popen3 opts[:env], *args do |stdin, out, err, external|
           buffer = ::Tempfile.new 'hem_run_buf'

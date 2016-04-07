@@ -59,20 +59,6 @@ module Hem
       File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"]).match(/\/rvm\/|\/\.rvm\/|\/\.rbenv/) != nil
     end
 
-    def chefdk_compat
-      return if maybe(Hem.user_config.hem.disable_chefdk_compat) || ENV['HEM_DISABLE_CHEFDK_COMPAT']
-      return if Hem.windows?
-      which_ruby = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
-      if which_ruby =~ /rbenv/
-        split_path = ENV['PATH'].split ':'
-        paths = split_path.reject do |p|
-          p =~ /chefdk/
-        end
-        chef_paths = split_path - paths
-        ENV['PATH'] = (chef_paths + paths).join ':'
-      end
-    end
-
     def vagrant_plugin plugin, constraint = nil
       return [plugin, nil] if constraint.nil?
       return [plugin, Gem::Dependency.new(plugin, constraint)]
