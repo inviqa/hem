@@ -1,3 +1,4 @@
+require 'tmpdir'
 
 describe Hem::Lib::Seed::Seed do
   pwd = nil

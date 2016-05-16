@@ -6,8 +6,8 @@ module Hem
           @opts = {
             :replacer => Replacer.new,
             :config_class => Hem::Config::File,
-            :ssl_cert_generator => Hem::Lib::SelfSignedCertGenerator
           }.merge! opts
+          @replace_done = false
         end
 
         def setup seed, config
@@ -17,27 +17,24 @@ module Hem
           seed.export project_path, config
 
           Dir.chdir(project_path) do
-            Hem.detect_project_type project_path
-            @opts[:project_config_file] = Hem.project_config_file
-
             config[:seed][:version] = seed.version
             config[:hostname] = "#{config[:name]}.dev"
             config[:asset_bucket] = "inviqa-assets-#{config[:name]}"
             config[:vm] = {
               :project_mount_path => "/vagrant"
             }
-            config[:ssl] = @opts[:ssl_cert_generator].generate config[:hostname]
-            config[:chef_ssl] = {}
-            config[:ssl].each do |k, v|
-              config[:chef_ssl][k] = v.gsub("\n", "\\n")
-            end
+            config[:tmp] = {}
 
-            @opts[:replacer].replace(config[:project_path], config)
+            Hem.project_path = project_path
             load_seed_init(config)
 
+            @opts[:replacer].replace(config[:project_path], Hem.project_config)
+
             config.delete :project_path
-            config.delete :ssl
-            config.delete :chef_ssl
+            config.delete :tmp
+
+            Hem.detect_project_type project_path
+            @opts[:project_config_file] = Hem.project_config_file
             @opts[:config_class].save @opts[:project_config_file], config
           end
 
@@ -50,7 +47,7 @@ module Hem
           Hem.project_config = DeepStruct.wrap(config)
           seed_init_file = File.join(config[:project_path], 'seedinit.rb')
           if File.exists?(seed_init_file)
-            require seed_init_file
+            instance_eval File.read(seed_init_file), seed_init_file
             File.unlink(seed_init_file)
           end
         end

@@ -5,16 +5,17 @@ describe Hem::Lib::Seed::Replacer do
     Dir.mkdir("bin")
     Dir.mkdir("dir")
     {
-      "./test1" => "some {{test}} is here",
-      "./test2" => "no test is here",
-      "./dir/test" => "subdir {{test}}",
-      "./dir/nested" => "nested {{nested.test}}",
-      "./dir/no-utf" => "\xc2 {{test}}", # invalid utf should be skipped
-      "./bin/test" => "{{test}}" # bin/ should be ignored
+      "./test1.erb" => "some <%= config.test %> is here",
+      "./test2.erb" => "no test is here",
+      "./dir/test.erb" => "subdir <%= config.test %>",
+      "./dir/nested.erb" => "nested <%= config.nested.test %>",
+      "./dir/no-utf.erb" => "\xc2 <%= config.test %>", # invalid utf should be skipped
+      "./bin/test" => "<%= config.test %>" # non-ERB files should be ignored
     }.each do |name, content|
       File.write(name, content)
     end
 
+    Hem.project_config = DeepStruct.wrap({})
     @replacer = Hem::Lib::Seed::Replacer.new
   end
 
@@ -23,22 +24,20 @@ describe Hem::Lib::Seed::Replacer do
     FakeFS.deactivate!
   end
 
-  it "should respect exclude directories" do
-    files = @replacer.replace(".", { :test => 'badger' })
-    File.read("./bin/test").should eq "{{test}}"
+  it "should not replace non-ERB files" do
+    @replacer.replace(".", DeepStruct.wrap({ :test => 'badger' }))
+    File.read("./bin/test").should eq "<%= config.test %>"
   end
 
   it "should replace placeholders in files" do
-    files = @replacer.replace(".", { :test => 'badger' })
-    expect(files.sort).to eq(["./dir/test", "./test1"])
+    @replacer.replace(".", DeepStruct.wrap({ :test => 'badger' }))
 
     File.read("./test1").should eq "some badger is here"
     File.read("./dir/test").should eq "subdir badger"
   end
 
   it "should handle nested hashes" do
-    files = @replacer.replace(".", { :nested => { :test => 'nested' } })
-    expect(files.sort).to eq(["./dir/nested"])
+    @replacer.replace(".", DeepStruct.wrap({ :nested => { :test => 'nested' } }))
 
     File.read("./dir/nested").should eq "nested nested"
   end
