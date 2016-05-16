@@ -1,9 +1,12 @@
 module Hem
   module Helper
+    extend self
+
     def locate(name, patterns = nil, opts = {}, &block)
       opts = {
         type: 'git',
         patterns: patterns || [name, "**/#{name}"],
+        path: Hem.project_path,
       }.merge(opts)
 
       match = nil
@@ -12,7 +15,7 @@ module Hem
         opts = opts.merge(Hem.project_config[:locate][name].to_hash_sym)
       end
 
-      Dir.chdir Hem.project_path do
+      Dir.chdir opts[:path] do
         case opts[:type]
         when 'git'
           match = locate_git(opts[:patterns], &block)
