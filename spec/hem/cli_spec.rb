@@ -14,6 +14,7 @@ describe Hem::Cli do
     end
 
     Hem.ui = double(Hem::Ui).as_null_object
+    Hem.plugins = double(Hem::Plugins).as_null_object
     help = double(Hem::HelpFormatter).as_null_object
     host_check = double(Hem::Lib::HostCheck).as_null_object
     cli = Hem::Cli.new help: help, host_check: host_check

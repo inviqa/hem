@@ -27,6 +27,7 @@ module Hem
       @help_formatter = opts[:help] || Hem::HelpFormatter.new(@slop)
       @help_opts = {}
       @host_check = opts[:host_check] || Hem::Lib::HostCheck
+      @pre_task_namespaces = ['shell-init', 'plugin']
     end
 
     # entry point for application
@@ -38,7 +39,6 @@ module Hem
       load_project_config
       Hem.chefdk_compat
 
-      tasks = structure_tasks Hem::Metadata.metadata.keys
       define_global_opts @slop
 
       begin
@@ -46,19 +46,20 @@ module Hem
         @slop.parse! args
         opts = @slop.to_hash
 
-        perform_host_checks unless opts[:'skip-host-checks']
-
         @help_opts[:all] = opts[:all]
 
-        @slop.add_callback :empty do
-          show_help
-        end
-
         # Necessary to make command level help work
-        args.push "--help" if @slop.help?
+        args.push "--help" if @slop.help? || args.empty?
 
-        @help_formatter.command_map = define_tasks(tasks, @slop)
-        remaining = @slop.parse! args
+        include_pre_tasks
+        remaining = @slop.parse! args.dup
+        remaining.push "--help" if @slop.help?
+
+        if remaining == args
+          include_post_tasks opts
+
+          remaining = @slop.parse! remaining
+        end
 
         raise Hem::InvalidCommandOrOpt.new remaining.join(" ") if remaining.size > 0
 
@@ -79,6 +80,22 @@ module Hem
     end
 
     private
+
+    def include_pre_tasks
+      tasks = structure_tasks Hem::Metadata.metadata.keys
+      pre_tasks = tasks.select { |k,_| @pre_task_namespaces.include? k }
+      @help_formatter.command_map = define_tasks(pre_tasks, @slop)
+    end
+
+    def include_post_tasks opts
+      load_plugins
+      perform_host_checks unless opts[:'skip-host-checks']
+
+      tasks = structure_tasks Hem::Metadata.metadata.keys
+      post_tasks = tasks.reject { |k,_| @pre_task_namespaces.include? k }
+
+      @help_formatter.command_map.merge! define_tasks(post_tasks, @slop)
+    end
 
     def load_builtin_tasks
       require_relative 'tasks'
@@ -106,6 +123,11 @@ module Hem
         logger.debug("cli: Loading hemfile @ #{Hem.user_hemfile_path}")
         eval(File.read(Hem.user_hemfile_path), TOPLEVEL_BINDING, Hem.user_hemfile_path)
       end
+    end
+
+    def load_plugins
+      Hem.plugins.install unless Hem.plugins.check
+      Hem.plugins.require
     end
 
     def perform_host_checks
