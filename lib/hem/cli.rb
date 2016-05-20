@@ -37,7 +37,6 @@ module Hem
       load_builtin_tasks
       load_hemfiles
       load_project_config
-      Hem.chefdk_compat
 
       define_global_opts @slop
 
