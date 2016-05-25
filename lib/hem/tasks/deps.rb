@@ -58,7 +58,6 @@ namespace :deps do
 
   desc "Install vagrant plugins"
   task :vagrant_plugins do
-    require 'semantic'
     raw_plugins = shell "vagrant plugin list", :capture => true
     locate "Vagrantfile" do
       to_install = {}

@@ -2,14 +2,13 @@ module Hem
   module Lib
     module HostCheck
       def vagrant_version opts
-        require 'semantic'
         begin
           return unless get_run_environment == 'vm'
 
           version = shell "vagrant --version", :capture => true
           version.gsub!(/^Vagrant[^0-9]+/, '')
-          version = ::Semantic::Version.new version.strip
-          minimum_version = ::Semantic::Version.new "1.3.5"
+          version = Gem::Version.new(version.strip) 
+          minimum_version = Gem::Version.new("1.3.5")
 
           advice = <<-EOF
   The version of vagrant which you are using (#{version}) is less than the minimum required (#{minimum_version}).

@@ -28,7 +28,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pry", "~> 0.9.12"
   spec.add_dependency "rake", "~> 10.1.1"
   spec.add_dependency "ruby-progressbar", "~> 1.4.1"
-  spec.add_dependency "semantic", "~> 1.3.0"
   spec.add_dependency "slop", "~> 3.4.7"
   spec.add_dependency "teerb", "~> 0.0.1"
 
