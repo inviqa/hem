@@ -19,7 +19,11 @@ module Hem
         @root
       end
       Bundler.root path
-      @builder = Bundler::Dsl.new
+      @builder = Class.new(Bundler::Dsl) do
+        define_method(:gemfile_root) do
+          Bundler.root
+        end
+      end.new
       @definition = nil
     end
 
