@@ -20,28 +20,28 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "slop", "~> 3.4.7"
-  spec.add_dependency "highline", "~> 1.6.20"
-  spec.add_dependency "rake", "~> 10.1.1"
-  spec.add_dependency "deepstruct", "~> 0.0.5"
-  spec.add_dependency "semantic", "~> 1.3.0"
   spec.add_dependency "aws-sdk", "~> 2.0.24"
-  spec.add_dependency "ruby-progressbar", "~> 1.4.1"
-  spec.add_dependency "teerb", "~> 0.0.1"
+  spec.add_dependency "deepstruct", "~> 0.0.5"
+  spec.add_dependency "highline", "~> 1.6.20"
   spec.add_dependency "net-ssh-simple", "~> 1.6.3"
-  spec.add_dependency "pry", "~> 0.9.12"
   spec.add_dependency "octokit", "~> 3.0"
+  spec.add_dependency "pry", "~> 0.9.12"
+  spec.add_dependency "rake", "~> 10.1.1"
+  spec.add_dependency "ruby-progressbar", "~> 1.4.1"
+  spec.add_dependency "semantic", "~> 1.3.0"
+  spec.add_dependency "slop", "~> 3.4.7"
+  spec.add_dependency "teerb", "~> 0.0.1"
 
   # This prevents Bundler.setup from complaining that rubygems did not install dev deps
   # If you want to run dev deps you need to ensure HEM_ENV=dev is set for bundle install & bundle exec
   if ENV['HEM_ENV'] == 'dev'
     spec.add_development_dependency "aruba", "~> 0.5.4"
-    spec.add_development_dependency "rspec", "~> 2.14.1"
     spec.add_development_dependency "fakefs", "~> 0.5.0"
-    spec.add_development_dependency "rr", "~> 1.1.2"
     spec.add_development_dependency "guard", "~> 2.2.5"
     spec.add_development_dependency "guard-rspec", "~> 4.2.4"
     spec.add_development_dependency "guard-cucumber", "~> 1.4.1"
+    spec.add_development_dependency "rr", "~> 1.1.2"
+    spec.add_development_dependency "rspec", "~> 2.14.1"
     spec.add_development_dependency "simplecov", "~> 0.7.1"
   end
 end
