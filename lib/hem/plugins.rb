@@ -78,7 +78,6 @@ module Hem
       runtime = Bundler::Runtime.new(nil, definition)
       def runtime.clean_load_path(*); end
       def runtime.lock(*); end;
-      def runtime.setup_environment(*); end
 
       runtime.setup
       definition.lock(@lockfile, :preserve_bundled_with => true) unless @lockfile === false
