@@ -40,6 +40,8 @@ module Hem
     end
 
     def install(options = {})
+      return self if definition.dependencies.empty?
+
       opts = options.dup
       opts[:system] = true
       ui = opts.delete(:ui) { Bundler::UI::Shell.new }
