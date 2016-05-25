@@ -62,8 +62,6 @@ require_relative 'hem/lib/seed/replacer'
 require_relative 'hem/lib/seed/seed'
 require_relative 'hem/lib/seed/template'
 require_relative 'hem/lib/self_signed_cert_generator'
-require_relative 'hem/lib/github/api'
-require_relative 'hem/lib/github/client'
 
 # Host checks
 require_relative 'hem/lib/host_check/git'

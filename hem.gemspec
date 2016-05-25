@@ -24,7 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "deepstruct", "~> 0.0.5"
   spec.add_dependency "highline", "~> 1.6.20"
   spec.add_dependency "net-ssh-simple", "~> 1.6.3"
-  spec.add_dependency "octokit", "~> 3.0"
   spec.add_dependency "pry", "~> 0.9.12"
   spec.add_dependency "rake", "~> 10.1.1"
   spec.add_dependency "ruby-progressbar", "~> 1.4.1"

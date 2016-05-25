@@ -91,10 +91,4 @@ you're already using the latest Hem version.")
       super('You need to define a preferred editor, either in your hem config or with the EDITOR environment variable')
     end
   end
-
-  class GithubAuthenticationError < Error
-  end
-
-  class GithubApiError < Error
-  end
 end
