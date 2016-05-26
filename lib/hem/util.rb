@@ -34,7 +34,10 @@ module Hem
 
       case type
         when :update
-          @progress_bar_cache[file].progress += increment
+          @progress_bar_cache[file].progress = [
+            @progress_bar_cache[file].progress + increment,
+            total
+          ].min
         when :finished
           @progress_bar_cache[file].finish
       end
