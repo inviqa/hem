@@ -8,10 +8,12 @@ Please replace with:
 Hem.require_version '~> 1.1'
 
 plugins do
+  source 'https://rubygems.org'
   gem 'hem-tasks-magento1', '~> 1.0'
 end
 eos
 
 plugins do
+  source 'https://rubygems.org'
   gem 'hem-tasks-magento1', '~> 1.0'
 end
