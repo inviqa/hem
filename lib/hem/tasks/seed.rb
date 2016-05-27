@@ -26,7 +26,7 @@ namespace :seed do
       :ref => t.opts[:branch] || 'master'
     }
 
-    seed_options = %w( default magento symfony custom )
+    seed_options = %w( default ezplatform magento1 magento2 spryker symfony plugin custom )
 
     seed_name = t.opts[:seed] || Hem.ui.ask_choice('Project seed', seed_options, default: 'default')
     use_short_seed_name = true
