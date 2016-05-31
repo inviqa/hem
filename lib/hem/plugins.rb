@@ -77,6 +77,7 @@ module Hem
     def require
       runtime = Bundler::Runtime.new(nil, definition)
       def runtime.clean_load_path(*); end
+      def runtime.setup_environment(*); end;
       def runtime.lock(*); end;
 
       runtime.setup
