@@ -6,6 +6,7 @@ module Hem
   class Plugins
 
     def initialize(path, gemfile, lockfile = nil)
+      @is_setup = false
       @gemfile = gemfile
       if lockfile.nil?
         @lockfile = "#{gemfile}.lock"
@@ -27,7 +28,19 @@ module Hem
       @definition = nil
     end
 
+    def setup
+      raise Hem::PluginsAlreadySetupError if @is_setup
+      @is_setup = true
+      install unless check
+      require
+    end
+
+    def setup?
+      @is_setup
+    end
+
     def define(&block)
+      raise Hem::PluginsAlreadySetupError if @is_setup
       @builder.instance_eval &block
 
       self

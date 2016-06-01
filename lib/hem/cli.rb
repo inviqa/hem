@@ -125,8 +125,7 @@ module Hem
     end
 
     def load_plugins
-      Hem.plugins.install unless Hem.plugins.check
-      Hem.plugins.require
+      Hem.plugins.setup unless Hem.plugins.setup?
     end
 
     def perform_host_checks

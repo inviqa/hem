@@ -120,8 +120,10 @@ module Rake
       _old_namespace(name, &block)
     end
 
-    def plugins &block
-      Hem.plugins.define &block
+    def plugins setup = true, &block
+      Hem.plugins.define &block if block_given?
+      Hem.plugins.setup if setup
+      Hem.plugins
     end
   end
 end

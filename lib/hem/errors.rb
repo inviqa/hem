@@ -46,6 +46,12 @@ you're already using the latest Hem version.")
     end
   end
 
+  class PluginsAlreadySetupError < Error
+    def initialize
+      super("Hem's plugins have already been set up. Additional plugins can't be defined after.")
+    end
+  end
+
   class ExternalCommandError < Error
     attr_accessor :command, :exit_code, :output
 
