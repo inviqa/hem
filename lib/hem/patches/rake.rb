@@ -13,11 +13,8 @@ module Rake
       old_task = Rake.application.instance_variable_get('@tasks').delete(task_name)
 
       Hem::Metadata.to_store task_name
-      task task_name => old_task.prerequisites do
+      task task_name => old_task.prerequisites | new_tasks do
         new_task.call unless new_task.nil?
-        new_tasks.each do |t|
-          Rake::Task[t].invoke
-        end
         old_task.invoke
       end
     end
@@ -25,13 +22,13 @@ module Rake
     def after(task_name, new_tasks = nil, &new_task)
       task_name = task_name.to_s
       new_tasks = [new_tasks].flatten.compact
-      old_task = Rake.application.instance_variable_get('@tasks').delete(task_name)
 
-      Hem::Metadata.to_store task_name
-      task task_name => old_task.prerequisites do
-        old_task.invoke
-        new_tasks.each do |t|
-          Rake::Task[t].invoke
+      task = Rake::Task[task_name]
+      task.enhance do
+        new_tasks.each do |post_task|
+          post = Rake.application.lookup(post_task, task.scope)
+          raise ArgumentError, "Task #{post_task.inspect} not found" unless post
+          post.invoke
         end
         new_task.call unless new_task.nil?
       end
