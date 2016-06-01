@@ -8,7 +8,8 @@ def init_hem
   Hem.ui = Hem::Ui.new
   Hem.logger = Logger.new(STDOUT)
   Hem.logger.level = Logger::WARN
-  Hem.plugins = Hem::Plugins.new(Hem.project_path, Hem.project_dsl_file)
+
+  Hem.plugins = Hem::Plugins.new(Hem.project_path || Dir.pwd, Hem.project_dsl_file)
 
   # Low level / early arg parsing
   # Anything that can alter ui / logger / cli should be here
