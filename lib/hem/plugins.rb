@@ -106,7 +106,7 @@ module Hem
       def runtime.lock(*); end;
 
       runtime.setup
-      definition.lock(@lockfile, :preserve_bundled_with => true) unless @lockfile === false
+      definition.lock(File.join(Bundler.root, @lockfile), :preserve_bundled_with => true) unless @lockfile === false
 
       runtime.require
 
