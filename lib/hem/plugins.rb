@@ -20,17 +20,6 @@ module Hem
         @root
       end
 
-      # ensure Bundler doesn't get it's settings from the project
-      def Bundler.settings
-        return @settings if defined?(@settings)
-        @settings = Bundler::Settings.new
-      end
-
-      # ensure Bundler doesn't use a project's cache
-      def Bundler.app_cache
-        Bundler.rubygems.gem_cache.first
-      end
-
       Bundler.root path
       @builder = Class.new(Bundler::Dsl) do
         define_method(:gemfile_root) do
