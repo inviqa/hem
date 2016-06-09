@@ -65,6 +65,8 @@ module Hem
       rescue Bundler::GemNotFound, Bundler::VersionConflict, Bundler::GitError
         missing_specs = true
       end
+      # clear the definition after the check, so install/upgrade re-evaluates
+      @definition = nil
       return !missing_specs
     end
 
