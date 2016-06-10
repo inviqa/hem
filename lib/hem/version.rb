@@ -1,5 +1,5 @@
 module Hem
-  VERSION = '1.1.0'
+  VERSION = '1.1.1'
 
   class << self
     def require_version *requirements
