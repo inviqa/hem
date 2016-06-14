@@ -8,6 +8,7 @@ module Hem
     def initialize(path, gemfile, lockfile = nil)
       @is_setup = false
       @gemfile = gemfile
+      @definitionBlocks = []
       if lockfile.nil?
         @lockfile = "#{gemfile}.lock"
       else
@@ -21,11 +22,6 @@ module Hem
       end
 
       Bundler.root path
-      @builder = Class.new(Bundler::Dsl) do
-        define_method(:gemfile_root) do
-          Bundler.root
-        end
-      end.new
       @definition = nil
     end
 
@@ -42,7 +38,7 @@ module Hem
 
     def define(&block)
       raise Hem::PluginsAlreadySetupError if @is_setup
-      @builder.instance_eval &block
+      @definitionBlocks << block
 
       self
     end
@@ -110,8 +106,18 @@ module Hem
       @definition = nil if unlock
       return @definition unless @definition.nil?
 
+      builder = Class.new(Bundler::Dsl) do
+        define_method(:gemfile_root) do
+          Bundler.root
+        end
+      end.new
+
+      @definitionBlocks.each do |block|
+        builder.instance_eval &block
+      end
+
       unlock = {} if unlock.nil?
-      @definition = @builder.to_definition(@lockfile, unlock)
+      @definition = builder.to_definition(@lockfile, unlock)
       @definition.validate_ruby!
 
       @definition
