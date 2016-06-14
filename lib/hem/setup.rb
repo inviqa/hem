@@ -7,6 +7,7 @@ end
 require_relative 'version'
 require_relative 'plugins'
 
-$:.push File.expand_path(File.join("..", ".."), __FILE__)
+gem 'hem', Hem::VERSION unless ENV['HEM_OMNIBUS']
+
 require 'bundler'
 require 'hem'
