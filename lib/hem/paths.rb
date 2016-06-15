@@ -3,12 +3,15 @@ module Hem
     attr_accessor :project_path
 
     def config_path
-      config_paths = [ File.join(ENV['HOME'], '.hem'), File.join(ENV['HOME'], '.hobo') ]
-      config_paths.each do |path|
-        return path if File.exists? File.join(path, 'config.yaml')
-      end
+      @config_path ||= begin
+        config_paths = [ File.join(ENV['HOME'], '.hem'), File.join(ENV['HOME'], '.hobo') ]
+        config_paths.each do |path|
+          return path if File.exists? File.join(path, 'config.yaml')
+        end
 
-      return config_paths.first
+        FileUtils.mkdir_p(config_paths.first)
+        config_paths.first
+      end
     end
 
     def seed_cache_path
