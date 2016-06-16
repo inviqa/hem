@@ -6,6 +6,7 @@ module Hem
           @opts = {
             :replacer => Replacer.new,
             :config_class => Hem::Config::File,
+            :template_excludes => [],
           }.merge! opts
           @replace_done = false
         end
@@ -46,6 +47,10 @@ module Hem
 
         def config
           Hem.project_config
+        end
+
+        def option key, value
+          @opts[key] = value
         end
 
         def load_seed_init config
