@@ -11,24 +11,25 @@ module Hem
         end
 
         def setup seed, config
-          project_path = config[:project_path]
+          config = DeepStruct.wrap(config)
+          project_path = config.project_path
 
           seed.update
           seed.export project_path, config
 
           Dir.chdir(project_path) do
-            config[:seed][:version] = seed.version
-            config[:hostname] = "#{config[:name]}.dev"
-            config[:asset_bucket] = "inviqa-assets-#{config[:name]}"
-            config[:vm] = {
+            config.seed.version = seed.version
+            config.hostname = "#{config.name}.dev"
+            config.asset_bucket = "inviqa-assets-#{config.name}"
+            config.vm = {
               :project_mount_path => "/vagrant"
             }
-            config[:tmp] = {}
+            config.tmp = {}
 
             Hem.project_path = project_path
             load_seed_init(config)
 
-            @opts[:replacer].replace(config[:project_path], Hem.project_config)
+            @opts[:replacer].replace(project_path, config)
 
             config.delete :project_path
             config.delete :tmp
@@ -43,9 +44,13 @@ module Hem
 
         private
 
+        def config
+          Hem.project_config
+        end
+
         def load_seed_init config
-          Hem.project_config = DeepStruct.wrap(config)
-          seed_init_file = File.join(config[:project_path], 'seedinit.rb')
+          Hem.project_config = config
+          seed_init_file = File.join(config.project_path, 'seedinit.rb')
           if File.exists?(seed_init_file)
             instance_eval File.read(seed_init_file), seed_init_file
             File.unlink(seed_init_file)
