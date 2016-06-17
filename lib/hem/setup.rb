@@ -14,4 +14,4 @@ else
 end
 
 require 'bundler'
-require 'hem'
+require_relative '../hem'
