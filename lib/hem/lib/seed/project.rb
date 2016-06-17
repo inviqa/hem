@@ -2,6 +2,8 @@ module Hem
   module Lib
     module Seed
       class Project
+        include Hem::Helper
+
         def initialize(opts = {})
           @opts = {
             :replacer => Replacer.new,
