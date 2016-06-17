@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    hem (1.2.1)
+    hem (1.2.2)
       aws-sdk (~> 2.3.8)
       deepstruct (~> 0.0.7)
       highline (~> 1.7.3)
