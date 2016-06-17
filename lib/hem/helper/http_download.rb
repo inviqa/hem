@@ -38,4 +38,4 @@ module Hem
   end
 end
 
-include Hem::Helper
+self.extend Hem::Helper
