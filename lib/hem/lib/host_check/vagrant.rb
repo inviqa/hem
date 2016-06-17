@@ -3,9 +3,9 @@ module Hem
     module HostCheck
       def vagrant_version opts
         begin
-          return unless get_run_environment == 'vm'
+          return unless Hem::Helper.get_run_environment == 'vm'
 
-          version = shell "vagrant --version", :capture => true
+          version = Hem::Helper.shell "vagrant --version", :capture => true
           version.gsub!(/^Vagrant[^0-9]+/, '')
           version = Gem::Version.new(version.strip) 
           minimum_version = Gem::Version.new("1.3.5")

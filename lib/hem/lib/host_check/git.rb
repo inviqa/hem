@@ -10,7 +10,7 @@ module Hem
         end
 
         begin
-          shell "git --version"
+          Hem::Helper.shell "git --version"
         rescue Errno::ENOENT
           raise Hem::HostCheckError.new("Git is missing", advice)
         end
@@ -24,7 +24,7 @@ Please do so with the following command:
   git config --global user.name <your name here>
 EOF
         begin
-          shell "git config user.name"
+          Hem::Helper.shell "git config user.name"
         rescue Hem::ExternalCommandError
           raise Hem::HostCheckError.new("Git config is incomplete (Full name)", advice)
         end
@@ -39,7 +39,7 @@ Please do so with the following command:
 EOF
 
         begin
-          shell "git config user.email"
+          Hem::Helper.shell "git config user.email"
         rescue Hem::ExternalCommandError
           raise Hem::HostCheckError.new("Git config is incomplete (Email)", advice)
         end
@@ -63,7 +63,7 @@ You can enable the setting on a per-clone basis by ensuring that you are in the 
   git config core-autocrlf true
 EOF
         begin
-          value = shell "git config core.autocrlf", :capture => true
+          value = Hem::Helper.shell "git config core.autocrlf", :capture => true
           if value != "false"
             raise Hem::HostCheckError.new("Git config has autocrlf enabled", advice)
           end

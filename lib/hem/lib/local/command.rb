@@ -36,7 +36,7 @@ module Hem
 
         def run
           return if @command.nil?
-          shell @command, @opts
+          Hem::Helper.shell @command, @opts
         end
 
         def to_s

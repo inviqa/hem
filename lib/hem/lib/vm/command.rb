@@ -45,7 +45,7 @@ module Hem
 
         def run
           return if @command.nil?
-          shell to_s, @opts
+          Hem::Helper.shell to_s, @opts
         end
 
         # TODO Speed up Vagrant SSH connections

@@ -11,7 +11,7 @@ module Hem
         end
 
         begin
-          shell "ssh -V"
+          Hem::Helper.shell "ssh -V"
         rescue Errno::ENOENT
           raise Hem::HostCheckError.new("SSH is missing", advice)
         end
@@ -29,7 +29,7 @@ Please install it from your package manager ensuring that the following command 
 EOF
 
         begin
-          shell "php --version"
+          Hem::Helper.shell "php --version"
         rescue Errno::ENOENT
           raise Hem::HostCheckError.new("PHP is missing", advice)
         end
