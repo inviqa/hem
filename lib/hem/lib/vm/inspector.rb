@@ -45,7 +45,7 @@ module Hem
         def ssh_config
           return @ssh_config if @ssh_config
           config = nil
-          locate "Vagrantfile" do |_, file|
+          Hem::Helper.locate "Vagrantfile" do |_, file|
             config = Hem::Helper.shell "vagrant ssh-config", :capture => true
           end
 
