@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    hem (1.2.2)
+    hem (1.2.3)
       aws-sdk (~> 2.3.8)
       deepstruct (~> 0.0.7)
       highline (~> 1.7.3)
@@ -17,12 +17,12 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    aws-sdk (2.3.13)
-      aws-sdk-resources (= 2.3.13)
-    aws-sdk-core (2.3.13)
+    aws-sdk (2.3.14)
+      aws-sdk-resources (= 2.3.14)
+    aws-sdk-core (2.3.14)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.3.13)
-      aws-sdk-core (= 2.3.13)
+    aws-sdk-resources (2.3.14)
+      aws-sdk-core (= 2.3.14)
     blockenspiel (0.5.0)
     coderay (1.1.1)
     deepstruct (0.0.7)
