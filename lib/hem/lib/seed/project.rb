@@ -32,7 +32,7 @@ module Hem
             Hem.project_path = project_path
             load_seed_init(config)
 
-            @opts[:replacer].replace(project_path, config)
+            @opts[:replacer].replace(project_path, config, @opts[:template_excludes])
 
             config.delete :project_path
             config.delete :tmp
@@ -45,8 +45,6 @@ module Hem
           initialize_git project_path, config[:git_url]
         end
 
-        private
-
         def config
           Hem.project_config
         end
@@ -54,6 +52,8 @@ module Hem
         def option key, value
           @opts[key] = value
         end
+
+        private
 
         def load_seed_init config
           Hem.project_config = config
