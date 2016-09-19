@@ -46,7 +46,20 @@ namespace :deps do
         end
 
         if !complete
+
+          config = "/home/vagrant/.config/composer/composer.json"
+
+          cmd  = "sudo mv /etc/php.d/xdebug.ini /home/vagrant\n"
+          cmd += "if [ ! -f #{config} ] || ! grep -q 'prestissimo' '#{config}' ; then\n"
+          cmd += "  php bin/composer.phar global require 'hirak/prestissimo:^0.3'\n"
+          cmd += "fi\n"
+          cmd += "php bin/composer.phar install #{ansi} --prefer-dist\n"
+          cmd += "sudo mv /home/vagrant/xdebug.ini /etc/php.d/"
+
+          args = [ cmd, { realtime: true, indent: 2 } ]
+
           run *args
+
         end
 
         Hem.ui.success "Composer dependencies installed"
