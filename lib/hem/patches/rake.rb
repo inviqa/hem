@@ -73,27 +73,13 @@ module Rake
     end
 
     def task *args, &block
-      name = args[0].is_a?(Hash) ? args[0].keys.first.to_s : args[0]
-      scoped_name = Rake.application.current_scope.path_with_task_name(name).to_s
-      Hem::Metadata.store[:arg_list] ||= {}
-
-      args[1..-1].each do |name|
-        argument name, optional: true
-      end if args.length > 1
-
-      [:opts, :desc, :long_desc, :hidden, :project_only, :arg_list].each do |meta|
-        Hem::Metadata.add scoped_name, meta
-      end
-
-      if Hem::Metadata.store[:arg_list]
-        args = [args[0], *Hem::Metadata.store[:arg_list].keys]
-      end
-
-      Hem::Metadata.reset_store
-
-      Hem::Logging.logger.debug("Added metadata to #{scoped_name} -- #{Hem::Metadata.metadata[scoped_name]}")
-
+      args = parse_task_metadata(args)
       task = Rake::Task.define_task(*args, &block)
+    end
+
+    def multitask *args, &block
+      args = parse_task_metadata(args)
+      task = Rake::MultiTask.define_task(*args, &block)
     end
 
     def option *args
@@ -124,6 +110,32 @@ module Rake
       Hem.plugins.define &block if block_given?
       Hem.plugins.setup if setup
       Hem.plugins
+    end
+  
+    private:
+
+    def parse_task_metadata(args)
+      name = args[0].is_a?(Hash) ? args[0].keys.first.to_s : args[0]
+      scoped_name = Rake.application.current_scope.path_with_task_name(name).to_s
+      Hem::Metadata.store[:arg_list] ||= {}
+
+      args[1..-1].each do |name|
+        argument name, optional: true
+      end if args.length > 1
+
+      [:opts, :desc, :long_desc, :hidden, :project_only, :arg_list].each do |meta|
+        Hem::Metadata.add scoped_name, meta
+      end
+
+      if Hem::Metadata.store[:arg_list]
+        args = [args[0], *Hem::Metadata.store[:arg_list].keys]
+      end
+
+      Hem::Metadata.reset_store
+
+      Hem::Logging.logger.debug("Added metadata to #{scoped_name} -- #{Hem::Metadata.metadata[scoped_name]}")
+
+      args
     end
   end
 end
