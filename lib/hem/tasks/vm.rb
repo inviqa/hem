@@ -7,6 +7,22 @@ namespace :vm do
     end
   end
 
+  def vagrant_handle_errors &block
+    begin
+      yield
+    rescue ::Hem::ExternalCommandError => error
+      if error.output.read =~ /mount\.nfs: access denied by server while mounting/
+        error.output.rewind
+        Hem.ui.warning 'NFS failed to mount, taking the VM down and bringing it back up'
+        invoke 'vm:stop'
+        Rake::Task['vm:start'].execute
+      else
+        error.output.rewind
+        raise error
+      end
+    end
+  end
+
   def vagrant_exec *args
     opts = { :realtime => true, :indent => 2 }
     color = Hem.ui.supports_color? ? '--color' : '--no-color'
@@ -75,7 +91,9 @@ namespace :vm do
           args.concat ['--provider', provider]
         end
 
-        vagrant_exec *args
+        vagrant_handle_errors do
+          vagrant_exec *args
+        end
         Hem.ui.separator
       end
     end
