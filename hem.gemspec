@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "json", "~> 1.8.1"
   spec.add_dependency "net-ssh-simple", "~> 1.6.3"
   spec.add_dependency "pry", "~> 0.10.3"
-  spec.add_dependency "rake", "~> 11.1.2"
+  spec.add_dependency "rake", ">= 11.1.2", "< 13.1.0"
   spec.add_dependency "ruby-progressbar", "~> 1.8.1"
   spec.add_dependency "slop", "~> 3.6.0"
   spec.add_dependency "teerb", "~> 0.0.1"
