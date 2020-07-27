@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "deepstruct", "~> 0.0.7"
   spec.add_dependency "highline", "~> 1.7.3"
   spec.add_dependency "jmespath", "~> 1.1.3"
-  spec.add_dependency "json", "~> 1.8.1"
+  spec.add_dependency "json", ">= 1.8.1", "< 2.4.0"
   spec.add_dependency "net-ssh-simple", "~> 1.6.3"
   spec.add_dependency "pry", "~> 0.10.3"
   spec.add_dependency "rake", "~> 11.1.2"
